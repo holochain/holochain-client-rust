@@ -12,7 +12,6 @@ anyhow = "1.0"
 holochain_conductor_api = {git = "https://github.com/holochain/holochain", rev = "753ea0873cd6e4c7b3ba30ead2d815d5f61b5373", package = "holochain_conductor_api"}
 holochain_websocket = {git = "https://github.com/holochain/holochain", rev = "753ea0873cd6e4c7b3ba30ead2d815d5f61b5373", package = "holochain_websocket"}
 holochain_types = {git = "https://github.com/holochain/holochain", rev = "753ea0873cd6e4c7b3ba30ead2d815d5f61b5373", package = "holochain_types"}
-tracing = { version = "0.1", features = ["attributes"] }
 url = "2.2"
 
 [patch.crates-io]
