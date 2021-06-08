@@ -1,0 +1,23 @@
+[package]
+name = "holochain_conductor_api_rust"
+version = "0.1.0"
+authors = ["Guillem Cordoba <guillem.cordoba@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+again = "0.1"
+anyhow = "1.0"
+holochain_conductor_api = {git = "https://github.com/holochain/holochain", rev = "753ea0873cd6e4c7b3ba30ead2d815d5f61b5373", package = "holochain_conductor_api"}
+holochain_websocket = {git = "https://github.com/holochain/holochain", rev = "753ea0873cd6e4c7b3ba30ead2d815d5f61b5373", package = "holochain_websocket"}
+holochain_types = {git = "https://github.com/holochain/holochain", rev = "753ea0873cd6e4c7b3ba30ead2d815d5f61b5373", package = "holochain_types"}
+tracing = { version = "0.1", features = ["attributes"] }
+url = "2.2"
+
+[patch.crates-io]
+rkv = { git = "https://github.com/holochain/rkv.git", branch = "master" }
+lmdb-rkv = { git = "https://github.com/holochain/lmdb-rs.git" }
+holochain_zome_types = {git = "https://github.com/holochain/holochain", rev = "753ea0873cd6e4c7b3ba30ead2d815d5f61b5373", package = "holochain_zome_types"}
+holo_hash = {git = "https://github.com/holochain/holochain", rev = "753ea0873cd6e4c7b3ba30ead2d815d5f61b5373", package = "holo_hash"}
+hdk_derive = {git = "https://github.com/holochain/holochain", rev = "753ea0873cd6e4c7b3ba30ead2d815d5f61b5373", package = "hdk_derive"}
