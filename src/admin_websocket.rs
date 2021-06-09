@@ -37,6 +37,15 @@ impl AdminWebsocket {
         }
     }
 
+    pub async fn list_app_interfaces(&mut self) -> ConductorApiResult<Vec<u16>> {
+        let msg = AdminRequest::ListAppInterfaces;
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::AppInterfacesListed(ports) => Ok(ports),
+            _ => unreachable!(format!("Unexpected response {:?}", response)),
+        }
+    }
+
     pub async fn attach_app_interface(&mut self, port: u16) -> ConductorApiResult<u16> {
         let msg = AdminRequest::AttachAppInterface { port: Some(port) };
         let response = self.send(msg).await?;
