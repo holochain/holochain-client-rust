@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::{Context, Result};
-use holochain_conductor_api::{AdminRequest, AdminResponse, InstalledAppInfo};
+use holochain_conductor_api::{AdminRequest, AdminResponse, AppStatusFilter, InstalledAppInfo};
 use holochain_types::{
     app::{InstallAppBundlePayload, InstalledAppId},
     dna::AgentPubKey,
@@ -63,6 +63,17 @@ impl AdminWebsocket {
         }
     }
 
+    pub async fn list_apps(
+        &mut self,
+        status_filter: Option<AppStatusFilter>,
+    ) -> ConductorApiResult<Vec<InstalledAppInfo>> {
+        let response = self.send(AdminRequest::ListApps { status_filter }).await?;
+        match response {
+            AdminResponse::AppsListed(apps_infos) => Ok(apps_infos),
+            _ => unreachable!(format!("Unexpected response {:?}", response)),
+        }
+    }
+
     pub async fn install_app_bundle(
         &mut self,
         payload: InstallAppBundlePayload,
@@ -76,12 +87,15 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn activate_app(&mut self, installed_app_id: String) -> ConductorApiResult<()> {
+    pub async fn activate_app(
+        &mut self,
+        installed_app_id: String,
+    ) -> ConductorApiResult<InstalledAppInfo> {
         let msg = AdminRequest::ActivateApp { installed_app_id };
         let response = self.send(msg).await?;
 
         match response {
-            AdminResponse::AppActivated => Ok(()),
+            AdminResponse::AppActivated(info) => Ok(info),
             _ => unreachable!(format!("Unexpected response {:?}", response)),
         }
     }
