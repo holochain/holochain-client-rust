@@ -1,3 +1,3 @@
-# Conductor Api - Rust
+# Conductor Client - Rust
 
 Types and bindings to connect easily to a running Holochain conductor, from Rust.
