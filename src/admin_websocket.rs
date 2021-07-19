@@ -2,11 +2,9 @@ use std::sync::Arc;
 
 use anyhow::{Context, Result};
 use holochain_conductor_api::{AdminRequest, AdminResponse, AppStatusFilter, InstalledAppInfo};
-use holochain_types::{
-    app::{InstallAppBundlePayload, InstalledAppId},
-    dna::AgentPubKey,
-};
+use holochain_types::{app::InstallAppBundlePayload, dna::AgentPubKey, prelude::CellId};
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 use crate::error::{ConductorApiError, ConductorApiResult};
@@ -14,6 +12,12 @@ use crate::error::{ConductorApiError, ConductorApiResult};
 #[derive(Clone)]
 pub struct AdminWebsocket {
     tx: WebsocketSender,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct EnableAppResponse {
+    pub app: InstalledAppInfo,
+    pub errors: Vec<(CellId, String)>,
 }
 
 impl AdminWebsocket {
@@ -55,14 +59,6 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn list_active_apps(&mut self) -> ConductorApiResult<Vec<InstalledAppId>> {
-        let response = self.send(AdminRequest::ListActiveApps).await?;
-        match response {
-            AdminResponse::ActiveAppsListed(app_ids) => Ok(app_ids),
-            _ => unreachable!(format!("Unexpected response {:?}", response)),
-        }
-    }
-
     pub async fn list_apps(
         &mut self,
         status_filter: Option<AppStatusFilter>,
@@ -87,25 +83,25 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn activate_app(
+    pub async fn enable_app(
         &mut self,
         installed_app_id: String,
-    ) -> ConductorApiResult<InstalledAppInfo> {
-        let msg = AdminRequest::ActivateApp { installed_app_id };
+    ) -> ConductorApiResult<EnableAppResponse> {
+        let msg = AdminRequest::EnableApp { installed_app_id };
         let response = self.send(msg).await?;
 
         match response {
-            AdminResponse::AppActivated(info) => Ok(info),
+            AdminResponse::AppEnabled { app, errors } => Ok(EnableAppResponse { app, errors }),
             _ => unreachable!(format!("Unexpected response {:?}", response)),
         }
     }
 
-    pub async fn deactivate_app(&mut self, installed_app_id: String) -> ConductorApiResult<()> {
-        let msg = AdminRequest::DeactivateApp { installed_app_id };
+    pub async fn disable_app(&mut self, installed_app_id: String) -> ConductorApiResult<()> {
+        let msg = AdminRequest::DisableApp { installed_app_id };
         let response = self.send(msg).await?;
 
         match response {
-            AdminResponse::AppDeactivated => Ok(()),
+            AdminResponse::AppDisabled => Ok(()),
             _ => unreachable!(format!("Unexpected response {:?}", response)),
         }
     }
