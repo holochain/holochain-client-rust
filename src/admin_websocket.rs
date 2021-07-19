@@ -106,6 +106,16 @@ impl AdminWebsocket {
         }
     }
 
+    pub async fn start_app(&mut self, installed_app_id: String) -> ConductorApiResult<bool> {
+        let msg = AdminRequest::StartApp { installed_app_id };
+        let response = self.send(msg).await?;
+
+        match response {
+            AdminResponse::AppStarted(started) => Ok(started),
+            _ => unreachable!(format!("Unexpected response {:?}", response)),
+        }
+    }
+
     async fn send(&mut self, msg: AdminRequest) -> ConductorApiResult<AdminResponse> {
         let response: AdminResponse = self
             .tx
