@@ -83,6 +83,16 @@ impl AdminWebsocket {
         }
     }
 
+    pub async fn uninstall_app(&mut self, installed_app_id: String) -> ConductorApiResult<()> {
+        let msg = AdminRequest::UninstallApp { installed_app_id };
+        let response = self.send(msg).await?;
+
+        match response {
+            AdminResponse::AppUninstalled => Ok(()),
+            _ => unreachable!(format!("Unexpected response {:?}", response)),
+        }
+    }
+
     pub async fn enable_app(
         &mut self,
         installed_app_id: String,
