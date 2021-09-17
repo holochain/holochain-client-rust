@@ -9,8 +9,8 @@ version = "0.0.1"
 [dependencies]
 again = "0.1"
 anyhow = "1.0"
-holochain_conductor_api = {git = "https://github.com/holochain/holochain", rev = "940a920ed44f09f47daf28d7cc997610bbc04d66"}
-holochain_types = {git = "https://github.com/holochain/holochain", rev = "940a920ed44f09f47daf28d7cc997610bbc04d66"}
-holochain_websocket = {git = "https://github.com/holochain/holochain", rev = "940a920ed44f09f47daf28d7cc997610bbc04d66"}
+holochain_conductor_api = {git = "https://github.com/holochain/holochain", rev = "fa6f19ef2f7586cd0afa6a0103d9a937729eeb9e"}
+holochain_types = {git = "https://github.com/holochain/holochain", rev = "fa6f19ef2f7586cd0afa6a0103d9a937729eeb9e"}
+holochain_websocket = {git = "https://github.com/holochain/holochain", rev = "fa6f19ef2f7586cd0afa6a0103d9a937729eeb9e"}
 serde = "1"
 url = "2.2"
