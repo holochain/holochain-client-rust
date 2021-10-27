@@ -14,3 +14,7 @@ holochain_types = "0.0.12"
 holochain_websocket = "0.0.12"
 serde = "1"
 url = "2.2"
+
+[dev-dependencies]
+holochain = {version = "0.0.112", features = ["test_utils"]}
+tokio = {version = "1.3", features = ["full"]}
