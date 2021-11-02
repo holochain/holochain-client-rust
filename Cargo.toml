@@ -9,12 +9,12 @@ version = "0.0.1"
 [dependencies]
 again = "0.1"
 anyhow = "1.0"
-holochain_conductor_api = "0.0.12"
-holochain_types = "0.0.12"
-holochain_websocket = "0.0.12"
+holochain_conductor_api = "0.0.13"
+holochain_types = "0.0.13"
+holochain_websocket = "0.0.13"
 serde = "1"
 url = "2.2"
 
 [dev-dependencies]
-holochain = {version = "0.0.112", features = ["test_utils"]}
+holochain = {version = "0.0.113", features = ["test_utils"]}
 tokio = {version = "1.3", features = ["full"]}
