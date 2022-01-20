@@ -7,7 +7,7 @@ edition = "2018"
 license = "License: CAL 1.0 https://github.com/holochain/cryptographic-autonomy-license"
 homepage = "https://github.com/holochain/holochain-client-rust"
 repository = "https://github.com/holochain/holochain-client-rust"
-readme = "https://github.com/holochain/holochain-client-rust#readme"
+readme = "README.md"
 keywords = [ "holochain", "client", "conductor-api" ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
