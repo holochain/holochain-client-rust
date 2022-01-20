@@ -1,8 +1,14 @@
 [package]
+name = "holochain_client_rust"
+version = "0.0.1"
+description = "A Rust client for the Holochain Conductor API"
 authors = ["Guillem Cordoba <guillem.cordoba@gmail.com>"]
 edition = "2018"
-name = "holochain_conductor_client"
-version = "0.0.1"
+license = "License: CAL 1.0 https://github.com/holochain/cryptographic-autonomy-license"
+homepage = "https://github.com/holochain/holochain-client-rust"
+repository = "https://github.com/holochain/holochain-client-rust"
+readme = "https://github.com/holochain/holochain-client-rust#readme"
+keywords = [ "holochain", "client", "conductor-api" ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
