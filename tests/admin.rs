@@ -1,5 +1,5 @@
 use holochain::sweettest::SweetConductor;
-use holochain_conductor_client::AdminWebsocket;
+use holochain_client_rust::AdminWebsocket;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn app_interfaces() {
