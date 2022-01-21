@@ -1,20 +1,31 @@
 [package]
+name = "holochain_client"
+version = "0.0.1"
+description = "A Rust client for the Holochain Conductor API"
 authors = ["Guillem Cordoba <guillem.cordoba@gmail.com>"]
 edition = "2018"
-name = "holochain_conductor_client"
-version = "0.0.1"
+license = "License: CAL 1.0 https://github.com/holochain/cryptographic-autonomy-license"
+homepage = "https://github.com/holochain/holochain-client-rust"
+repository = "https://github.com/holochain/holochain-client-rust"
+readme = "README.md"
+keywords = [ "holochain", "client", "conductor-api" ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 again = "0.1"
 anyhow = "1.0"
-holochain_conductor_api = "0.0.19"
-holochain_types = "0.0.19"
-holochain_websocket = "0.0.19"
+holochain_conductor_api = "0.0.22"
+holochain_types = "0.0.22"
+holochain_websocket = "0.0.22"
 serde = "1"
 url = "2.2"
 
+[patch.crates-io]
+holochain_wasmer_host = { git = "https://github.com/holochain/holochain-wasmer.git", branch = "debug/v0.0.73-wasmer-build-error" }
+holochain_wasmer_guest = { git = "https://github.com/holochain/holochain-wasmer.git", branch = "debug/v0.0.73-wasmer-build-error" }
+holochain_wasmer_common = { git = "https://github.com/holochain/holochain-wasmer.git", branch = "debug/v0.0.73-wasmer-build-error" }
+
 [dev-dependencies]
-holochain = {version = "0.0.119", features = ["test_utils"]}
+holochain = {version = "0.0.122", features = ["test_utils"]}
 tokio = {version = "1.3", features = ["full"]}
