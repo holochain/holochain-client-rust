@@ -33,7 +33,7 @@ impl AdminWebsocket {
         Ok(Self { tx, rx })
     }
 
-    pub async fn close(&mut self) -> () {
+    pub fn close(&mut self) -> () {
         match self.rx.take_handle() {
             Some(h) => h.close(),
             None => (),
