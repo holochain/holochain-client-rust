@@ -3,15 +3,15 @@ use std::sync::Arc;
 use anyhow::{Context, Result};
 use holochain_conductor_api::{AdminRequest, AdminResponse, AppStatusFilter, InstalledAppInfo};
 use holochain_types::{app::InstallAppBundlePayload, dna::AgentPubKey, prelude::CellId};
-use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
+use holochain_websocket::{connect, WebsocketConfig, WebsocketReceiver, WebsocketSender};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
 use crate::error::{ConductorApiError, ConductorApiResult};
 
-#[derive(Clone)]
 pub struct AdminWebsocket {
     tx: WebsocketSender,
+    rx: WebsocketReceiver,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -24,12 +24,20 @@ impl AdminWebsocket {
     pub async fn connect(admin_url: String) -> Result<Self> {
         let url = Url::parse(&admin_url).context("invalid ws:// URL")?;
         let websocket_config = Arc::new(WebsocketConfig::default());
-        let (tx, _rx) = again::retry(|| {
+        let (tx, rx) = again::retry(|| {
             let websocket_config = Arc::clone(&websocket_config);
             connect(url.clone().into(), websocket_config)
         })
         .await?;
-        Ok(Self { tx })
+
+        Ok(Self { tx, rx })
+    }
+
+    pub async fn close(&mut self) -> () {
+        match self.rx.take_handle() {
+            Some(h) => h.close(),
+            None => (),
+        }
     }
 
     pub async fn generate_agent_pub_key(&mut self) -> ConductorApiResult<AgentPubKey> {
