@@ -45,7 +45,7 @@ impl AdminWebsocket {
         let response = self.send(AdminRequest::GenerateAgentPubKey).await?;
         match response {
             AdminResponse::AgentPubKeyGenerated(key) => Ok(key),
-            _ => unreachable!(format!("Unexpected response {:?}", response)),
+            _ => unreachable!("Unexpected response {:?}", response),
         }
     }
 
@@ -54,7 +54,7 @@ impl AdminWebsocket {
         let response = self.send(msg).await?;
         match response {
             AdminResponse::AppInterfacesListed(ports) => Ok(ports),
-            _ => unreachable!(format!("Unexpected response {:?}", response)),
+            _ => unreachable!("Unexpected response {:?}", response),
         }
     }
 
@@ -63,7 +63,7 @@ impl AdminWebsocket {
         let response = self.send(msg).await?;
         match response {
             AdminResponse::AppInterfaceAttached { port } => Ok(port),
-            _ => unreachable!(format!("Unexpected response {:?}", response)),
+            _ => unreachable!("Unexpected response {:?}", response),
         }
     }
 
@@ -74,7 +74,7 @@ impl AdminWebsocket {
         let response = self.send(AdminRequest::ListApps { status_filter }).await?;
         match response {
             AdminResponse::AppsListed(apps_infos) => Ok(apps_infos),
-            _ => unreachable!(format!("Unexpected response {:?}", response)),
+            _ => unreachable!("Unexpected response {:?}", response),
         }
     }
 
@@ -87,7 +87,7 @@ impl AdminWebsocket {
 
         match response {
             AdminResponse::AppBundleInstalled(app_info) => Ok(app_info),
-            _ => unreachable!(format!("Unexpected response {:?}", response)),
+            _ => unreachable!("Unexpected response {:?}", response),
         }
     }
 
@@ -97,7 +97,7 @@ impl AdminWebsocket {
 
         match response {
             AdminResponse::AppUninstalled => Ok(()),
-            _ => unreachable!(format!("Unexpected response {:?}", response)),
+            _ => unreachable!("Unexpected response {:?}", response),
         }
     }
 
@@ -110,7 +110,7 @@ impl AdminWebsocket {
 
         match response {
             AdminResponse::AppEnabled { app, errors } => Ok(EnableAppResponse { app, errors }),
-            _ => unreachable!(format!("Unexpected response {:?}", response)),
+            _ => unreachable!("Unexpected response {:?}", response),
         }
     }
 
@@ -120,7 +120,7 @@ impl AdminWebsocket {
 
         match response {
             AdminResponse::AppDisabled => Ok(()),
-            _ => unreachable!(format!("Unexpected response {:?}", response)),
+            _ => unreachable!("Unexpected response {:?}", response),
         }
     }
 
@@ -130,7 +130,7 @@ impl AdminWebsocket {
 
         match response {
             AdminResponse::AppStarted(started) => Ok(started),
-            _ => unreachable!(format!("Unexpected response {:?}", response)),
+            _ => unreachable!("Unexpected response {:?}", response),
         }
     }
 

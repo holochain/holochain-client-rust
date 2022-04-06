@@ -35,17 +35,17 @@ impl AppWebsocket {
         let response = self.send(msg).await?;
         match response {
             AppResponse::AppInfo(app_info) => Ok(app_info),
-            _ => unreachable!(format!("Unexpected response {:?}", response)),
+            _ => unreachable!("Unexpected response {:?}", response),
         }
     }
 
-    pub async fn zome_call(&mut self, msg: ZomeCall) -> ConductorApiResult<ExternIO> {
+    pub async fn call_zome(&mut self, msg: ZomeCall) -> ConductorApiResult<ExternIO> {
         let app_request = AppRequest::ZomeCall(Box::new(msg));
         let response = self.send(app_request).await?;
 
         match response {
             AppResponse::ZomeCall(result) => Ok(*result),
-            _ => unreachable!(format!("Unexpected response {:?}", response)),
+            _ => unreachable!("Unexpected response {:?}", response),
         }
     }
 
