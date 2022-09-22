@@ -30,13 +30,26 @@ jobs:
         with:
           name: holochain-ci
 
-      - uses: actions/cache@v2
+      - name: Cache fixture
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-fixture
+        with:
+          path: |
+            ~./fixture
+          key: ${{ matrix.os }}-build-${{ env.cache-name }}-${{ hashFiles('fixture/test.happ') }}
+          # restore-keys: ${{ matrix.os }}-build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
+
+      - name: Cache client build
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-client
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ matrix.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build
         run: nix-shell --pure --run "cargo build"
