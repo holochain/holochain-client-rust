@@ -31,6 +31,6 @@ jobs:
       - name: Build
         run: cargo build
       - name: Build fixture
-        run: build-fixture.sh
+        run: ./build-fixture.sh
       - name: Run tests
         run: cargo test
