@@ -38,9 +38,9 @@ jobs:
             target
           key: ${{ matrix.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      # - name: Build
-      #   run: cargo build
+      - name: Build
+        run: nix-shell --pure --run "cargo build"
       - name: Build fixture
         run: nix-shell --pure --run "./build-fixture.sh"
       - name: Run tests
-        run: cargo test
+        run: nix-shell --pure --run "cargo test"

@@ -2,6 +2,12 @@ let
   holonixPath = (import ./nix/sources.nix).holonix;
   holonix = import (holonixPath) {
     holochainVersionId = "v0_0_162";
+    include = {
+      niv = false;
+      scaffolding = false;
+      happs = false;
+      git = false;
+    };
   };
   nixpkgs = holonix.pkgs;
 in
