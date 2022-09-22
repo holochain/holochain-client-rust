@@ -51,7 +51,7 @@ jobs:
             target
           key: ${{ matrix.os }}-cargo-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Build
+      - name: Build client
         run: nix-shell --pure --run "cargo build"
       - name: Build fixture
         run: nix-shell --pure --run "./build-fixture.sh"
