@@ -37,8 +37,7 @@ jobs:
         with:
           path: |
             fixture
-          key: ${{ matrix.os }}-build-${{ env.cache-name }}-${{ hashFiles('fixture/test.happ') }}
-          # restore-keys: ${{ matrix.os }}-build-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
+          key: ${{ matrix.os }}-build-${{ env.cache-name }}-${{ hashFiles('fixture/zomes/foo/Cargo.lock') }}
 
       - name: Cache client build
         uses: actions/cache@v3
@@ -49,7 +48,7 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
-          key: ${{ matrix.os }}-cargo-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ matrix.os }}-cargo-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
 
       - name: Build client
         run: nix-shell --pure --run "cargo build"
