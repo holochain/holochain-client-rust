@@ -4,7 +4,7 @@ use anyhow::{Context, Result};
 use holochain_conductor_api::{AppRequest, AppResponse, InstalledAppInfo, ZomeCall};
 use holochain_types::{
     app::InstalledAppId,
-    prelude::{CreateCloneCellPayload, ExternIO, InstalledCell},
+    prelude::{ArchiveCloneCellPayload, CreateCloneCellPayload, ExternIO, InstalledCell},
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
 use url::Url;
@@ -60,6 +60,18 @@ impl AppWebsocket {
         let response = self.send(app_request).await?;
         match response {
             AppResponse::CloneCellCreated(clone_cell) => Ok(clone_cell),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn archive_clone_cell(
+        &mut self,
+        msg: ArchiveCloneCellPayload,
+    ) -> ConductorApiResult<()> {
+        let app_request = AppRequest::ArchiveCloneCell(Box::new(msg));
+        let response = self.send(app_request).await?;
+        match response {
+            AppResponse::CloneCellArchived => Ok(()),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
