@@ -1,2 +1,5 @@
+.vscode
 .cargo
 target
+*.dna
+*.happ

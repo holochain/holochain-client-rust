@@ -9,6 +9,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 ### Fixed
 
+## 2022-10-03: v0.2.0
+
+Compatible with Holochain >= v0.0.165
+
+### Added
+- Added calls for clone cell management:
+    - App API: create clone cell
+    - App API: archive clone cell
+    - Admin API: restore clone cell
+    - Admin API: delete archived clone cells
+- Added test fixture and tests for clone cells calls
+
+### Changed
+- Upgrade to Holochain v0.0.165
+
 ## 2022-08-18: v0.1.1
 
 ### Changed
