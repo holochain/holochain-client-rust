@@ -5,7 +5,8 @@ use holochain_client::{AdminWebsocket, AppWebsocket, InstallAppBundlePayload};
 use holochain_conductor_api::ZomeCall;
 use holochain_types::prelude::{
     AppBundleSource, AppRoleId, ArchiveCloneCellPayload, CloneCellId, CloneId,
-    CreateCloneCellPayload, DnaModifiersOpt, ExternIO, InstalledAppId, RestoreCloneCellPayload,
+    CreateCloneCellPayload, DeleteArchivedCloneCellsPayload, DnaModifiersOpt, ExternIO,
+    InstalledAppId, RestoreCloneCellPayload,
 };
 
 #[tokio::test(flavor = "multi_thread")]
@@ -66,7 +67,7 @@ async fn clone_cell_management() {
     assert_eq!(response.decode::<String>().unwrap(), "foo");
 
     // archive clone cell
-    let _ = app_ws
+    app_ws
         .archive_clone_cell(ArchiveCloneCellPayload {
             app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(
@@ -76,7 +77,7 @@ async fn clone_cell_management() {
         .await
         .unwrap();
 
-    // call clone cell should fail
+    // call archived clone cell should fail
     let response = app_ws
         .call_zome(ZomeCall {
             cell_id: clone_cell.as_id().clone(),
@@ -114,4 +115,35 @@ async fn clone_cell_management() {
         .await
         .unwrap();
     assert_eq!(response.decode::<String>().unwrap(), "foo");
+
+    // archive clone cell again
+    app_ws
+        .archive_clone_cell(ArchiveCloneCellPayload {
+            app_id: app_id.clone(),
+            clone_cell_id: CloneCellId::CloneId(
+                CloneId::try_from(clone_cell.as_role_id().clone()).unwrap(),
+            ),
+        })
+        .await
+        .unwrap();
+
+    // delete archived clone cell
+    admin_ws
+        .delete_archived_clone_cells(DeleteArchivedCloneCellsPayload {
+            app_id: app_id.clone(),
+            role_id: role_id.clone(),
+        })
+        .await
+        .unwrap();
+
+    // restore deleted clone cells should fail
+    let restore_clone_cell_response = admin_ws
+        .restore_clone_cell(RestoreCloneCellPayload {
+            app_id: app_id.clone(),
+            clone_cell_id: CloneCellId::CloneId(
+                CloneId::try_from(clone_cell.as_role_id().clone()).unwrap(),
+            ),
+        })
+        .await;
+    assert!(restore_clone_cell_response.is_err());
 }

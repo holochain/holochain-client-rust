@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use anyhow::{Context, Result};
 use holochain_conductor_api::{AdminRequest, AdminResponse, AppStatusFilter, InstalledAppInfo};
-use holochain_types::{app::InstallAppBundlePayload, dna::AgentPubKey, prelude::{CellId, RestoreCloneCellPayload, InstalledCell}};
+use holochain_types::{app::InstallAppBundlePayload, dna::AgentPubKey, prelude::{CellId, RestoreCloneCellPayload, InstalledCell, DeleteArchivedCloneCellsPayload}};
 use holochain_websocket::{connect, WebsocketConfig, WebsocketReceiver, WebsocketSender};
 use serde::{Deserialize, Serialize};
 use url::Url;
@@ -138,10 +138,22 @@ impl AdminWebsocket {
         &mut self,
         msg: RestoreCloneCellPayload,
     ) -> ConductorApiResult<InstalledCell> {
-        let app_request = AdminRequest::RestoreCloneCell(Box::new(msg));
-        let response = self.send(app_request).await?;
+        let msg = AdminRequest::RestoreCloneCell(Box::new(msg));
+        let response = self.send(msg).await?;
         match response {
             AdminResponse::CloneCellRestored(restored_cell) => Ok(restored_cell),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn delete_archived_clone_cells(
+        &mut self,
+        msg: DeleteArchivedCloneCellsPayload,
+    ) -> ConductorApiResult<()> {
+        let msg = AdminRequest::DeleteArchivedCloneCells(Box::new(msg));
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::ArchivedCloneCellsDeleted => Ok(()),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
