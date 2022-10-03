@@ -5,7 +5,7 @@ use holochain_client::{AdminWebsocket, AppWebsocket, InstallAppBundlePayload};
 use holochain_conductor_api::ZomeCall;
 use holochain_types::prelude::{
     AppBundleSource, AppRoleId, ArchiveCloneCellPayload, CloneCellId, CloneId,
-    CreateCloneCellPayload, DnaModifiersOpt, ExternIO, InstalledAppId,
+    CreateCloneCellPayload, DnaModifiersOpt, ExternIO, InstalledAppId, RestoreCloneCellPayload,
 };
 
 #[tokio::test(flavor = "multi_thread")]
@@ -63,14 +63,14 @@ async fn clone_cell_management() {
         })
         .await
         .unwrap();
-    assert_eq!("foo", response.decode::<String>().unwrap());
+    assert_eq!(response.decode::<String>().unwrap(), "foo");
 
     // archive clone cell
     let _ = app_ws
         .archive_clone_cell(ArchiveCloneCellPayload {
             app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(
-                CloneId::try_from(clone_cell.clone().into_role_id()).unwrap(),
+                CloneId::try_from(clone_cell.as_role_id().clone()).unwrap(),
             ),
         })
         .await
@@ -88,4 +88,30 @@ async fn clone_cell_management() {
         })
         .await;
     assert!(response.is_err());
+
+    // restore clone cell
+    let restored_cell = admin_ws
+        .restore_clone_cell(RestoreCloneCellPayload {
+            app_id: app_id.clone(),
+            clone_cell_id: CloneCellId::CloneId(
+                CloneId::try_from(clone_cell.as_role_id().clone()).unwrap(),
+            ),
+        })
+        .await
+        .unwrap();
+    assert_eq!(restored_cell, clone_cell);
+
+    // call restored clone cell should succeed
+    let response = app_ws
+        .call_zome(ZomeCall {
+            cell_id: clone_cell.as_id().clone(),
+            zome_name: "foo".into(),
+            fn_name: "foo".into(),
+            payload: ExternIO::encode(()).unwrap(),
+            cap_secret: None,
+            provenance: agent_key.clone(),
+        })
+        .await
+        .unwrap();
+    assert_eq!(response.decode::<String>().unwrap(), "foo");
 }

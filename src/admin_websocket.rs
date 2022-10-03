@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use anyhow::{Context, Result};
 use holochain_conductor_api::{AdminRequest, AdminResponse, AppStatusFilter, InstalledAppInfo};
-use holochain_types::{app::InstallAppBundlePayload, dna::AgentPubKey, prelude::CellId};
+use holochain_types::{app::InstallAppBundlePayload, dna::AgentPubKey, prelude::{CellId, RestoreCloneCellPayload, InstalledCell}};
 use holochain_websocket::{connect, WebsocketConfig, WebsocketReceiver, WebsocketSender};
 use serde::{Deserialize, Serialize};
 use url::Url;
@@ -130,6 +130,18 @@ impl AdminWebsocket {
 
         match response {
             AdminResponse::AppStarted(started) => Ok(started),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn restore_clone_cell(
+        &mut self,
+        msg: RestoreCloneCellPayload,
+    ) -> ConductorApiResult<InstalledCell> {
+        let app_request = AdminRequest::RestoreCloneCell(Box::new(msg));
+        let response = self.send(app_request).await?;
+        match response {
+            AdminResponse::CloneCellRestored(restored_cell) => Ok(restored_cell),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
