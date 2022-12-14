@@ -4,10 +4,11 @@ use holochain::sweettest::SweetConductor;
 use holochain_client::{AdminWebsocket, AppWebsocket, InstallAppBundlePayload};
 use holochain_conductor_api::ZomeCall;
 use holochain_types::prelude::{
-    AppBundleSource, AppRoleId, ArchiveCloneCellPayload, CloneCellId, CloneId,
-    CreateCloneCellPayload, DeleteArchivedCloneCellsPayload, DnaModifiersOpt, ExternIO,
-    InstalledAppId, RestoreCloneCellPayload,
+    AppBundleSource, ArchiveCloneCellPayload, CloneCellId, CloneId, CreateCloneCellPayload,
+    DeleteArchivedCloneCellsPayload, DnaModifiersOpt, ExternIO, InstalledAppId,
+    RestoreCloneCellPayload,
 };
+use holochain_zome_types::RoleName;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn clone_cell_management() {
@@ -17,7 +18,7 @@ async fn clone_cell_management() {
         .await
         .unwrap();
     let app_id: InstalledAppId = "test-app".into();
-    let role_id: AppRoleId = "foo".into();
+    let role_name: RoleName = "foo".into();
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
     admin_ws
         .install_app_bundle(InstallAppBundlePayload {
@@ -39,7 +40,7 @@ async fn clone_cell_management() {
     let clone_cell = app_ws
         .create_clone_cell(CreateCloneCellPayload {
             app_id: app_id.clone(),
-            role_id: role_id.clone(),
+            role_name: role_name.clone(),
             modifiers: DnaModifiersOpt::none().with_network_seed("seed".into()),
             membrane_proof: None,
             name: None,
@@ -48,8 +49,8 @@ async fn clone_cell_management() {
         .unwrap();
     assert_eq!(*clone_cell.as_id().agent_pubkey(), agent_key);
     assert_eq!(
-        *clone_cell.as_role_id(),
-        CloneId::new(&role_id, 0).to_string()
+        *clone_cell.as_role_name(),
+        CloneId::new(&role_name, 0).to_string()
     );
 
     // call clone cell should succeed
@@ -71,7 +72,7 @@ async fn clone_cell_management() {
         .archive_clone_cell(ArchiveCloneCellPayload {
             app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(
-                CloneId::try_from(clone_cell.as_role_id().clone()).unwrap(),
+                CloneId::try_from(clone_cell.as_role_name().clone()).unwrap(),
             ),
         })
         .await
@@ -95,7 +96,7 @@ async fn clone_cell_management() {
         .restore_clone_cell(RestoreCloneCellPayload {
             app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(
-                CloneId::try_from(clone_cell.as_role_id().clone()).unwrap(),
+                CloneId::try_from(clone_cell.as_role_name().clone()).unwrap(),
             ),
         })
         .await
@@ -121,7 +122,7 @@ async fn clone_cell_management() {
         .archive_clone_cell(ArchiveCloneCellPayload {
             app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(
-                CloneId::try_from(clone_cell.as_role_id().clone()).unwrap(),
+                CloneId::try_from(clone_cell.as_role_name().clone()).unwrap(),
             ),
         })
         .await
@@ -131,7 +132,7 @@ async fn clone_cell_management() {
     admin_ws
         .delete_archived_clone_cells(DeleteArchivedCloneCellsPayload {
             app_id: app_id.clone(),
-            role_id: role_id.clone(),
+            role_name: role_name.clone(),
         })
         .await
         .unwrap();
@@ -141,7 +142,7 @@ async fn clone_cell_management() {
         .restore_clone_cell(RestoreCloneCellPayload {
             app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(
-                CloneId::try_from(clone_cell.as_role_id().clone()).unwrap(),
+                CloneId::try_from(clone_cell.as_role_name().clone()).unwrap(),
             ),
         })
         .await;
