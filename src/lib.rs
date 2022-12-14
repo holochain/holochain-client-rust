@@ -10,6 +10,6 @@ pub use holochain_conductor_api::{
     ZomeCall,
 };
 pub use holochain_types::{
-    app::{InstallAppBundlePayload, InstalledAppId},
+    app::{InstallAppPayload, InstalledAppId},
     dna::AgentPubKey,
 };

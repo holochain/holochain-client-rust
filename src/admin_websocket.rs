@@ -2,8 +2,12 @@ use std::sync::Arc;
 
 use anyhow::{Context, Result};
 use holochain_conductor_api::{AdminRequest, AdminResponse, AppStatusFilter, InstalledAppInfo};
-use holochain_types::{app::InstallAppBundlePayload, dna::AgentPubKey, prelude::{CellId, RestoreCloneCellPayload, InstalledCell, DeleteArchivedCloneCellsPayload}};
+use holochain_types::{
+    dna::AgentPubKey,
+    prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload},
+};
 use holochain_websocket::{connect, WebsocketConfig, WebsocketReceiver, WebsocketSender};
+use holochain_zome_types::GrantZomeCallCapabilityPayload;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -78,15 +82,15 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn install_app_bundle(
+    pub async fn install_app(
         &mut self,
-        payload: InstallAppBundlePayload,
+        payload: InstallAppPayload,
     ) -> ConductorApiResult<InstalledAppInfo> {
-        let msg = AdminRequest::InstallAppBundle(Box::new(payload));
+        let msg = AdminRequest::InstallApp(Box::new(payload));
         let response = self.send(msg).await?;
 
         match response {
-            AdminResponse::AppBundleInstalled(app_info) => Ok(app_info),
+            AdminResponse::AppInstalled(app_info) => Ok(app_info),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
@@ -134,26 +138,27 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn restore_clone_cell(
+    pub async fn grant_zome_call_capability(
         &mut self,
-        msg: RestoreCloneCellPayload,
-    ) -> ConductorApiResult<InstalledCell> {
-        let msg = AdminRequest::RestoreCloneCell(Box::new(msg));
+        payload: GrantZomeCallCapabilityPayload,
+    ) -> ConductorApiResult<()> {
+        let msg = AdminRequest::GrantZomeCallCapability(Box::new(payload));
         let response = self.send(msg).await?;
+
         match response {
-            AdminResponse::CloneCellRestored(restored_cell) => Ok(restored_cell),
+            AdminResponse::ZomeCallCapabilityGranted => Ok(()),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
 
-    pub async fn delete_archived_clone_cells(
+    pub async fn delete_clone_cell(
         &mut self,
-        msg: DeleteArchivedCloneCellsPayload,
+        payload: DeleteCloneCellPayload,
     ) -> ConductorApiResult<()> {
-        let msg = AdminRequest::DeleteArchivedCloneCells(Box::new(msg));
+        let msg = AdminRequest::DeleteCloneCell(Box::new(payload));
         let response = self.send(msg).await?;
         match response {
-            AdminResponse::ArchivedCloneCellsDeleted => Ok(()),
+            AdminResponse::CloneCellDeleted => Ok(()),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
