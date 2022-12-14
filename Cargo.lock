@@ -1857,7 +1857,7 @@ dependencies = [
  "holochain_util",
  "holochain_wasm_test_utils",
  "holochain_wasmer_host",
- "holochain_websocket 0.0.39 (git+https://github.com/holochain/holochain?rev=c6bb672d624a884c57ffe588607ffc06aa2f7c74)",
+ "holochain_websocket",
  "holochain_zome_types 0.0.58 (git+https://github.com/holochain/holochain?rev=c6bb672d624a884c57ffe588607ffc06aa2f7c74)",
  "hostname",
  "human-panic",
@@ -1951,7 +1951,7 @@ dependencies = [
  "holochain_conductor_api",
  "holochain_serialized_bytes",
  "holochain_types",
- "holochain_websocket 0.0.39 (registry+https://github.com/rust-lang/crates.io-index)",
+ "holochain_websocket",
  "holochain_zome_types 0.0.58 (git+https://github.com/holochain/holochain?rev=c6bb672d624a884c57ffe588607ffc06aa2f7c74)",
  "rand 0.7.3",
  "serde",
@@ -2320,31 +2320,6 @@ dependencies = [
  "serde",
  "tracing",
  "wasmer",
-]
-
-[[package]]
-name = "holochain_websocket"
-version = "0.0.39"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d7fe88f7a36e9d0352eb54f9156629c0a6da4c0ae4f05e4f183ce613ec3f282"
-dependencies = [
- "futures",
- "ghost_actor 0.4.0-alpha.5",
- "holochain_serialized_bytes",
- "must_future",
- "nanoid 0.3.0",
- "net2",
- "serde",
- "serde_bytes",
- "stream-cancel",
- "thiserror",
- "tokio",
- "tokio-stream",
- "tokio-tungstenite",
- "tracing",
- "tracing-futures",
- "tungstenite",
- "url2",
 ]
 
 [[package]]
