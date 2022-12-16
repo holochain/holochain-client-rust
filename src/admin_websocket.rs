@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::{Context, Result};
-use holochain_conductor_api::{AdminRequest, AdminResponse, AppStatusFilter, InstalledAppInfo};
+use holochain_conductor_api::{AdminRequest, AdminResponse, AppInfo, AppStatusFilter};
 use holochain_types::{
     dna::AgentPubKey,
     prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload},
@@ -20,7 +20,7 @@ pub struct AdminWebsocket {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EnableAppResponse {
-    pub app: InstalledAppInfo,
+    pub app: AppInfo,
     pub errors: Vec<(CellId, String)>,
 }
 
@@ -74,7 +74,7 @@ impl AdminWebsocket {
     pub async fn list_apps(
         &mut self,
         status_filter: Option<AppStatusFilter>,
-    ) -> ConductorApiResult<Vec<InstalledAppInfo>> {
+    ) -> ConductorApiResult<Vec<AppInfo>> {
         let response = self.send(AdminRequest::ListApps { status_filter }).await?;
         match response {
             AdminResponse::AppsListed(apps_infos) => Ok(apps_infos),
@@ -82,10 +82,7 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn install_app(
-        &mut self,
-        payload: InstallAppPayload,
-    ) -> ConductorApiResult<InstalledAppInfo> {
+    pub async fn install_app(&mut self, payload: InstallAppPayload) -> ConductorApiResult<AppInfo> {
         let msg = AdminRequest::InstallApp(Box::new(payload));
         let response = self.send(msg).await?;
 

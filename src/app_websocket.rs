@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use anyhow::{Context, Result};
-use holochain_conductor_api::{AppRequest, AppResponse, InstalledAppInfo, ZomeCall};
+use holochain_conductor_api::{AppInfo, AppRequest, AppResponse, ZomeCall};
 use holochain_types::{
     app::InstalledAppId,
     prelude::{
@@ -34,13 +34,13 @@ impl AppWebsocket {
     pub async fn app_info(
         &mut self,
         app_id: InstalledAppId,
-    ) -> ConductorApiResult<Option<InstalledAppInfo>> {
-        let msg = AppRequest::GetAppInfo {
+    ) -> ConductorApiResult<Option<AppInfo>> {
+        let msg = AppRequest::AppInfo {
             installed_app_id: app_id,
         };
         let response = self.send(msg).await?;
         match response {
-            AppResponse::AppInfoReturned(app_info) => Ok(app_info),
+            AppResponse::AppInfo(app_info) => Ok(app_info),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }

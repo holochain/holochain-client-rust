@@ -10,6 +10,7 @@ use holochain::{
     sweettest::SweetConductor,
 };
 use holochain_client::{AdminWebsocket, AppWebsocket, InstallAppPayload, InstalledAppId, ZomeCall};
+use holochain_conductor_api::CellInfo;
 use holochain_zome_types::{
     CapAccess, CapSecret, ExternIO, GrantZomeCallCapabilityPayload, Nonce256Bits, Signature,
     Timestamp, ZomeCallCapGrant, ZomeCallUnsigned,
@@ -45,7 +46,7 @@ async fn signed_zome_call() {
 
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
 
-    let installed_app = admin_ws
+    admin_ws
         .install_app(InstallAppPayload {
             agent_key: agent_key.clone(),
             installed_app_id: Some(app_id.clone()),
@@ -62,7 +63,14 @@ async fn signed_zome_call() {
     let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_ws_port))
         .await
         .unwrap();
-    let cell_id = installed_app.cell_data[0].as_id();
+
+    let installed_app = app_ws.app_info(app_id).await.unwrap().unwrap();
+
+    let cells = installed_app.cell_info.into_values().next().unwrap();
+    let cell_id = match cells[0].clone() {
+        CellInfo::Provisioned(c) => c.cell_id,
+        _ => panic!("Invalid cell type"),
+    };
 
     // ******** SIGNED ZOME CALL  ********
 
@@ -130,5 +138,8 @@ async fn signed_zome_call() {
         })
         .await
         .unwrap();
-    assert_eq!(ExternIO::decode::<String>(&response).unwrap(), TEST_FN_NAME.to_string());
+    assert_eq!(
+        ExternIO::decode::<String>(&response).unwrap(),
+        TEST_FN_NAME.to_string()
+    );
 }
