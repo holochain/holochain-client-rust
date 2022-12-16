@@ -186,6 +186,7 @@ async fn clone_cell_management() {
         .unwrap();
     assert_eq!(enabled_cell, clone_cell);
 
+    let new_nonce = Nonce256Bits::from([0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1]);
     let unsigned_zome_call_payload = ZomeCallUnsigned {
         cap_secret: Some(cap_secret.clone()),
         cell_id: cell_id.clone(),
@@ -193,7 +194,7 @@ async fn clone_cell_management() {
         fn_name: TEST_FN_NAME.into(),
         provenance: signing_key.clone(),
         payload: ExternIO::encode(()).unwrap(),
-        nonce: Nonce256Bits::from([0; 32]),
+        nonce: new_nonce,
         expires_at: Timestamp(Timestamp::now().as_micros() + 100000),
     };
     let hashed_zome_call = unsigned_zome_call_payload.data_to_sign().unwrap();
@@ -209,7 +210,7 @@ async fn clone_cell_management() {
             fn_name: unsigned_zome_call_payload.fn_name,
             provenance: unsigned_zome_call_payload.provenance,
             payload: unsigned_zome_call_payload.payload,
-            nonce: unsigned_zome_call_payload.nonce,
+            nonce: new_nonce,
             expires_at: unsigned_zome_call_payload.expires_at,
             signature: Signature::from(signature.to_bytes()),
         })
@@ -236,7 +237,6 @@ async fn clone_cell_management() {
         })
         .await
         .unwrap();
-
     // restore deleted clone cells should fail
     let enable_clone_cell_response = app_ws
         .enable_clone_cell(EnableCloneCellPayload {
