@@ -95,7 +95,7 @@ async fn signed_zome_call() {
             cell_id: cell_id.clone(),
             cap_grant: ZomeCallCapGrant {
                 tag: "zome-call-signing-key".into(),
-                functions: functions.clone(),
+                functions: holochain_zome_types::GrantedFunctions::Listed(functions.clone()),
                 access: CapAccess::Assigned {
                     secret: cap_secret.clone(),
                     assignees: assignees.clone(),
