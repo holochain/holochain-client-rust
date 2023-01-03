@@ -186,7 +186,10 @@ async fn clone_cell_management() {
         .unwrap();
     assert_eq!(enabled_cell, clone_cell);
 
-    let new_nonce = Nonce256Bits::from([0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0,1]);
+    let new_nonce = Nonce256Bits::from([
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+        0, 1,
+    ]);
     let unsigned_zome_call_payload = ZomeCallUnsigned {
         cap_secret: Some(cap_secret.clone()),
         cell_id: cell_id.clone(),

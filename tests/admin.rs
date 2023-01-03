@@ -116,11 +116,6 @@ async fn signed_zome_call() {
         expires_at: Timestamp(Timestamp::now().as_micros() + 100000),
     };
     let hashed_zome_call = unsigned_zome_call_payload.data_to_sign().unwrap();
-    // let serialized_zome_call =
-    //     holochain_serialized_bytes::encode(&unsigned_zome_call_payload).unwrap();
-    // println!("serialized bytes {:?}", serialized_zome_call);
-
-    // let hashed_zome_call = holo_hash::encode::blake2b_256(&serialized_zome_call);
 
     let signature = keypair.sign(&hashed_zome_call);
 
