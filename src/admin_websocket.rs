@@ -1,13 +1,14 @@
 use std::sync::Arc;
 
 use anyhow::{Context, Result};
+use holo_hash::DnaHash;
 use holochain_conductor_api::{AdminRequest, AdminResponse, AppInfo, AppStatusFilter};
 use holochain_types::{
     dna::AgentPubKey,
     prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload},
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketReceiver, WebsocketSender};
-use holochain_zome_types::GrantZomeCallCapabilityPayload;
+use holochain_zome_types::{DnaDef, GrantZomeCallCapabilityPayload};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -131,6 +132,15 @@ impl AdminWebsocket {
 
         match response {
             AdminResponse::AppStarted(started) => Ok(started),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn get_dna_definition(&mut self, hash: DnaHash) -> ConductorApiResult<DnaDef> {
+        let msg = AdminRequest::GetDnaDefinition(Box::new(hash));
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::DnaDefinitionReturned(dna_definition) => Ok(dna_definition),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
