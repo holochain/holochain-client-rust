@@ -1895,6 +1895,7 @@ dependencies = [
  "serde",
  "tokio",
  "url 2.3.1",
+ "utilities",
 ]
 
 [[package]]
@@ -5806,6 +5807,18 @@ name = "utf-8"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09cc8ee72d2a9becf2f2febe0205bbed8fc6615b7cb429ad062dc7b7ddd036a9"
+
+[[package]]
+name = "utilities"
+version = "0.1.0"
+dependencies = [
+ "arbitrary",
+ "ed25519-dalek",
+ "holochain_client",
+ "holochain_state",
+ "holochain_zome_types",
+ "rand 0.7.3",
+]
 
 [[package]]
 name = "uuid"

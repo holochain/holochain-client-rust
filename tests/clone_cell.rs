@@ -1,29 +1,19 @@
-use std::{
-    collections::{BTreeSet, HashMap},
-    path::PathBuf,
-};
+use std::{collections::HashMap, path::PathBuf};
 
-use arbitrary::Arbitrary;
-use ed25519_dalek::Keypair;
 use holochain::{
     prelude::{DeleteCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload},
     sweettest::SweetConductor,
 };
-use holochain_client::{AdminWebsocket, AgentPubKey, AppWebsocket, InstallAppPayload};
-use holochain_conductor_api::{CellInfo, ZomeCall};
+use holochain_client::{AdminWebsocket, AppWebsocket, InstallAppPayload};
+use holochain_conductor_api::CellInfo;
 use holochain_types::prelude::{
-    AppBundleSource, CloneCellId, CloneId, CreateCloneCellPayload, DnaModifiersOpt, ExternIO,
-    InstalledAppId,
+    AppBundleSource, CloneCellId, CloneId, CreateCloneCellPayload, DnaModifiersOpt, InstalledAppId,
 };
-use holochain_zome_types::{
-    CapAccess, CapSecret, GrantZomeCallCapabilityPayload, Nonce256Bits, RoleName, Signature,
-    Timestamp, ZomeCallCapGrant, ZomeCallUnsigned,
-};
+use holochain_zome_types::RoleName;
+use utilities::{authorize_signing_credentials, sign_zome_call};
 
 #[tokio::test(flavor = "multi_thread")]
 async fn clone_cell_management() {
-    use ed25519_dalek::Signer;
-
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
     let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
@@ -53,38 +43,7 @@ async fn clone_cell_management() {
         _ => panic!("Invalid cell type"),
     };
 
-    // Grant capability to a new keypair
-    const TEST_ZOME_NAME: &str = "foo";
-    const TEST_FN_NAME: &str = "foo";
-
-    let mut rng = rand::thread_rng();
-    let keypair: Keypair = Keypair::generate(&mut rng);
-    let signing_key = AgentPubKey::from_raw_32(keypair.public.as_bytes().to_vec());
-
-    let mut buf = arbitrary::Unstructured::new(&[]);
-    let cap_secret = CapSecret::arbitrary(&mut buf).unwrap();
-
-    let mut functions = BTreeSet::new();
-    let granted_function = (TEST_ZOME_NAME.into(), TEST_FN_NAME.into());
-    functions.insert(granted_function.clone());
-
-    let mut assignees = BTreeSet::new();
-    assignees.insert(signing_key.clone());
-
-    let _ = admin_ws
-        .grant_zome_call_capability(GrantZomeCallCapabilityPayload {
-            cell_id: cell_id.clone(),
-            cap_grant: ZomeCallCapGrant {
-                tag: "zome-call-signing-key".into(),
-                functions: holochain_zome_types::GrantedFunctions::Listed(functions.clone()),
-                access: CapAccess::Assigned {
-                    secret: cap_secret.clone(),
-                    assignees: assignees.clone(),
-                },
-            },
-        })
-        .await
-        .unwrap();
+    let signing_credentials = authorize_signing_credentials(&mut admin_ws, &cell_id).await;
 
     // create clone cell
     let clone_cell = app_ws
@@ -103,34 +62,12 @@ async fn clone_cell_management() {
         CloneId::new(&role_name, 0).to_string()
     );
 
-    let unsigned_zome_call_payload = ZomeCallUnsigned {
-        cap_secret: Some(cap_secret.clone()),
-        cell_id: cell_id.clone(),
-        zome_name: TEST_ZOME_NAME.into(),
-        fn_name: TEST_FN_NAME.into(),
-        provenance: signing_key.clone(),
-        payload: ExternIO::encode(()).unwrap(),
-        nonce: Nonce256Bits::from([0; 32]),
-        expires_at: Timestamp(Timestamp::now().as_micros() + 100000),
-    };
-    let hashed_zome_call = unsigned_zome_call_payload.data_to_sign().unwrap();
-
-    let signature = keypair.sign(&hashed_zome_call);
+    const TEST_ZOME_NAME: &str = "foo";
+    const TEST_FN_NAME: &str = "foo";
+    let signed_zome_call =
+        sign_zome_call(&cell_id, TEST_ZOME_NAME, TEST_FN_NAME, &signing_credentials).await;
     // call clone cell should succeed
-    let response = app_ws
-        .call_zome(ZomeCall {
-            cap_secret: unsigned_zome_call_payload.cap_secret,
-            cell_id: unsigned_zome_call_payload.cell_id,
-            zome_name: unsigned_zome_call_payload.zome_name,
-            fn_name: unsigned_zome_call_payload.fn_name,
-            provenance: unsigned_zome_call_payload.provenance,
-            payload: unsigned_zome_call_payload.payload,
-            nonce: unsigned_zome_call_payload.nonce,
-            expires_at: unsigned_zome_call_payload.expires_at,
-            signature: Signature::from(signature.to_bytes()),
-        })
-        .await
-        .unwrap();
+    let response = app_ws.call_zome(signed_zome_call).await.unwrap();
     assert_eq!(response.decode::<String>().unwrap(), "foo");
 
     // disable clone cell
@@ -144,34 +81,11 @@ async fn clone_cell_management() {
         .await
         .unwrap();
 
-    let unsigned_zome_call_payload = ZomeCallUnsigned {
-        cap_secret: Some(cap_secret.clone()),
-        cell_id: cell_id.clone(),
-        zome_name: TEST_ZOME_NAME.into(),
-        fn_name: TEST_FN_NAME.into(),
-        provenance: signing_key.clone(),
-        payload: ExternIO::encode(()).unwrap(),
-        nonce: Nonce256Bits::from([0; 32]),
-        expires_at: Timestamp(Timestamp::now().as_micros() + 100000),
-    };
-    let hashed_zome_call = unsigned_zome_call_payload.data_to_sign().unwrap();
-
-    let signature = keypair.sign(&hashed_zome_call);
+    let signed_zome_call =
+        sign_zome_call(&cell_id, TEST_ZOME_NAME, TEST_FN_NAME, &signing_credentials).await;
 
     // call disabled clone cell should fail
-    let response = app_ws
-        .call_zome(ZomeCall {
-            cap_secret: unsigned_zome_call_payload.cap_secret,
-            cell_id: unsigned_zome_call_payload.cell_id,
-            zome_name: unsigned_zome_call_payload.zome_name,
-            fn_name: unsigned_zome_call_payload.fn_name,
-            provenance: unsigned_zome_call_payload.provenance,
-            payload: unsigned_zome_call_payload.payload,
-            nonce: unsigned_zome_call_payload.nonce,
-            expires_at: unsigned_zome_call_payload.expires_at,
-            signature: Signature::from(signature.to_bytes()),
-        })
-        .await;
+    let response = app_ws.call_zome(signed_zome_call).await;
     assert!(response.is_err());
 
     // enable clone cell
@@ -186,39 +100,11 @@ async fn clone_cell_management() {
         .unwrap();
     assert_eq!(enabled_cell, clone_cell);
 
-    let new_nonce = Nonce256Bits::from([
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-        0, 1,
-    ]);
-    let unsigned_zome_call_payload = ZomeCallUnsigned {
-        cap_secret: Some(cap_secret.clone()),
-        cell_id: cell_id.clone(),
-        zome_name: TEST_ZOME_NAME.into(),
-        fn_name: TEST_FN_NAME.into(),
-        provenance: signing_key.clone(),
-        payload: ExternIO::encode(()).unwrap(),
-        nonce: new_nonce,
-        expires_at: Timestamp(Timestamp::now().as_micros() + 100000),
-    };
-    let hashed_zome_call = unsigned_zome_call_payload.data_to_sign().unwrap();
-
-    let signature = keypair.sign(&hashed_zome_call);
+    let signed_zome_call =
+        sign_zome_call(&cell_id, TEST_ZOME_NAME, TEST_FN_NAME, &signing_credentials).await;
 
     // call enabled clone cell should succeed
-    let response = app_ws
-        .call_zome(ZomeCall {
-            cap_secret: unsigned_zome_call_payload.cap_secret,
-            cell_id: unsigned_zome_call_payload.cell_id,
-            zome_name: unsigned_zome_call_payload.zome_name,
-            fn_name: unsigned_zome_call_payload.fn_name,
-            provenance: unsigned_zome_call_payload.provenance,
-            payload: unsigned_zome_call_payload.payload,
-            nonce: new_nonce,
-            expires_at: unsigned_zome_call_payload.expires_at,
-            signature: Signature::from(signature.to_bytes()),
-        })
-        .await
-        .unwrap();
+    let response = app_ws.call_zome(signed_zome_call).await.unwrap();
     assert_eq!(response.decode::<String>().unwrap(), "foo");
 
     // disable clone cell again
