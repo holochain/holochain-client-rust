@@ -5,7 +5,6 @@ use holochain::{
     sweettest::SweetConductor,
 };
 use holochain_client::{AdminWebsocket, AppWebsocket, InstallAppPayload};
-use holochain_conductor_api::CellInfo;
 use holochain_types::prelude::{
     AppBundleSource, CloneCellId, CloneId, CreateCloneCellPayload, DnaModifiersOpt, InstalledAppId,
 };
@@ -37,30 +36,27 @@ async fn clone_cell_management() {
     let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_api_port))
         .await
         .unwrap();
-    let app_info = app_ws.app_info(app_id.clone()).await.unwrap().unwrap();
-    let cell_id = match app_info.cell_info.into_values().next().unwrap()[0].clone() {
-        CellInfo::Provisioned(c) => c.cell_id,
-        _ => panic!("Invalid cell type"),
+    let clone_cell = {
+        let clone_cell = app_ws
+            .create_clone_cell(CreateCloneCellPayload {
+                app_id: app_id.clone(),
+                role_name: role_name.clone(),
+                modifiers: DnaModifiersOpt::none().with_network_seed("seed".into()),
+                membrane_proof: None,
+                name: None,
+            })
+            .await
+            .unwrap();
+        assert_eq!(*clone_cell.as_id().agent_pubkey(), agent_key);
+        assert_eq!(
+            *clone_cell.as_role_name(),
+            CloneId::new(&role_name, 0).to_string()
+        );
+        clone_cell
     };
+    let cell_id = clone_cell.as_id().clone();
 
     let signing_credentials = authorize_signing_credentials(&mut admin_ws, &cell_id).await;
-
-    // create clone cell
-    let clone_cell = app_ws
-        .create_clone_cell(CreateCloneCellPayload {
-            app_id: app_id.clone(),
-            role_name: role_name.clone(),
-            modifiers: DnaModifiersOpt::none().with_network_seed("seed".into()),
-            membrane_proof: None,
-            name: None,
-        })
-        .await
-        .unwrap();
-    assert_eq!(*clone_cell.as_id().agent_pubkey(), agent_key);
-    assert_eq!(
-        *clone_cell.as_role_name(),
-        CloneId::new(&role_name, 0).to_string()
-    );
 
     const TEST_ZOME_NAME: &str = "foo";
     const TEST_FN_NAME: &str = "foo";
