@@ -1,0 +1,13 @@
+[package]
+authors = ["Holochain Foundation"]
+edition = "2021"
+name = "utilities"
+version = "0.1.0"
+
+[dependencies]
+arbitrary = "1.2"
+ed25519-dalek = "1"
+holochain_client = {path = "../"}
+holochain_state = "0.1.0-beta-rc.1"
+holochain_zome_types = "0.1.0-beta-rc.1"
+rand = "0.7"

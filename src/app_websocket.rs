@@ -1,10 +1,13 @@
 use std::sync::Arc;
 
 use anyhow::{Context, Result};
-use holochain_conductor_api::{AppRequest, AppResponse, InstalledAppInfo, ZomeCall};
+use holochain_conductor_api::{AppInfo, AppRequest, AppResponse, ZomeCall};
 use holochain_types::{
     app::InstalledAppId,
-    prelude::{ArchiveCloneCellPayload, CreateCloneCellPayload, ExternIO, InstalledCell},
+    prelude::{
+        CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload, ExternIO,
+        InstalledCell,
+    },
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
 use url::Url;
@@ -31,7 +34,7 @@ impl AppWebsocket {
     pub async fn app_info(
         &mut self,
         app_id: InstalledAppId,
-    ) -> ConductorApiResult<Option<InstalledAppInfo>> {
+    ) -> ConductorApiResult<Option<AppInfo>> {
         let msg = AppRequest::AppInfo {
             installed_app_id: app_id,
         };
@@ -43,11 +46,11 @@ impl AppWebsocket {
     }
 
     pub async fn call_zome(&mut self, msg: ZomeCall) -> ConductorApiResult<ExternIO> {
-        let app_request = AppRequest::ZomeCall(Box::new(msg));
+        let app_request = AppRequest::CallZome(Box::new(msg));
         let response = self.send(app_request).await?;
 
         match response {
-            AppResponse::ZomeCall(result) => Ok(*result),
+            AppResponse::ZomeCalled(result) => Ok(*result),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
@@ -64,14 +67,26 @@ impl AppWebsocket {
         }
     }
 
-    pub async fn archive_clone_cell(
+    pub async fn enable_clone_cell(
         &mut self,
-        msg: ArchiveCloneCellPayload,
+        payload: EnableCloneCellPayload,
+    ) -> ConductorApiResult<InstalledCell> {
+        let msg = AppRequest::EnableCloneCell(Box::new(payload));
+        let response = self.send(msg).await?;
+        match response {
+            AppResponse::CloneCellEnabled(enabled_cell) => Ok(enabled_cell),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn disable_clone_cell(
+        &mut self,
+        msg: DisableCloneCellPayload,
     ) -> ConductorApiResult<()> {
-        let app_request = AppRequest::ArchiveCloneCell(Box::new(msg));
+        let app_request = AppRequest::DisableCloneCell(Box::new(msg));
         let response = self.send(app_request).await?;
         match response {
-            AppResponse::CloneCellArchived => Ok(()),
+            AppResponse::CloneCellDisabled => Ok(()),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
