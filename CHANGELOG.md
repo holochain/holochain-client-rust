@@ -5,15 +5,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
-- Added calls for clone cell management:
-    - App API: create clone cell
-    - App API: archive clone cell
-    - Admin API: restore clone cell
-    - Admin API: delete archived clone cells
-- Added test fixture and tests for clone cells calls
-
+- Admin API call `get_dna_definition`
+- Utility crate for authorizing credentials and signing zome calls
 ### Removed
 ### Changed
+- **BREAKING CHANGE**: Upgrade to Holochain 0.1.0-beta-rc.3
+- **BREAKING CHANGE**: Require all zome calls to be signed.
+- **BREAKING CHANGE**: Rename `install_app_bundle` to `install_app`.
+- **BREAKING CHANGE**: Rename `archive_clone_cell` to `disable_clone_cell`.
+- **BREAKING CHANGE**: Rename `restore_archived_clone_cell` to `enable_clone_cell`.
+- **BREAKING CHANGE**: Move `enable_clone_cell` to App API.
+- **BREAKING CHANGE**: Refactor `delete_clone_cell` to delete a single disabled clone cell.
+- **BREAKING CHANGE**: Refactor `app_info` to return all cells and DNA modifiers.
+- **BREAKING CHANGE**: Rename `request_agent_info` to `agent_info`.
 ### Fixed
 
 ## 2022-10-03: v0.2.0
