@@ -5,9 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
+### Changed
+### Fixed
+### Removed
+
+## 2023-01-23: v0.3.0
+### Added
 - Admin API call `get_dna_definition`
 - Utility crate for authorizing credentials and signing zome calls
-### Removed
 ### Changed
 - **BREAKING CHANGE**: Upgrade to Holochain 0.1.0-beta-rc.3
 - **BREAKING CHANGE**: Require all zome calls to be signed.
@@ -18,7 +23,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **BREAKING CHANGE**: Refactor `delete_clone_cell` to delete a single disabled clone cell.
 - **BREAKING CHANGE**: Refactor `app_info` to return all cells and DNA modifiers.
 - **BREAKING CHANGE**: Rename `request_agent_info` to `agent_info`.
-### Fixed
 
 ## 2022-10-03: v0.2.0
 
