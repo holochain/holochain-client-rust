@@ -126,16 +126,6 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn start_app(&mut self, installed_app_id: String) -> ConductorApiResult<bool> {
-        let msg = AdminRequest::StartApp { installed_app_id };
-        let response = self.send(msg).await?;
-
-        match response {
-            AdminResponse::AppStarted(started) => Ok(started),
-            _ => unreachable!("Unexpected response {:?}", response),
-        }
-    }
-
     pub async fn get_dna_definition(&mut self, hash: DnaHash) -> ConductorApiResult<DnaDef> {
         let msg = AdminRequest::GetDnaDefinition(Box::new(hash));
         let response = self.send(msg).await?;
