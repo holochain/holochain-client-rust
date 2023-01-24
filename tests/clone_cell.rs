@@ -47,14 +47,11 @@ async fn clone_cell_management() {
             })
             .await
             .unwrap();
-        assert_eq!(*clone_cell.as_id().agent_pubkey(), agent_key);
-        assert_eq!(
-            *clone_cell.as_role_name(),
-            CloneId::new(&role_name, 0).to_string()
-        );
+        assert_eq!(*clone_cell.cell_id.agent_pubkey(), agent_key);
+        assert_eq!(clone_cell.clone_id, CloneId::new(&role_name, 0));
         clone_cell
     };
-    let cell_id = clone_cell.as_id().clone();
+    let cell_id = clone_cell.cell_id.clone();
 
     let signing_credentials = authorize_signing_credentials(&mut admin_ws, &cell_id).await;
 
@@ -70,9 +67,7 @@ async fn clone_cell_management() {
     app_ws
         .disable_clone_cell(DisableCloneCellPayload {
             app_id: app_id.clone(),
-            clone_cell_id: CloneCellId::CloneId(
-                CloneId::try_from(clone_cell.as_role_name().clone()).unwrap(),
-            ),
+            clone_cell_id: CloneCellId::CloneId(clone_cell.clone().clone_id),
         })
         .await
         .unwrap();
@@ -88,9 +83,7 @@ async fn clone_cell_management() {
     let enabled_cell = app_ws
         .enable_clone_cell(EnableCloneCellPayload {
             app_id: app_id.clone(),
-            clone_cell_id: CloneCellId::CloneId(
-                CloneId::try_from(clone_cell.as_role_name().clone()).unwrap(),
-            ),
+            clone_cell_id: CloneCellId::CloneId(clone_cell.clone().clone_id),
         })
         .await
         .unwrap();
@@ -107,9 +100,7 @@ async fn clone_cell_management() {
     app_ws
         .disable_clone_cell(DisableCloneCellPayload {
             app_id: app_id.clone(),
-            clone_cell_id: CloneCellId::CloneId(
-                CloneId::try_from(clone_cell.as_role_name().clone()).unwrap(),
-            ),
+            clone_cell_id: CloneCellId::CloneId(clone_cell.clone().clone_id),
         })
         .await
         .unwrap();
@@ -118,7 +109,7 @@ async fn clone_cell_management() {
     admin_ws
         .delete_clone_cell(DeleteCloneCellPayload {
             app_id: app_id.clone(),
-            clone_cell_id: CloneCellId::CellId(clone_cell.as_id().clone()),
+            clone_cell_id: CloneCellId::CellId(clone_cell.clone().cell_id),
         })
         .await
         .unwrap();
@@ -126,9 +117,7 @@ async fn clone_cell_management() {
     let enable_clone_cell_response = app_ws
         .enable_clone_cell(EnableCloneCellPayload {
             app_id: app_id.clone(),
-            clone_cell_id: CloneCellId::CloneId(
-                CloneId::try_from(clone_cell.as_role_name().clone()).unwrap(),
-            ),
+            clone_cell_id: CloneCellId::CloneId(clone_cell.clone_id),
         })
         .await;
     assert!(enable_clone_cell_response.is_err());
