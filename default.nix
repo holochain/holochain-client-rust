@@ -1,7 +1,13 @@
 let
-  holonixPath = (import ./nix/sources.nix).holonix; # points to the current state of the Holochain repository
+  holonixPath = (import ./nix/sources.nix).holonix;
   holonix = import (holonixPath) {
-    holochainVersionId = "v0_1_0-beta-rc_3"; # specifies the Holochain version
+    holochainVersionId = "v0_1_0-beta-rc_4";
+    include = {
+      node = false;
+      happs = false;
+      scaffolding = false;
+      launcher = false;
+    };
   };
   nixpkgs = holonix.pkgs;
 in nixpkgs.mkShell {

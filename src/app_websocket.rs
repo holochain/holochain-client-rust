@@ -1,13 +1,10 @@
 use std::sync::Arc;
 
 use anyhow::{Context, Result};
-use holochain_conductor_api::{AppInfo, AppRequest, AppResponse, ZomeCall};
+use holochain_conductor_api::{AppInfo, AppRequest, AppResponse, ClonedCell, ZomeCall};
 use holochain_types::{
     app::InstalledAppId,
-    prelude::{
-        CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload, ExternIO,
-        InstalledCell,
-    },
+    prelude::{CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload, ExternIO},
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
 use url::Url;
@@ -58,7 +55,7 @@ impl AppWebsocket {
     pub async fn create_clone_cell(
         &mut self,
         msg: CreateCloneCellPayload,
-    ) -> ConductorApiResult<InstalledCell> {
+    ) -> ConductorApiResult<ClonedCell> {
         let app_request = AppRequest::CreateCloneCell(Box::new(msg));
         let response = self.send(app_request).await?;
         match response {
@@ -70,7 +67,7 @@ impl AppWebsocket {
     pub async fn enable_clone_cell(
         &mut self,
         payload: EnableCloneCellPayload,
-    ) -> ConductorApiResult<InstalledCell> {
+    ) -> ConductorApiResult<ClonedCell> {
         let msg = AppRequest::EnableCloneCell(Box::new(payload));
         let response = self.send(msg).await?;
         match response {
