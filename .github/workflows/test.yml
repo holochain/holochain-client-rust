@@ -53,7 +53,7 @@ jobs:
           key: ${{ matrix.os }}-cargo-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
 
       - name: Build client & fixture and run tests
-        run: nix develop -c "cargo build" -c "./build-fixture.sh" -c "cargo test"
+        run: nix develop -c $SHELL -c "cargo build && ./build-fixture.sh && cargo test"
 
       - name: Setup tmate session if build and test run failed
         if: ${{ failure() }}
