@@ -54,3 +54,7 @@ jobs:
 
       - name: Build client & fixture and run tests
         run: nix develop -c "cargo build" -c "./build-fixture.sh" -c "cargo test"
+
+      - name: Setup tmate session if build and test run failed
+        if: ${{ failure() }}
+        uses: mxschmitt/action-tmate@v3
