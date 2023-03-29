@@ -20,18 +20,18 @@ members = ["fixture/zomes/foo", "utilities"]
 again = "0.1"
 anyhow = "1.0"
 ed25519-dalek = "1"
-holo_hash = { git="https://github.com/holochain/holochain", package = "holo_hash", rev = "96a166fce9362da635339bf14e42a8cf157bdc8f", features = ["encoding"] }
-holochain_conductor_api = { git="https://github.com/holochain/holochain", package = "holochain_conductor_api", rev = "96a166fce9362da635339bf14e42a8cf157bdc8f" }
+holo_hash = { git="https://github.com/holochain/holochain", package = "holo_hash", rev = "352bcebe41808b0a5c58cc6f1ed1e1c96149d010", features = ["encoding"] }
+holochain_conductor_api = { git="https://github.com/holochain/holochain", package = "holochain_conductor_api", rev = "352bcebe41808b0a5c58cc6f1ed1e1c96149d010" }
 holochain_serialized_bytes = "0.0.52"
-holochain_types = { git="https://github.com/holochain/holochain", package = "holochain_types", rev = "96a166fce9362da635339bf14e42a8cf157bdc8f" }
-holochain_websocket = { git="https://github.com/holochain/holochain", package = "holochain_websocket", rev = "96a166fce9362da635339bf14e42a8cf157bdc8f" }
-holochain_zome_types = { git="https://github.com/holochain/holochain", package = "holochain_zome_types", rev = "96a166fce9362da635339bf14e42a8cf157bdc8f" }
+holochain_types = { git="https://github.com/holochain/holochain", package = "holochain_types", rev = "352bcebe41808b0a5c58cc6f1ed1e1c96149d010" }
+holochain_websocket = { git="https://github.com/holochain/holochain", package = "holochain_websocket", rev = "352bcebe41808b0a5c58cc6f1ed1e1c96149d010" }
+holochain_zome_types = { git="https://github.com/holochain/holochain", package = "holochain_zome_types", rev = "352bcebe41808b0a5c58cc6f1ed1e1c96149d010" }
 serde = "1"
 url = "2.2"
 
 [dev-dependencies]
 arbitrary = "1.2"
-holochain = { git="https://github.com/holochain/holochain", rev = "96a166fce9362da635339bf14e42a8cf157bdc8f", features = ["test_utils"] }
+holochain = { git="https://github.com/holochain/holochain", rev = "352bcebe41808b0a5c58cc6f1ed1e1c96149d010", features = ["test_utils"] }
 rand = "0.7"
 tokio = {version = "1.3", features = ["full"]}
 utilities = {path = "utilities"}
