@@ -4,6 +4,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## \[Unreleased\]
 
+- Upgrade to Holochain 0.2 release candidates ahead of the holochain 0.2 release
+- Add `storage_info` to the admin websocket
+
 ### Added
 ### Changed
 ### Fixed
