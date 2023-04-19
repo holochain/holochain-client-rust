@@ -18,18 +18,18 @@ members = ["fixture/zomes/foo", "utilities"]
 again = "0.1"
 anyhow = "1.0"
 ed25519-dalek = "1"
-holo_hash = {version = "0.2.0-beta-rc.1", features = ["encoding"]}
-holochain_conductor_api = "0.2.0-beta-rc.1"
+holo_hash = {version = "0.2.0-beta-rc.3", features = ["encoding"]}
+holochain_conductor_api = "0.2.0-beta-rc.4"
 holochain_serialized_bytes = "0.0.52"
-holochain_types = "0.2.0-beta-rc.1"
+holochain_types = "0.2.0-beta-rc.4"
 holochain_websocket = "0.2.0-beta-rc.1" # Not getting published with each release?
-holochain_zome_types = "0.2.0-beta-rc.1"
+holochain_zome_types = "0.2.0-beta-rc.4"
 serde = "1"
 url = "2.2"
 
 [dev-dependencies]
 arbitrary = "1.2"
-holochain = {version = "0.2.0-beta-rc.1", features = ["test_utils"]}
+holochain = {version = "0.2.0-beta-rc.4", features = ["test_utils"]}
 rand = "0.7"
 tokio = {version = "1.3", features = ["full"]}
 utilities = {path = "utilities"}

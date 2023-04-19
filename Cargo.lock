@@ -2008,9 +2008,9 @@ dependencies = [
 
 [[package]]
 name = "holochain"
-version = "0.2.0-beta-rc.3"
+version = "0.2.0-beta-rc.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73f7fd49cb11b3471ee9c2310fa9d62fe1414bdfff4199f10b086b615b79009a"
+checksum = "ab31f5c1a0affabefcc4e74e5c8ac0788e0b2021bb852465866e72fa1f161fb7"
 dependencies = [
  "anyhow",
  "async-recursion",
@@ -2098,9 +2098,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_cascade"
-version = "0.2.0-beta-rc.3"
+version = "0.2.0-beta-rc.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f364a8251816d62d7d9d55f2097e3e080c4d768ddb7679c9126bac70d8bae121"
+checksum = "a07cac658be7f3cf0f4b3a8099a7e3991a9738d18a1d38aee8c7337274dd3dbd"
 dependencies = [
  "async-trait",
  "derive_more",
@@ -2153,9 +2153,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_conductor_api"
-version = "0.2.0-beta-rc.3"
+version = "0.2.0-beta-rc.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "033716114e23f4337f1810914e61cba4f78fbaa891f2e2aa77526ab8f6a30e13"
+checksum = "2c02579abed2d7c7302bd7b22395c3f10fbbce7af9a74327dc51a625fe43bccb"
 dependencies = [
  "derive_more",
  "directories",
@@ -2395,9 +2395,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_test_wasm_common"
-version = "0.2.0-beta-rc.3"
+version = "0.2.0-beta-rc.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e07bb0a42d607aaf84995c7d55c4f832de63e987eb7ce1b7216f9d6e9db4cc2f"
+checksum = "71861526e2bcf29908602fa33f54c1b06b8f37a94040b452e5860fa21fa0c4d2"
 dependencies = [
  "hdk",
  "serde",
@@ -2496,9 +2496,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_wasm_test_utils"
-version = "0.2.0-beta-rc.3"
+version = "0.2.0-beta-rc.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef0d6200f96cceb0ab6edec0aa5c76e399b7a70636ec291d308363c83e07265d"
+checksum = "99ca8d9093dbb34beb1138e897f797c1172f88068d756b59824bea91528c4568"
 dependencies = [
  "holochain_types",
  "holochain_util",
@@ -3011,9 +3011,9 @@ dependencies = [
 
 [[package]]
 name = "kitsune_p2p_bootstrap"
-version = "0.1.0-beta-rc.1"
+version = "0.1.0-beta-rc.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "834f35008f06a319e6f5e58bdbce46479986fae6d493f8428fa9a702cab4a37a"
+checksum = "57e8352b3af5ec13b5bde4089d040f54b3272fa7c62e5c5f6dd92a0ce330b934"
 dependencies = [
  "clap 3.2.23",
  "futures",
