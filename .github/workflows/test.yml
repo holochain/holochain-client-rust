@@ -33,6 +33,7 @@ jobs:
 
       - name: Cache fixture
         uses: actions/cache@v3
+        if: always()
         env:
           cache-name: fixture
         with:
@@ -43,6 +44,7 @@ jobs:
 
       - name: Cache client build
         uses: actions/cache@v3
+        if: always()
         env:
           cache-name: client
         with:
