@@ -1,10 +1,10 @@
+use holochain::test_utils::itertools::Itertools;
 use holochain::{prelude::AppBundleSource, sweettest::SweetConductor};
 use holochain_client::{AdminWebsocket, AppWebsocket, InstallAppPayload, InstalledAppId};
-use holochain_conductor_api::{CellInfo, DnaStorageInfo, StorageBlob};
+use holochain_conductor_api::{CellInfo, StorageBlob};
 use holochain_zome_types::ExternIO;
 use rand::Rng;
 use std::{collections::HashMap, path::PathBuf};
-use holochain::test_utils::itertools::Itertools;
 use utilities::{authorize_signing_credentials, sign_zome_call};
 
 #[tokio::test(flavor = "multi_thread")]
@@ -110,12 +110,14 @@ async fn storage_info() {
 
     let storage_info = admin_ws.storage_info().await.unwrap();
 
-    let matched_storage_info = storage_info.blobs.iter().filter(|b| match b {
-        StorageBlob::Dna(dna_storage_info) => {
-            dna_storage_info.used_by.contains(&app_id)
-        }
-        _ => false
-    }).collect_vec();
+    let matched_storage_info = storage_info
+        .blobs
+        .iter()
+        .filter(|b| match b {
+            StorageBlob::Dna(dna_storage_info) => dna_storage_info.used_by.contains(&app_id),
+            _ => false,
+        })
+        .collect_vec();
 
     assert_eq!(1, matched_storage_info.len());
 }
