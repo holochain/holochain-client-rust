@@ -169,6 +169,15 @@ impl AdminWebsocket {
         }
     }
 
+    pub async fn dump_network_stats(&mut self) -> ConductorApiResult<String> {
+        let msg = AdminRequest::DumpNetworkStats;
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::NetworkStatsDumped(stats) => Ok(stats),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
     async fn send(&mut self, msg: AdminRequest) -> ConductorApiResult<AdminResponse> {
         let response: AdminResponse = self
             .tx
