@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use anyhow::{Context, Result};
 use holo_hash::DnaHash;
-use holochain_conductor_api::{AdminRequest, AdminResponse, AppInfo, AppStatusFilter};
+use holochain_conductor_api::{AdminRequest, AdminResponse, AppInfo, AppStatusFilter, StorageInfo};
 use holochain_types::{
     dna::AgentPubKey,
     prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload},
@@ -156,6 +156,24 @@ impl AdminWebsocket {
         let response = self.send(msg).await?;
         match response {
             AdminResponse::CloneCellDeleted => Ok(()),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn storage_info(&mut self) -> ConductorApiResult<StorageInfo> {
+        let msg = AdminRequest::StorageInfo;
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::StorageInfo(info) => Ok(info),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn dump_network_stats(&mut self) -> ConductorApiResult<String> {
+        let msg = AdminRequest::DumpNetworkStats;
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::NetworkStatsDumped(stats) => Ok(stats),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
