@@ -5,12 +5,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
+### Changed
+### Fixed
+### Removed
+
+## 2023-04-21: v0.4.0
+### Added
 - Add `storage_info` to the admin websocket.
 - Add `network_info` to the app websocket.
 ### Changed
 - Upgrade to Holochain 0.2 release candidate ahead of the holochain 0.2 release.
-### Fixed
-### Removed
 
 ## 2023-02-15: v0.3.1
 ### Changed
