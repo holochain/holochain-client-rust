@@ -8,6 +8,6 @@ version = "0.1.0"
 arbitrary = "1.2"
 ed25519-dalek = "1"
 holochain_client = {path = "../"}
-holochain_state = { package = "holochain_state", version = "0.3.0-beta-dev.4" }
-holochain_zome_types = { package = "holochain_zome_types", version = "0.3.0-beta-dev.4" }
+holochain_state = { package = "holochain_state", version = "0.3.0-beta-dev.3" }
+holochain_zome_types = { package = "holochain_zome_types", version = "0.3.0-beta-dev.3" }
 rand = "0.7"

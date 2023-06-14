@@ -1572,7 +1572,8 @@ dependencies = [
 [[package]]
 name = "fixt"
 version = "0.2.0"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9ce0c5ad1ad54b1f4eecacf6b3982f482a8406460f8c5c0784e007c357f0924f"
 dependencies = [
  "holochain_serialized_bytes 0.0.51",
  "lazy_static",
@@ -2005,67 +2006,17 @@ dependencies = [
 
 [[package]]
 name = "hdi"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06292d997b21a2a57b47f2ac84fa67e6889b7cb9b34930748c2d98cf9547b04d"
-dependencies = [
- "hdk_derive 0.2.0",
- "holo_hash 0.2.0",
- "holochain_integrity_types 0.2.0",
- "holochain_wasmer_guest",
- "paste",
- "serde",
- "serde_bytes",
-]
-
-[[package]]
-name = "hdi"
-version = "0.4.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
-dependencies = [
- "hdk_derive 0.3.0-beta-dev.1",
- "holo_hash 0.3.0-beta-dev.1",
- "holochain_integrity_types 0.3.0-beta-dev.1",
- "holochain_wasmer_guest",
- "paste",
- "serde",
- "serde_bytes",
- "tracing",
- "tracing-core",
-]
-
-[[package]]
-name = "hdi"
 version = "0.4.0-beta-dev.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a53a820fe8580725af94a78b8131ec351292f5ae32b150d7c3d02fa4bf72e9a6"
 dependencies = [
- "hdk_derive 0.3.0-beta-dev.3",
- "holo_hash 0.3.0-beta-dev.3",
- "holochain_integrity_types 0.3.0-beta-dev.3",
+ "hdk_derive",
+ "holo_hash",
+ "holochain_integrity_types",
  "holochain_wasmer_guest",
  "paste",
  "serde",
  "serde_bytes",
- "tracing",
- "tracing-core",
-]
-
-[[package]]
-name = "hdk"
-version = "0.3.0-beta-dev.2"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
-dependencies = [
- "getrandom 0.2.9",
- "hdi 0.4.0-beta-dev.1",
- "hdk_derive 0.3.0-beta-dev.1",
- "holo_hash 0.3.0-beta-dev.1",
- "holochain_wasmer_guest",
- "holochain_zome_types 0.3.0-beta-dev.1",
- "paste",
- "serde",
- "serde_bytes",
- "thiserror",
  "tracing",
  "tracing-core",
 ]
@@ -2077,11 +2028,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f252b8ffa47cda4c6136ac4609694b16bfffd0af55e68cef78e59e525f5266ec"
 dependencies = [
  "getrandom 0.2.9",
- "hdi 0.4.0-beta-dev.3",
- "hdk_derive 0.3.0-beta-dev.3",
- "holo_hash 0.3.0-beta-dev.3",
+ "hdi",
+ "hdk_derive",
+ "holo_hash",
  "holochain_wasmer_guest",
- "holochain_zome_types 0.3.0-beta-dev.3",
+ "holochain_zome_types",
  "paste",
  "serde",
  "serde_bytes",
@@ -2092,44 +2043,13 @@ dependencies = [
 
 [[package]]
 name = "hdk_derive"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d65bf8cf99d28f7cd6798f2c58c0687e16627f3acac270a1ed79b1d098215cd9"
-dependencies = [
- "darling 0.14.4",
- "heck 0.4.1",
- "holochain_integrity_types 0.2.0",
- "paste",
- "proc-macro-error",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "hdk_derive"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
-dependencies = [
- "darling 0.14.4",
- "heck 0.4.1",
- "holochain_integrity_types 0.3.0-beta-dev.1",
- "paste",
- "proc-macro-error",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
-name = "hdk_derive"
 version = "0.3.0-beta-dev.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "15fd74f34f1c632e5bbc653d668890c26f3972d409b5a2c0b576155733c1427e"
 dependencies = [
  "darling 0.14.4",
  "heck 0.4.1",
- "holochain_integrity_types 0.3.0-beta-dev.3",
+ "holochain_integrity_types",
  "paste",
  "proc-macro-error",
  "proc-macro2",
@@ -2209,22 +2129,9 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "holo_hash"
-version = "0.2.0"
+version = "0.3.0-beta-dev.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6226119f4b5e8a11903f7609db1a11c7348409cb29c2f750633fab8b7c89feaf"
-dependencies = [
- "holochain_serialized_bytes 0.0.51",
- "holochain_wasmer_common",
- "kitsune_p2p_dht_arc 0.2.0",
- "serde",
- "serde_bytes",
- "thiserror",
-]
-
-[[package]]
-name = "holo_hash"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+checksum = "c021c6f9b5c2dd782bc7b73b8ba26c7be7b42bfaabac2474129d358fd32a6610"
 dependencies = [
  "arbitrary",
  "base64 0.13.1",
@@ -2234,7 +2141,7 @@ dependencies = [
  "futures",
  "holochain_serialized_bytes 0.0.51",
  "holochain_wasmer_common",
- "kitsune_p2p_dht_arc 0.3.0-beta-dev.0",
+ "kitsune_p2p_dht_arc",
  "must_future",
  "rand 0.8.5",
  "rusqlite",
@@ -2244,26 +2151,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "holo_hash"
-version = "0.3.0-beta-dev.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c021c6f9b5c2dd782bc7b73b8ba26c7be7b42bfaabac2474129d358fd32a6610"
-dependencies = [
- "base64 0.13.1",
- "blake2b_simd 0.5.11",
- "derive_more",
- "holochain_serialized_bytes 0.0.51",
- "holochain_wasmer_common",
- "kitsune_p2p_dht_arc 0.3.0-beta-dev.2",
- "serde",
- "serde_bytes",
- "thiserror",
-]
-
-[[package]]
 name = "holochain"
-version = "0.3.0-beta-dev.2"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f752c0611859fa5f27d3cfa44190bfe0e3b2ce4230e4f32adddfaef22f15d08d"
 dependencies = [
  "anyhow",
  "arbitrary",
@@ -2283,8 +2174,8 @@ dependencies = [
  "get_if_addrs",
  "getrandom 0.2.9",
  "ghost_actor 0.3.0-alpha.5",
- "hdk 0.3.0-beta-dev.2",
- "holo_hash 0.3.0-beta-dev.1",
+ "hdk",
+ "holo_hash",
  "holochain_cascade",
  "holochain_conductor_api",
  "holochain_keystore",
@@ -2299,12 +2190,12 @@ dependencies = [
  "holochain_wasm_test_utils",
  "holochain_wasmer_host",
  "holochain_websocket",
- "holochain_zome_types 0.3.0-beta-dev.1",
+ "holochain_zome_types",
  "hostname",
  "human-panic",
  "itertools 0.10.5",
  "kitsune_p2p",
- "kitsune_p2p_block 0.3.0-beta-dev.1",
+ "kitsune_p2p_block",
  "kitsune_p2p_bootstrap",
  "kitsune_p2p_types",
  "lazy_static",
@@ -2353,8 +2244,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_cascade"
-version = "0.3.0-beta-dev.2"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22d8f8a6ae84a84de040c0e9c4369e532658ddddd0be1fb64bca6559c1a38a0f"
 dependencies = [
  "async-trait",
  "derive_more",
@@ -2363,16 +2255,16 @@ dependencies = [
  "fixt",
  "futures",
  "ghost_actor 0.3.0-alpha.5",
- "hdk 0.3.0-beta-dev.2",
- "hdk_derive 0.3.0-beta-dev.1",
- "holo_hash 0.3.0-beta-dev.1",
+ "hdk",
+ "hdk_derive",
+ "holo_hash",
  "holochain_p2p",
  "holochain_serialized_bytes 0.0.51",
  "holochain_sqlite",
  "holochain_state",
  "holochain_trace",
  "holochain_types",
- "holochain_zome_types 0.3.0-beta-dev.1",
+ "holochain_zome_types",
  "kitsune_p2p",
  "mockall",
  "serde",
@@ -2391,13 +2283,13 @@ dependencies = [
  "anyhow",
  "arbitrary",
  "ed25519-dalek",
- "holo_hash 0.3.0-beta-dev.1",
+ "holo_hash",
  "holochain",
  "holochain_conductor_api",
  "holochain_serialized_bytes 0.0.52",
  "holochain_types",
  "holochain_websocket",
- "holochain_zome_types 0.3.0-beta-dev.1",
+ "holochain_zome_types",
  "rand 0.7.3",
  "serde",
  "tokio",
@@ -2407,18 +2299,19 @@ dependencies = [
 
 [[package]]
 name = "holochain_conductor_api"
-version = "0.3.0-beta-dev.2"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aca43433be00536321c3c62e012610626d4aeb2805cecd2c6304b2e7840d239a"
 dependencies = [
  "derive_more",
  "directories",
- "holo_hash 0.3.0-beta-dev.1",
+ "holo_hash",
  "holochain_keystore",
  "holochain_p2p",
  "holochain_serialized_bytes 0.0.51",
  "holochain_state",
  "holochain_types",
- "holochain_zome_types 0.3.0-beta-dev.1",
+ "holochain_zome_types",
  "kitsune_p2p",
  "serde",
  "serde_derive",
@@ -2431,44 +2324,14 @@ dependencies = [
 
 [[package]]
 name = "holochain_integrity_types"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6422c6712a8b566a8e2c831665110758eda3e81d7ee752a73b815e356437e2d7"
-dependencies = [
- "holo_hash 0.2.0",
- "holochain_serialized_bytes 0.0.51",
- "kitsune_p2p_timestamp 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "paste",
- "serde",
- "serde_bytes",
- "subtle",
-]
-
-[[package]]
-name = "holochain_integrity_types"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
-dependencies = [
- "arbitrary",
- "holo_hash 0.3.0-beta-dev.1",
- "holochain_serialized_bytes 0.0.51",
- "kitsune_p2p_timestamp 0.2.0 (git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67)",
- "paste",
- "serde",
- "serde_bytes",
- "subtle",
- "tracing",
-]
-
-[[package]]
-name = "holochain_integrity_types"
 version = "0.3.0-beta-dev.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "30c200f8933f2a296bb3cb939873259acd5e9a43f724f80dab25a14eb5e59cbb"
 dependencies = [
- "holo_hash 0.3.0-beta-dev.3",
+ "arbitrary",
+ "holo_hash",
  "holochain_serialized_bytes 0.0.51",
- "kitsune_p2p_timestamp 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "kitsune_p2p_timestamp",
  "paste",
  "serde",
  "serde_bytes",
@@ -2478,14 +2341,15 @@ dependencies = [
 
 [[package]]
 name = "holochain_keystore"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "76161dc94130282f7bb07773b481960335ad640cc7e257ff08fb8697746f1158"
 dependencies = [
  "base64 0.13.1",
  "futures",
- "holo_hash 0.3.0-beta-dev.1",
+ "holo_hash",
  "holochain_serialized_bytes 0.0.51",
- "holochain_zome_types 0.3.0-beta-dev.1",
+ "holochain_zome_types",
  "kitsune_p2p_types",
  "lair_keystore",
  "must_future",
@@ -2502,21 +2366,22 @@ dependencies = [
 
 [[package]]
 name = "holochain_p2p"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dada6e437a065562fd67736340ee55479dd51a856fde77aaeea6138c0d5f6caa"
 dependencies = [
  "async-trait",
  "derive_more",
  "fixt",
  "futures",
  "ghost_actor 0.3.0-alpha.5",
- "holo_hash 0.3.0-beta-dev.1",
+ "holo_hash",
  "holochain_keystore",
  "holochain_serialized_bytes 0.0.51",
  "holochain_trace",
  "holochain_types",
  "holochain_util",
- "holochain_zome_types 0.3.0-beta-dev.1",
+ "holochain_zome_types",
  "kitsune_p2p",
  "kitsune_p2p_types",
  "mockall",
@@ -2582,8 +2447,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_sqlite"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "50bdee42937d0c63bb94de072f1f19b6bfa6725508a5d887e8a23f214d6bbbd3"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2598,10 +2464,10 @@ dependencies = [
  "fixt",
  "futures",
  "getrandom 0.2.9",
- "holo_hash 0.3.0-beta-dev.1",
+ "holo_hash",
  "holochain_serialized_bytes 0.0.51",
  "holochain_util",
- "holochain_zome_types 0.3.0-beta-dev.1",
+ "holochain_zome_types",
  "kitsune_p2p",
  "lazy_static",
  "must_future",
@@ -2632,8 +2498,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_state"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fffba3e70eda47920fdb2c04e61aaf0c0af84816433bfe0581f90659052c9082"
 dependencies = [
  "async-recursion",
  "base64 0.13.1",
@@ -2647,14 +2514,14 @@ dependencies = [
  "fallible-iterator",
  "futures",
  "getrandom 0.2.9",
- "holo_hash 0.3.0-beta-dev.1",
+ "holo_hash",
  "holochain_keystore",
  "holochain_p2p",
  "holochain_serialized_bytes 0.0.51",
  "holochain_sqlite",
  "holochain_types",
  "holochain_util",
- "holochain_zome_types 0.3.0-beta-dev.1",
+ "holochain_zome_types",
  "kitsune_p2p",
  "mockall",
  "nanoid 0.3.0",
@@ -2673,17 +2540,19 @@ dependencies = [
 
 [[package]]
 name = "holochain_test_wasm_common"
-version = "0.3.0-beta-dev.2"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c434c13d5615245a260b484184b0b5a8a92e49b06f000c5294104a9188c1e94"
 dependencies = [
- "hdk 0.3.0-beta-dev.2",
+ "hdk",
  "serde",
 ]
 
 [[package]]
 name = "holochain_trace"
-version = "0.2.0"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "79123f87eed68619077d1730d58745bb365f1073de732211149fd88a879a98de"
 dependencies = [
  "chrono",
  "derive_more",
@@ -2699,8 +2568,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_types"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f95740a45a074b98bce68ff7ffc0a4c130957474f2e683d2419ae6386eb6061d"
 dependencies = [
  "anyhow",
  "arbitrary",
@@ -2717,17 +2587,17 @@ dependencies = [
  "fixt",
  "flate2",
  "futures",
- "holo_hash 0.3.0-beta-dev.1",
+ "holo_hash",
  "holochain_keystore",
  "holochain_serialized_bytes 0.0.51",
  "holochain_sqlite",
  "holochain_trace",
  "holochain_util",
  "holochain_wasmer_host",
- "holochain_zome_types 0.3.0-beta-dev.1",
+ "holochain_zome_types",
  "isotest",
  "itertools 0.10.5",
- "kitsune_p2p_dht 0.3.0-beta-dev.0",
+ "kitsune_p2p_dht",
  "lazy_static",
  "mockall",
  "mr_bundle",
@@ -2756,7 +2626,8 @@ dependencies = [
 [[package]]
 name = "holochain_util"
 version = "0.2.0"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6adb6c2f8470016da35dba7f1b6d45ce9d2650f102a8913f7dae906001ff78d8"
 dependencies = [
  "backtrace",
  "cfg-if 0.1.10",
@@ -2772,8 +2643,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_wasm_test_utils"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68b80b6568daedbb32cd63f6da47ddd87b8e3675683b75d7976415c710a79f6e"
 dependencies = [
  "holochain_types",
  "holochain_util",
@@ -2831,8 +2703,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_websocket"
-version = "0.2.0"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "38718104ebf8c53d071e011402df8e288ae176d6669bdd0a5f05991459efee6a"
 dependencies = [
  "futures",
  "ghost_actor 0.4.0-alpha.5",
@@ -2855,21 +2728,22 @@ dependencies = [
 
 [[package]]
 name = "holochain_zome_types"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "62aefcea53326bd56174dd53fd7128c46b6c9595f38c6f2479fb17078e7086e6"
 dependencies = [
  "arbitrary",
  "contrafact",
  "derive_builder",
  "fixt",
- "holo_hash 0.3.0-beta-dev.1",
- "holochain_integrity_types 0.3.0-beta-dev.1",
+ "holo_hash",
+ "holochain_integrity_types",
  "holochain_serialized_bytes 0.0.51",
  "holochain_wasmer_common",
- "kitsune_p2p_bin_data 0.3.0-beta-dev.1",
- "kitsune_p2p_block 0.3.0-beta-dev.1",
- "kitsune_p2p_dht 0.3.0-beta-dev.0",
- "kitsune_p2p_timestamp 0.2.0 (git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67)",
+ "kitsune_p2p_bin_data",
+ "kitsune_p2p_block",
+ "kitsune_p2p_dht",
+ "kitsune_p2p_timestamp",
  "nanoid 0.3.0",
  "num_enum",
  "once_cell",
@@ -2883,28 +2757,6 @@ dependencies = [
  "strum",
  "subtle",
  "subtle-encoding",
- "thiserror",
- "tracing",
-]
-
-[[package]]
-name = "holochain_zome_types"
-version = "0.3.0-beta-dev.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "62aefcea53326bd56174dd53fd7128c46b6c9595f38c6f2479fb17078e7086e6"
-dependencies = [
- "holo_hash 0.3.0-beta-dev.3",
- "holochain_integrity_types 0.3.0-beta-dev.3",
- "holochain_serialized_bytes 0.0.51",
- "holochain_wasmer_common",
- "kitsune_p2p_bin_data 0.3.0-beta-dev.3",
- "kitsune_p2p_block 0.3.0-beta-dev.3",
- "kitsune_p2p_dht 0.3.0-beta-dev.2",
- "kitsune_p2p_timestamp 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "paste",
- "serde",
- "serde_bytes",
- "subtle",
  "thiserror",
  "tracing",
 ]
@@ -3247,8 +3099,9 @@ dependencies = [
 
 [[package]]
 name = "kitsune_p2p"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "97e22e42790c7bea32c96462209927d77918c9632b583273a9fd6c2037c03da1"
 dependencies = [
  "arbitrary",
  "arrayref",
@@ -3263,11 +3116,11 @@ dependencies = [
  "governor",
  "holochain_trace",
  "itertools 0.10.5",
- "kitsune_p2p_block 0.3.0-beta-dev.1",
+ "kitsune_p2p_block",
  "kitsune_p2p_fetch",
  "kitsune_p2p_mdns",
  "kitsune_p2p_proxy",
- "kitsune_p2p_timestamp 0.2.0 (git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67)",
+ "kitsune_p2p_timestamp",
  "kitsune_p2p_transport_quic",
  "kitsune_p2p_types",
  "maplit",
@@ -3293,41 +3146,17 @@ dependencies = [
 
 [[package]]
 name = "kitsune_p2p_bin_data"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
-dependencies = [
- "arbitrary",
- "base64 0.13.1",
- "derive_more",
- "kitsune_p2p_dht_arc 0.3.0-beta-dev.0",
- "serde",
- "serde_bytes",
- "shrinkwraprs",
-]
-
-[[package]]
-name = "kitsune_p2p_bin_data"
 version = "0.3.0-beta-dev.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7e1289b6eebd2ab58c6cb2d42670a1680e15436c99e85f04bb36a3e1055becc8"
 dependencies = [
+ "arbitrary",
  "base64 0.13.1",
  "derive_more",
- "kitsune_p2p_dht_arc 0.3.0-beta-dev.2",
+ "kitsune_p2p_dht_arc",
  "serde",
  "serde_bytes",
  "shrinkwraprs",
-]
-
-[[package]]
-name = "kitsune_p2p_block"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
-dependencies = [
- "kitsune_p2p_bin_data 0.3.0-beta-dev.1",
- "kitsune_p2p_timestamp 0.2.0 (git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67)",
- "serde",
- "serde_bytes",
 ]
 
 [[package]]
@@ -3336,16 +3165,17 @@ version = "0.3.0-beta-dev.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c247d73215fd2ff6da544b63f4ab678c91100b4843d05a059889fa8c5f52e7b5"
 dependencies = [
- "kitsune_p2p_bin_data 0.3.0-beta-dev.3",
- "kitsune_p2p_timestamp 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "kitsune_p2p_bin_data",
+ "kitsune_p2p_timestamp",
  "serde",
  "serde_bytes",
 ]
 
 [[package]]
 name = "kitsune_p2p_bootstrap"
-version = "0.2.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.2.0-beta-dev.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1750a80579f7eb8b25546778eccaa72b62cbd4813c893323642f02983e9e05ae"
 dependencies = [
  "clap 3.2.25",
  "futures",
@@ -3363,29 +3193,6 @@ dependencies = [
 
 [[package]]
 name = "kitsune_p2p_dht"
-version = "0.3.0-beta-dev.0"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
-dependencies = [
- "colored",
- "derivative",
- "derive_more",
- "futures",
- "gcollections",
- "intervallum",
- "kitsune_p2p_dht_arc 0.3.0-beta-dev.0",
- "kitsune_p2p_timestamp 0.2.0 (git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67)",
- "must_future",
- "num-traits",
- "once_cell",
- "rand 0.8.5",
- "serde",
- "statrs",
- "thiserror",
- "tracing",
-]
-
-[[package]]
-name = "kitsune_p2p_dht"
 version = "0.3.0-beta-dev.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9577fd0115c7d457290958f2272599ef52a858676b1d428df9ed3424aab642ce"
@@ -3396,8 +3203,8 @@ dependencies = [
  "futures",
  "gcollections",
  "intervallum",
- "kitsune_p2p_dht_arc 0.3.0-beta-dev.2",
- "kitsune_p2p_timestamp 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "kitsune_p2p_dht_arc",
+ "kitsune_p2p_timestamp",
  "must_future",
  "num-traits",
  "once_cell",
@@ -3406,32 +3213,6 @@ dependencies = [
  "statrs",
  "thiserror",
  "tracing",
-]
-
-[[package]]
-name = "kitsune_p2p_dht_arc"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7477f21f641ede028524a659723a20acd56b57992576db3c0c8d08dc5f18a0c1"
-dependencies = [
- "derive_more",
- "gcollections",
- "intervallum",
- "num-traits",
- "serde",
-]
-
-[[package]]
-name = "kitsune_p2p_dht_arc"
-version = "0.3.0-beta-dev.0"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
-dependencies = [
- "derive_more",
- "gcollections",
- "intervallum",
- "num-traits",
- "rusqlite",
- "serde",
 ]
 
 [[package]]
@@ -3444,18 +3225,20 @@ dependencies = [
  "gcollections",
  "intervallum",
  "num-traits",
+ "rusqlite",
  "serde",
 ]
 
 [[package]]
 name = "kitsune_p2p_fetch"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6007714f8c08e6e96ebe464adddc5ead29cf66a52c3f5cb9825d522846fd2e54"
 dependencies = [
  "derive_more",
  "futures",
  "human-repr",
- "kitsune_p2p_timestamp 0.2.0 (git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67)",
+ "kitsune_p2p_timestamp",
  "kitsune_p2p_types",
  "linked-hash-map",
  "must_future",
@@ -3470,7 +3253,8 @@ dependencies = [
 [[package]]
 name = "kitsune_p2p_mdns"
 version = "0.2.0"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f27c2e4097c5463ee373260fc095d1c71cf68a7d0ba810a1a6a6a8b59aab83b"
 dependencies = [
  "async-stream",
  "base64 0.13.1",
@@ -3485,8 +3269,9 @@ dependencies = [
 
 [[package]]
 name = "kitsune_p2p_proxy"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a47616f6d944c1f00f39ce0acfbc15409171958e2a0a8cb035f75a6077475d6e"
 dependencies = [
  "base64 0.13.1",
  "blake2b_simd 0.5.11",
@@ -3513,16 +3298,6 @@ version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be6483b304900c20fa104c50947cc1adf0e277fccdba8e26134d7b49dbdfd2a0"
 dependencies = [
- "chrono",
- "derive_more",
- "serde",
-]
-
-[[package]]
-name = "kitsune_p2p_timestamp"
-version = "0.2.0"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
-dependencies = [
  "arbitrary",
  "chrono",
  "derive_more",
@@ -3532,8 +3307,9 @@ dependencies = [
 
 [[package]]
 name = "kitsune_p2p_transport_quic"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a246855194691a20a8e78f6568e79d34b84effd227800acaabe236ce89cf07c6"
 dependencies = [
  "blake2b_simd 1.0.1",
  "futures",
@@ -3551,8 +3327,9 @@ dependencies = [
 
 [[package]]
 name = "kitsune_p2p_types"
-version = "0.3.0-beta-dev.1"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+version = "0.3.0-beta-dev.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "29e9156f7571d81e6160c4a307aa7fec001b5bb79bf94d2f8977e034acbe0797"
 dependencies = [
  "arbitrary",
  "base64 0.13.1",
@@ -3560,10 +3337,10 @@ dependencies = [
  "futures",
  "ghost_actor 0.3.0-alpha.5",
  "holochain_trace",
- "kitsune_p2p_bin_data 0.3.0-beta-dev.1",
- "kitsune_p2p_block 0.3.0-beta-dev.1",
- "kitsune_p2p_dht 0.3.0-beta-dev.0",
- "kitsune_p2p_dht_arc 0.3.0-beta-dev.0",
+ "kitsune_p2p_bin_data",
+ "kitsune_p2p_block",
+ "kitsune_p2p_dht",
+ "kitsune_p2p_dht_arc",
  "lair_keystore_api",
  "lru 0.8.1",
  "mockall",
@@ -4022,7 +3799,8 @@ checksum = "7843ec2de400bcbc6a6328c958dc38e5359da6e93e72e37bc5246bf1ae776389"
 [[package]]
 name = "mr_bundle"
 version = "0.2.0"
-source = "git+https://github.com/holochain/holochain?rev=8cdd455839f4050bbfb6bfb0c4b618b87789db67#8cdd455839f4050bbfb6bfb0c4b618b87789db67"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e726d84eb94b1e9407908b6181d377c02d3f3ac52be9632427d197b3c6075896"
 dependencies = [
  "arbitrary",
  "bytes",
@@ -6401,8 +6179,8 @@ dependencies = [
 name = "test_wasm_foo"
 version = "0.0.1"
 dependencies = [
- "hdi 0.3.0",
- "hdk 0.3.0-beta-dev.4",
+ "hdi",
+ "hdk",
  "serde",
 ]
 
@@ -7147,7 +6925,7 @@ dependencies = [
  "ed25519-dalek",
  "holochain_client",
  "holochain_state",
- "holochain_zome_types 0.3.0-beta-dev.1",
+ "holochain_zome_types",
  "rand 0.7.3",
 ]
 
