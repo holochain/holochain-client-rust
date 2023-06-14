@@ -9,12 +9,10 @@ name = "holochain_client"
 readme = "README.md"
 repository = "https://github.com/holochain/holochain-client-rust"
 resolver = "2"
-version = "0.3.1"
+version = "0.4.0"
 
 [workspace]
 members = ["fixture/zomes/foo", "utilities"]
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 again = "0.1"

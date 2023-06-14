@@ -1,10 +1,15 @@
 use std::sync::Arc;
 
 use anyhow::{Context, Result};
-use holochain_conductor_api::{AppInfo, AppRequest, AppResponse, ClonedCell, ZomeCall};
+use holochain_conductor_api::{
+    AppInfo, AppRequest, AppResponse, ClonedCell, NetworkInfo, ZomeCall,
+};
 use holochain_types::{
     app::InstalledAppId,
-    prelude::{CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload, ExternIO},
+    prelude::{
+        CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload, ExternIO,
+        NetworkInfoRequestPayload,
+    },
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
 use url::Url;
@@ -78,12 +83,24 @@ impl AppWebsocket {
 
     pub async fn disable_clone_cell(
         &mut self,
-        msg: DisableCloneCellPayload,
+        payload: DisableCloneCellPayload,
     ) -> ConductorApiResult<()> {
-        let app_request = AppRequest::DisableCloneCell(Box::new(msg));
+        let app_request = AppRequest::DisableCloneCell(Box::new(payload));
         let response = self.send(app_request).await?;
         match response {
             AppResponse::CloneCellDisabled => Ok(()),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn network_info(
+        &mut self,
+        payload: NetworkInfoRequestPayload,
+    ) -> ConductorApiResult<Vec<NetworkInfo>> {
+        let msg = AppRequest::NetworkInfo(Box::new(payload));
+        let response = self.send(msg).await?;
+        match response {
+            AppResponse::NetworkInfo(infos) => Ok(infos),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
