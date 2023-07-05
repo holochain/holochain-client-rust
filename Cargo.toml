@@ -19,11 +19,11 @@ again = "0.1"
 anyhow = "1.0"
 ed25519-dalek = "1"
 holo_hash = { package = "holo_hash", version = "0.3.0-beta-dev.4" , features = ["encoding"]}
-holochain_conductor_api = { package = "holochain_conductor_api", version = "0.3.0-beta-dev.7"  }
+holochain_conductor_api = { package = "holochain_conductor_api", version = "0.3.0-beta-dev.8"  }
 holochain_serialized_bytes = "0.0.52"
-holochain_types = { package = "holochain_types", version = "0.3.0-beta-dev.6"  }
+holochain_types = { package = "holochain_types", version = "0.3.0-beta-dev.7"  }
 holochain_websocket = { package = "holochain_websocket", version = "0.3.0-beta-dev.3"  }
-holochain_zome_types = { package = "holochain_zome_types", version = "0.3.0-beta-dev.5"  }
+holochain_zome_types = { package = "holochain_zome_types", version = "0.3.0-beta-dev.6"  }
 serde = "1"
 url = "2.2"
 
