@@ -128,5 +128,5 @@ async fn dump_network_stats() {
 
     let network_stats = admin_ws.dump_network_stats().await.unwrap();
 
-    assert!(network_stats.contains("\"backend\": \"go-pion\""));
+    assert!(network_stats.contains("\"backend\": \"tx2-quic\""));
 }
