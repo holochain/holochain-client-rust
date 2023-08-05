@@ -23,20 +23,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # - name: Install nix
-      #   uses: cachix/install-nix-action@v22
+      - name: Install nix
+        uses: cachix/install-nix-action@v22
 
-      # - name: Set up cachix
-      #   uses: cachix/cachix-action@v12
-      #   with:
-      #     name: holochain-ci
-
-      - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+      - name: Set up cachix
+        uses: cachix/cachix-action@v12
         with:
-          toolchain: stable
-          target: wasm32-unknown-unknown
-          override: true
+          name: holochain-ci
 
       - name: Cache fixture
         uses: actions/cache@v3
@@ -58,19 +51,17 @@ jobs:
           path: target
           key: ${{ matrix.os }}-cargo-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
 
-      # - name: Install nix packages
-      #   run: nix develop -c $SHELL -c "echo Nix packages installed"
+      - name: Install nix packages
+        run: nix develop -c $SHELL -c "echo Nix packages installed"
+
       - name: Build fixture
-        run: build-fixture.sh
-        # run: nix develop -c $SHELL -c "./build-fixture.sh"
+        run: nix develop -c $SHELL -c "./build-fixture.sh"
 
       - name: Build client
         run: cargo build
-        # run: nix develop -c $SHELL -c "cargo build"
 
       - name: Run tests
         run: cargo test
-        # nix develop -c $SHELL -c "cargo test"
 
       - name: Setup tmate session if build and test run failed
         if: ${{ failure() }}
