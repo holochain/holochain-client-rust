@@ -31,10 +31,11 @@ jobs:
       #   with:
       #     name: holochain-ci
 
-      - name: Install Rust latest nightly
+      - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          target: wasm32-unknown-unknown
           override: true
 
       - name: Cache fixture
