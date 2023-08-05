@@ -61,7 +61,12 @@ jobs:
         run: nix develop -c $SHELL -c "cargo build"
 
       - name: Run tests
-        run: nix develop -c $SHELL -c "cargo test"
+        run: |
+          (while true; do 
+            df -h
+            sleep 15
+          done) &
+          nix develop -c $SHELL -c "cargo test"
 
       - name: Setup tmate session if build and test run failed
         if: ${{ failure() }}
