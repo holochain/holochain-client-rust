@@ -61,7 +61,7 @@ jobs:
       # - name: Install nix packages
       #   run: nix develop -c $SHELL -c "echo Nix packages installed"
       - name: Build fixture
-        run: ./build-fixture.sh
+        run: build-fixture.sh
         # run: nix develop -c $SHELL -c "./build-fixture.sh"
 
       - name: Build client
@@ -69,13 +69,8 @@ jobs:
         # run: nix develop -c $SHELL -c "cargo build"
 
       - name: Run tests
-        run: |
-          (while true; do 
-            df -h
-            sleep 15
-          done) &
-          cargo test
-          # nix develop -c $SHELL -c "cargo test"
+        run: cargo test
+        # nix develop -c $SHELL -c "cargo test"
 
       - name: Setup tmate session if build and test run failed
         if: ${{ failure() }}
