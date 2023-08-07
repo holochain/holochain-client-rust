@@ -5,11 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
+### Changed
+### Fixed
+### Removed
+
+## 2023-08-07: v0.4.1
+### Added
 - Admin API call `graft_records`.
 ### Changed
 - Upgrade to Holochain v0.2.1.
-### Fixed
-### Removed
 
 ## 2023-04-21: v0.4.0
 ### Added
