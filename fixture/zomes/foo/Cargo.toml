@@ -10,5 +10,5 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 serde = "1"
-hdi = "0.3.0-beta-rc.4"
-hdk = "0.2.0-beta-rc.5"
+hdi = "0.3.1"
+hdk = "0.2.1"

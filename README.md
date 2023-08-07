@@ -9,6 +9,12 @@
 
 Types and bindings to connect easily to a running Holochain conductor from Rust.
 
+## Compatibility
+
+**Rust client v0.3.x** is compatible with **Holochain v0.1.x**.  
+
+**Rust client v0.4.x** is compatible with **Holochain v0.2.x**.
+
 ## Running The Tests
 
 ``` bash
@@ -24,7 +30,7 @@ Holochain is an open source project. We welcome all sorts of participation and a
 ## License
  [![License: CAL 1.0](https://img.shields.io/badge/License-CAL%201.0-blue.svg)](https://github.com/holochain/cryptographic-autonomy-license)
 
-Copyright (C) 2020-2022, Holochain Foundation
+Copyright (C) 2020-2023, Holochain Foundation
 
 This program is free software: you can redistribute it and/or modify it under the terms of the license
 provided in the LICENSE file (CAL-1.0).  This program is distributed in the hope that it will be useful,

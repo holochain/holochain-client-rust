@@ -100,7 +100,6 @@ async fn storage_info() {
         .iter()
         .filter(|b| match b {
             StorageBlob::Dna(dna_storage_info) => dna_storage_info.used_by.contains(&app_id),
-            _ => false,
         })
         .collect_vec();
     assert_eq!(1, matched_storage_info.len());
@@ -113,7 +112,7 @@ async fn dump_network_stats() {
     let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
         .await
         .unwrap();
-    let app_id: InstalledAppId = "test-app-".into();
+    let app_id: InstalledAppId = "test-app".into();
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
     admin_ws
         .install_app(InstallAppPayload {
@@ -129,5 +128,5 @@ async fn dump_network_stats() {
 
     let network_stats = admin_ws.dump_network_stats().await.unwrap();
 
-    assert!(network_stats.contains("\"backend\": \"go-pion\""));
+    assert!(network_stats.contains("\"backend\": \"tx2-quic\""));
 }

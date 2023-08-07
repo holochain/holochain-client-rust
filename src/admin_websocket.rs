@@ -8,7 +8,7 @@ use holochain_types::{
     prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload},
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketReceiver, WebsocketSender};
-use holochain_zome_types::{DnaDef, GrantZomeCallCapabilityPayload};
+use holochain_zome_types::{DnaDef, GrantZomeCallCapabilityPayload, Record};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -174,6 +174,24 @@ impl AdminWebsocket {
         let response = self.send(msg).await?;
         match response {
             AdminResponse::NetworkStatsDumped(stats) => Ok(stats),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn graft_records(
+        &mut self,
+        cell_id: CellId,
+        validate: bool,
+        records: Vec<Record>,
+    ) -> ConductorApiResult<()> {
+        let msg = AdminRequest::GraftRecords {
+            cell_id,
+            validate,
+            records,
+        };
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::RecordsGrafted => Ok(()),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
