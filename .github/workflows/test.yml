@@ -61,7 +61,12 @@ jobs:
         run: cargo build
 
       - name: Run tests
-        run: cargo test
+        run: |
+          (while true; do 
+            df -h
+            sleep 30
+          done) &
+          cargo test
 
       - name: Setup tmate session if build and test run failed
         if: ${{ failure() }}
