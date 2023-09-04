@@ -28,6 +28,7 @@ async fn clone_cell_management() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
         })
         .await
         .unwrap();

@@ -27,6 +27,7 @@ async fn network_info() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
         })
         .await
         .unwrap();
@@ -60,7 +61,8 @@ async fn network_info() {
             current_number_of_peers: 1,
             arc_size: 1.0,
             total_network_peers: 1,
-            bytes_since_last_time_queried: 1844,
+            // varies on local and ci machine
+            bytes_since_last_time_queried: network_info[0].bytes_since_last_time_queried,
             completed_rounds_since_last_time_queried: 0
         }
     );
