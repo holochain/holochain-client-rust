@@ -35,7 +35,6 @@ async fn signed_zome_call() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
-            ignore_genesis_failure: false,
         })
         .await
         .unwrap();
@@ -89,7 +88,6 @@ async fn storage_info() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
-            ignore_genesis_failure: false,
         })
         .await
         .unwrap();
@@ -123,7 +121,6 @@ async fn dump_network_stats() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
-            ignore_genesis_failure: false,
         })
         .await
         .unwrap();
