@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2023-09-13: v0.4.2
+### Changed
+- Upgrade to Holochain v0.2.2.
+
 ## 2023-09-11: v0.4.2-rc.3
 ### Changed
 - Upgrade to Holochain v0.2.2-beta-rc.3.
