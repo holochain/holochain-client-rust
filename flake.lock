@@ -61,11 +61,11 @@
     "crate2nix": {
       "flake": false,
       "locked": {
-        "lastModified": 1675642992,
-        "narHash": "sha256-uDBDZuiq7qyg82Udp82/r4zg5HKfIzBQqgl2U9THiQM=",
+        "lastModified": 1693149153,
+        "narHash": "sha256-HUszQcnIal1FFRAWraODDbxTp0HECwczRTD+Zf0v9o0=",
         "owner": "kolloch",
         "repo": "crate2nix",
-        "rev": "45fc83132c8c91c77a1cd61fe0c945411d1edba8",
+        "rev": "8749f46953b46d44fd181b002399e4a20371f323",
         "type": "github"
       },
       "original": {
@@ -213,6 +213,7 @@
         "nix-filter": "nix-filter",
         "nixpkgs": "nixpkgs",
         "pre-commit-hooks-nix": "pre-commit-hooks-nix",
+        "repo-git": "repo-git",
         "rust-overlay": "rust-overlay_2",
         "scaffolding": [
           "holonix",
@@ -223,16 +224,15 @@
         ]
       },
       "locked": {
-        "lastModified": 1694635297,
-        "narHash": "sha256-nFUouAxuTr+qgLlTP+tPFV1OnwHoaPgfmBuCKUsIvTE=",
+        "lastModified": 1695928743,
+        "narHash": "sha256-VmeQsuu6AWG7tDnrmLal+iaz/E0IO608/v1n1noE+Zo=",
         "owner": "holochain",
         "repo": "holochain",
-        "rev": "b1a03c2c455948ec86b1c50f7f66344ca32255df",
+        "rev": "e7dece152120fc34448177c239564c8c0af8528e",
         "type": "github"
       },
       "original": {
         "owner": "holochain",
-        "ref": "nix/fix-and-pin-lair-0.3.0-input",
         "repo": "holochain",
         "type": "github"
       }
@@ -288,11 +288,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1686869522,
-        "narHash": "sha256-tbJ9B8WLCTnVP/LwESRlg0dII6Zyg2LmUU/mB9Lu98E=",
+        "lastModified": 1695644571,
+        "narHash": "sha256-asS9dCCdlt1lPq0DLwkVBbVoEKuEuz+Zi3DG7pR/RxA=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "7c67f006ea0e7d0265f16d7df07cc076fdffd91f",
+        "rev": "6500b4580c2a1f3d0f980d32d285739d8e156d92",
         "type": "github"
       },
       "original": {
@@ -333,6 +333,18 @@
         "owner": "cachix",
         "repo": "pre-commit-hooks.nix",
         "type": "github"
+      }
+    },
+    "repo-git": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-d6xi4mKdjkX2JFicDIv5niSzpyI0m/Hnm8GGAIU04kY=",
+        "type": "file",
+        "url": "file:/dev/null"
+      },
+      "original": {
+        "type": "file",
+        "url": "file:/dev/null"
       }
     },
     "root": {
@@ -381,11 +393,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1689647697,
-        "narHash": "sha256-8ZX/DVpKLmr85FRKILb+2p+JuxfLQ49LjXG/gmwsoIU=",
+        "lastModified": 1695867081,
+        "narHash": "sha256-TP1ocrZSKvfGgpdjw7bUd+jEuF1/OBfuKHvK5EEAhww=",
         "owner": "oxalica",
         "repo": "rust-overlay",
-        "rev": "ed2774a9131ddad12e552ba04bd92f87df04a28b",
+        "rev": "9d8f850c3de67597c65271f3088aced0a671677f",
         "type": "github"
       },
       "original": {
@@ -397,11 +409,11 @@
     "scaffolding": {
       "flake": false,
       "locked": {
-        "lastModified": 1683890859,
-        "narHash": "sha256-/nG2TGU4Q7zy0KGS/opcW1836LZ7FJhA+/OEh5gNj34=",
+        "lastModified": 1695674679,
+        "narHash": "sha256-IwgQbgitUo61ZXYSXBAro5ThfYy/yMGmzZGTb3c6sT0=",
         "owner": "holochain",
         "repo": "scaffolding",
-        "rev": "1ca1092ad5d147bd23a75444874830cc033aa9cf",
+        "rev": "821439b8dd49d5ce594be04c4720df25e88a4dbc",
         "type": "github"
       },
       "original": {
@@ -435,17 +447,16 @@
       },
       "locked": {
         "dir": "versions/0_2",
-        "lastModified": 1694635297,
-        "narHash": "sha256-nFUouAxuTr+qgLlTP+tPFV1OnwHoaPgfmBuCKUsIvTE=",
+        "lastModified": 1695928743,
+        "narHash": "sha256-VmeQsuu6AWG7tDnrmLal+iaz/E0IO608/v1n1noE+Zo=",
         "owner": "holochain",
         "repo": "holochain",
-        "rev": "b1a03c2c455948ec86b1c50f7f66344ca32255df",
+        "rev": "e7dece152120fc34448177c239564c8c0af8528e",
         "type": "github"
       },
       "original": {
         "dir": "versions/0_2",
         "owner": "holochain",
-        "ref": "nix/fix-and-pin-lair-0.3.0-input",
         "repo": "holochain",
         "type": "github"
       }
