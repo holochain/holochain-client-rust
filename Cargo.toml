@@ -27,7 +27,7 @@ holochain_serialized_bytes = "0.0.52"
 holochain_types = "0.2.2"
 holochain_websocket = "0.2.2"
 holochain_zome_types = { workspace = true }
-serde = "1"
+serde = "1.0.166"
 url = "2.2"
 
 [dev-dependencies]
