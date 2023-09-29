@@ -6,9 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
-- Pin serde to v1.0.166
 ### Fixed
 ### Removed
+
+## 2023-09-28: v0.4.3
+### Changed
+- Pin serde to v1.0.166
+- Upgrade holochain_serialized_bytes to v0.0.53
 
 ## 2023-09-13: v0.4.2
 ### Changed
