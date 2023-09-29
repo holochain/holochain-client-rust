@@ -2317,7 +2317,7 @@ dependencies = [
 
 [[package]]
 name = "holochain_client"
-version = "0.4.2"
+version = "0.4.3"
 dependencies = [
  "again",
  "anyhow",
@@ -2326,7 +2326,7 @@ dependencies = [
  "holo_hash",
  "holochain",
  "holochain_conductor_api",
- "holochain_serialized_bytes 0.0.52",
+ "holochain_serialized_bytes 0.0.53",
  "holochain_types",
  "holochain_websocket",
  "holochain_zome_types",
@@ -2456,11 +2456,11 @@ dependencies = [
 
 [[package]]
 name = "holochain_serialized_bytes"
-version = "0.0.52"
+version = "0.0.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bac6151d65c9a6f26f1b1068046a98900214030924377a2142f60c279b091f51"
+checksum = "5f7a5fc7c745a107f8ebcb04caab7a6b7a8463e2811f07ced19c281977583de7"
 dependencies = [
- "holochain_serialized_bytes_derive 0.0.52",
+ "holochain_serialized_bytes_derive 0.0.53",
  "rmp-serde 0.15.5",
  "serde",
  "serde-transcode",
@@ -2481,9 +2481,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_serialized_bytes_derive"
-version = "0.0.52"
+version = "0.0.53"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "17cec0d0c2317fcb87772d0a8b5b5e88c7276aef93bf3496931e89cb9231c129"
+checksum = "ec3e0cf02005cbf0f514476d40e02125b26df6d4922d7a2c48a84fc588539d71"
 dependencies = [
  "quote",
  "syn 1.0.109",
