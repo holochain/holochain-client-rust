@@ -106,9 +106,15 @@ impl AppWebsocket {
     }
 
     async fn send(&mut self, msg: AppRequest) -> ConductorApiResult<AppResponse> {
-        self.tx
+        let response = self
+            .tx
             .request(msg)
             .await
-            .map_err(|err| ConductorApiError::WebsocketError(err))
+            .map_err(|err| ConductorApiError::WebsocketError(err))?;
+
+        match response {
+            AppResponse::Error(error) => Err(ConductorApiError::ExternalApiWireError(error)),
+            _ => Ok(response),
+        }
     }
 }
