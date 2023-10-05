@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
+- Remove unreachable code in `AppWebsocket::send`.
 ### Fixed
+- Upgrade to security patched version of `webpki`.
 ### Removed
 
 ## 2023-10-02: v0.4.4
