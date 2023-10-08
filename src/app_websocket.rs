@@ -19,10 +19,14 @@ use crate::error::{ConductorApiError, ConductorApiResult};
 #[derive(Clone)]
 pub struct AppWebsocket {
     tx: WebsocketSender,
+    app_id: String,
 }
 
 impl AppWebsocket {
-    pub async fn connect(app_url: String) -> Result<Self> {
+    pub async fn connect(
+        app_url: String,
+        installed_app_id: String,
+    ) -> Result<Self> {
         let url = Url::parse(&app_url).context("invalid ws:// URL")?;
         let websocket_config = Arc::new(WebsocketConfig::default());
         let (tx, _rx) = again::retry(|| {
@@ -30,15 +34,12 @@ impl AppWebsocket {
             connect(url.clone().into(), websocket_config)
         })
         .await?;
-        Ok(Self { tx })
+        Ok(Self { tx, app_id: installed_app_id })
     }
 
-    pub async fn app_info(
-        &mut self,
-        app_id: InstalledAppId,
-    ) -> ConductorApiResult<Option<AppInfo>> {
+    pub async fn app_info(&mut self) -> ConductorApiResult<Option<AppInfo>> {
         let msg = AppRequest::AppInfo {
-            installed_app_id: app_id,
+            installed_app_id: &self.app_id,
         };
         let response = self.send(msg).await?;
         match response {
