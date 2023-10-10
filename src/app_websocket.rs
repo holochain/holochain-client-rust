@@ -4,17 +4,15 @@ use anyhow::{Context, Result};
 use holochain_conductor_api::{
     AppInfo, AppRequest, AppResponse, ClonedCell, NetworkInfo, ZomeCall,
 };
-use holochain_types::{
-    app::InstalledAppId,
-    prelude::{
-        CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload, ExternIO,
-        NetworkInfoRequestPayload,
-    },
-};
+use holochain_types::prelude::NetworkInfoRequestPayload;
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
+use holochain_zome_types::ExternIO;
 use url::Url;
 
 use crate::error::{ConductorApiError, ConductorApiResult};
+use crate::types::{
+    AppCreateCloneCellPayload, AppDisableCloneCellPayload, AppEnableCloneCellPayload
+};
 
 #[derive(Clone)]
 pub struct AppWebsocket {
@@ -39,7 +37,7 @@ impl AppWebsocket {
 
     pub async fn app_info(&mut self) -> ConductorApiResult<Option<AppInfo>> {
         let msg = AppRequest::AppInfo {
-            installed_app_id: &self.app_id,
+            installed_app_id: self.app_id.clone(),
         };
         let response = self.send(msg).await?;
         match response {
@@ -60,9 +58,9 @@ impl AppWebsocket {
 
     pub async fn create_clone_cell(
         &mut self,
-        msg: CreateCloneCellPayload,
+        msg: AppCreateCloneCellPayload,
     ) -> ConductorApiResult<ClonedCell> {
-        let app_request = AppRequest::CreateCloneCell(Box::new(msg));
+        let app_request = AppRequest::CreateCloneCell(Box::new(msg.into_create_clone_cell_payload(self.app_id.clone())));
         let response = self.send(app_request).await?;
         match response {
             AppResponse::CloneCellCreated(clone_cell) => Ok(clone_cell),
@@ -72,9 +70,9 @@ impl AppWebsocket {
 
     pub async fn enable_clone_cell(
         &mut self,
-        payload: EnableCloneCellPayload,
+        payload: AppEnableCloneCellPayload,
     ) -> ConductorApiResult<ClonedCell> {
-        let msg = AppRequest::EnableCloneCell(Box::new(payload));
+        let msg = AppRequest::EnableCloneCell(Box::new(payload.into_enable_clone_cell_payload(self.app_id.clone())));
         let response = self.send(msg).await?;
         match response {
             AppResponse::CloneCellEnabled(enabled_cell) => Ok(enabled_cell),
@@ -84,9 +82,9 @@ impl AppWebsocket {
 
     pub async fn disable_clone_cell(
         &mut self,
-        payload: DisableCloneCellPayload,
+        payload: AppDisableCloneCellPayload,
     ) -> ConductorApiResult<()> {
-        let app_request = AppRequest::DisableCloneCell(Box::new(payload));
+        let app_request = AppRequest::DisableCloneCell(Box::new(payload.into_disable_clone_cell_payload(self.app_id.clone())));
         let response = self.send(app_request).await?;
         match response {
             AppResponse::CloneCellDisabled => Ok(()),

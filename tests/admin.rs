@@ -40,10 +40,10 @@ async fn signed_zome_call() {
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_ws_port = admin_ws.attach_app_interface(30000).await.unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_ws_port))
+    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_ws_port), app_id)
         .await
         .unwrap();
-    let installed_app = app_ws.app_info(app_id).await.unwrap().unwrap();
+    let installed_app = app_ws.app_info().await.unwrap().unwrap();
 
     let cells = installed_app.cell_info.into_values().next().unwrap();
     let cell_id = match cells[0].clone() {

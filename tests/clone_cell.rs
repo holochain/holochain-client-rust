@@ -1,12 +1,9 @@
 use std::{collections::HashMap, path::PathBuf};
 
-use holochain::{
-    prelude::{DeleteCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload},
-    sweettest::SweetConductor,
-};
-use holochain_client::{AdminWebsocket, AppWebsocket, InstallAppPayload};
+use holochain::sweettest::SweetConductor;
+use holochain_client::{AdminWebsocket, AppWebsocket, InstallAppPayload, AppCreateCloneCellPayload, AppDisableCloneCellPayload, AppEnableCloneCellPayload};
 use holochain_types::prelude::{
-    AppBundleSource, CloneCellId, CloneId, CreateCloneCellPayload, DnaModifiersOpt, InstalledAppId,
+    AppBundleSource, CloneCellId, CloneId, DnaModifiersOpt, InstalledAppId, DeleteCloneCellPayload,
 };
 use holochain_zome_types::RoleName;
 use utilities::{authorize_signing_credentials, sign_zome_call};
@@ -33,13 +30,12 @@ async fn clone_cell_management() {
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_api_port = admin_ws.attach_app_interface(30000).await.unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_api_port))
+    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_api_port), app_id.clone())
         .await
         .unwrap();
     let clone_cell = {
         let clone_cell = app_ws
-            .create_clone_cell(CreateCloneCellPayload {
-                app_id: app_id.clone(),
+            .create_clone_cell(AppCreateCloneCellPayload {
                 role_name: role_name.clone(),
                 modifiers: DnaModifiersOpt::none().with_network_seed("seed".into()),
                 membrane_proof: None,
@@ -65,8 +61,7 @@ async fn clone_cell_management() {
 
     // disable clone cell
     app_ws
-        .disable_clone_cell(DisableCloneCellPayload {
-            app_id: app_id.clone(),
+        .disable_clone_cell(AppDisableCloneCellPayload {
             clone_cell_id: CloneCellId::CloneId(clone_cell.clone().clone_id),
         })
         .await
@@ -81,8 +76,7 @@ async fn clone_cell_management() {
 
     // enable clone cell
     let enabled_cell = app_ws
-        .enable_clone_cell(EnableCloneCellPayload {
-            app_id: app_id.clone(),
+        .enable_clone_cell(AppEnableCloneCellPayload {
             clone_cell_id: CloneCellId::CloneId(clone_cell.clone().clone_id),
         })
         .await
@@ -98,8 +92,7 @@ async fn clone_cell_management() {
 
     // disable clone cell again
     app_ws
-        .disable_clone_cell(DisableCloneCellPayload {
-            app_id: app_id.clone(),
+        .disable_clone_cell(AppDisableCloneCellPayload {
             clone_cell_id: CloneCellId::CloneId(clone_cell.clone().clone_id),
         })
         .await
@@ -115,8 +108,7 @@ async fn clone_cell_management() {
         .unwrap();
     // restore deleted clone cells should fail
     let enable_clone_cell_response = app_ws
-        .enable_clone_cell(EnableCloneCellPayload {
-            app_id: app_id.clone(),
+        .enable_clone_cell(AppEnableCloneCellPayload {
             clone_cell_id: CloneCellId::CloneId(clone_cell.clone_id),
         })
         .await;

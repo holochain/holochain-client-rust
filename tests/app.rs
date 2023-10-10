@@ -33,7 +33,7 @@ async fn network_info() {
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_ws_port = 33000;
     admin_ws.attach_app_interface(app_ws_port).await.unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_ws_port))
+    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_ws_port), app_id)
         .await
         .unwrap();
 
