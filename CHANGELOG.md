@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 ### Changed
 - Remove unreachable code in `AppWebsocket::send`.
+- Bump deps to holochain-0.2.3-beta-rc.0
 ### Fixed
 - Upgrade to security patched version of `webpki`.
 ### Removed
