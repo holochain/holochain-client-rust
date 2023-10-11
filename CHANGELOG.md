@@ -3,6 +3,7 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## \[Unreleased\]
+- **BREAKING CHANGE**: AppWebsocket now takes a second parameter `app_id: String` to match the api used in holochain-client-js. Function calls from an initialized AppWebsocket no longer need to be passed the app id.
 
 ### Added
 ### Changed
