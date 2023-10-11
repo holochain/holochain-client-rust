@@ -12,7 +12,7 @@ resolver = "2"
 version = "0.4.4"
 
 [workspace]
-members = ["fixture/zomes/foo", "utilities", "holochain_nonce", "holochain_secure_primitive"]
+members = ["fixture/zomes/foo", "utilities", "holochain_secure_primitive"]
 
 [workspace.dependencies]
 holochain_zome_types = "0.3.0-beta-dev.13"

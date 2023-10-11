@@ -8,6 +8,6 @@ version = "0.1.0"
 arbitrary = "1.2"
 ed25519-dalek = "1"
 holochain_client = {path = "../"}
-holochain_nonce = { path = "../holochain_nonce" }
+holochain_state = "0.3.0-beta-dev.19"
 holochain_zome_types = {workspace = true}
 rand = "0.7"

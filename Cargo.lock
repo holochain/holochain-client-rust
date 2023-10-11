@@ -2559,15 +2559,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "holochain_nonce"
-version = "0.3.0-beta-dev.19"
-dependencies = [
- "getrandom 0.2.10",
- "holochain_secure_primitive",
- "kitsune_p2p_timestamp 0.3.0-beta-dev.3",
-]
-
-[[package]]
 name = "holochain_p2p"
 version = "0.3.0-beta-dev.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7681,7 +7672,7 @@ dependencies = [
  "arbitrary",
  "ed25519-dalek",
  "holochain_client",
- "holochain_nonce",
+ "holochain_state",
  "holochain_zome_types 0.3.0-beta-dev.13",
  "rand 0.7.3",
 ]
