@@ -1,11 +1,14 @@
 mod admin_websocket;
 mod app_websocket;
+mod app_agent_websocket;
 mod error;
 mod types;
 pub use types::*;
 
 pub use admin_websocket::AdminWebsocket;
 pub use app_websocket::AppWebsocket;
+pub use app_agent_websocket::AppAgentWebsocket;
+pub use types::*;
 pub use error::{ConductorApiError, ConductorApiResult};
 pub use holochain_conductor_api::{
     AdminRequest, AdminResponse, AppInfo, AppRequest, AppResponse, AppStatusFilter, ZomeCall,
