@@ -9,46 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
-## 2023-10-11: v0.4.5-rc.0
+## 2023-10-18: v0.3.2
 ### Changed
-- Remove unreachable code in `AppWebsocket::send`.
-- Bump deps to holochain-0.2.3-beta-rc.0
-### Fixed
-- Upgrade to security patched version of `webpki`.
-
-## 2023-10-02: v0.4.4
-### Changed
-- Pin serde to max v1.0.166 properly.
-
-## 2023-09-28: v0.4.3
-### Changed
-- Pin serde to v1.0.166
-- Upgrade holochain_serialized_bytes to v0.0.53
-
-## 2023-09-13: v0.4.2
-### Changed
-- Upgrade to Holochain v0.2.2.
-
-## 2023-09-11: v0.4.2-rc.3
-### Changed
-- Upgrade to Holochain v0.2.2-beta-rc.3.
-
-## 2023-08-31: v0.4.2-rc.0
-### Changed
-- Upgrade to Holochain v0.2.2-beta-rc.0.
-
-## 2023-08-07: v0.4.1
-### Added
-- Admin API call `graft_records`.
-### Changed
-- Upgrade to Holochain v0.2.1.
-
-## 2023-04-21: v0.4.0
-### Added
-- Add `storage_info` to the admin websocket.
-- Add `network_info` to the app websocket.
-### Changed
-- **BREAKING CHANGE**: Upgrade to Holochain 0.2 release candidate ahead of the holochain 0.2 release.
+- Upgrade to Holochain v0.1.7-rc.0
 
 ## 2023-02-15: v0.3.1
 ### Changed
