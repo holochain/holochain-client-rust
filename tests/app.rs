@@ -1,12 +1,10 @@
 use holochain::{
-    prelude::{
-        kitsune_p2p::dependencies::kitsune_p2p_fetch::FetchPoolInfo, AppBundleSource,
-        NetworkInfoRequestPayload,
-    },
+    prelude::{AppBundleSource, NetworkInfoRequestPayload},
     sweettest::SweetConductor,
 };
 use holochain_client::{AdminWebsocket, AppWebsocket, InstallAppPayload, InstalledAppId};
 use holochain_conductor_api::NetworkInfo;
+use kitsune_p2p_types::fetch_pool::FetchPoolInfo;
 use std::{collections::HashMap, path::PathBuf};
 
 #[tokio::test(flavor = "multi_thread")]

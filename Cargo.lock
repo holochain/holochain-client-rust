@@ -2373,6 +2373,7 @@ dependencies = [
  "holochain_types",
  "holochain_websocket",
  "holochain_zome_types",
+ "kitsune_p2p_types",
  "rand 0.7.3",
  "serde",
  "tokio",
@@ -7433,7 +7434,7 @@ dependencies = [
  "arbitrary",
  "ed25519-dalek",
  "holochain_client",
- "holochain_state",
+ "holochain_nonce",
  "holochain_zome_types",
  "rand 0.7.3",
 ]

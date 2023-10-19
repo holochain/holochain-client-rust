@@ -1,7 +1,7 @@
 use arbitrary::Arbitrary;
 use ed25519_dalek::{Keypair, Signer};
 pub use holochain_client::{AdminWebsocket, AgentPubKey, ZomeCall};
-use holochain_state::nonce::fresh_nonce;
+use holochain_nonce::fresh_nonce;
 use holochain_zome_types::{
     CapAccess, CapSecret, CellId, ExternIO, FunctionName, GrantZomeCallCapabilityPayload,
     Signature, Timestamp, ZomeCallCapGrant, ZomeCallUnsigned, ZomeName,
