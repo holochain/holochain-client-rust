@@ -2255,7 +2255,7 @@ dependencies = [
  "holochain_metrics",
  "holochain_nonce",
  "holochain_p2p",
- "holochain_secure_primitive 0.3.0-beta-dev.20",
+ "holochain_secure_primitive",
  "holochain_serialized_bytes",
  "holochain_sqlite",
  "holochain_state",
@@ -2415,7 +2415,7 @@ dependencies = [
  "arbitrary",
  "derive_builder",
  "holo_hash",
- "holochain_secure_primitive 0.3.0-beta-dev.20",
+ "holochain_secure_primitive",
  "holochain_serialized_bytes",
  "holochain_util",
  "kitsune_p2p_timestamp",
@@ -2438,7 +2438,7 @@ dependencies = [
  "base64 0.13.1",
  "futures",
  "holo_hash",
- "holochain_secure_primitive 0.3.0-beta-dev.20",
+ "holochain_secure_primitive",
  "holochain_serialized_bytes",
  "holochain_zome_types",
  "kitsune_p2p_types",
@@ -2473,7 +2473,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "17d859cbeda71a579d879e6d6e6eede2f787a2ac670955d1a33cb701ee0fde73"
 dependencies = [
  "getrandom 0.2.10",
- "holochain_secure_primitive 0.3.0-beta-dev.20",
+ "holochain_secure_primitive",
  "kitsune_p2p_timestamp",
 ]
 
@@ -2506,15 +2506,6 @@ dependencies = [
  "thiserror",
  "tokio",
  "tokio-stream",
-]
-
-[[package]]
-name = "holochain_secure_primitive"
-version = "0.3.0-beta-dev.19"
-dependencies = [
- "paste",
- "serde",
- "subtle",
 ]
 
 [[package]]
@@ -2861,7 +2852,7 @@ dependencies = [
  "holo_hash",
  "holochain_integrity_types",
  "holochain_nonce",
- "holochain_secure_primitive 0.3.0-beta-dev.20",
+ "holochain_secure_primitive",
  "holochain_serialized_bytes",
  "holochain_wasmer_common",
  "kitsune_p2p_bin_data",
