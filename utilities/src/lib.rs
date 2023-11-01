@@ -2,9 +2,9 @@ use arbitrary::Arbitrary;
 use ed25519_dalek::{Keypair, Signer};
 pub use holochain_client::{AdminWebsocket, AgentPubKey, ZomeCall};
 use holochain_nonce::fresh_nonce;
-use holochain_zome_types::{
+use holochain_zome_types::prelude::{
     CapAccess, CapSecret, CellId, ExternIO, FunctionName, GrantZomeCallCapabilityPayload,
-    Signature, Timestamp, ZomeCallCapGrant, ZomeCallUnsigned, ZomeName,
+    GrantedFunctions, Signature, Timestamp, ZomeCallCapGrant, ZomeCallUnsigned, ZomeName,
 };
 use std::collections::BTreeSet;
 
@@ -33,7 +33,7 @@ pub async fn authorize_signing_credentials(
             cell_id: cell_id.clone(),
             cap_grant: ZomeCallCapGrant {
                 tag: "zome-call-signing-key".into(),
-                functions: holochain_zome_types::GrantedFunctions::All,
+                functions: GrantedFunctions::All,
                 access: CapAccess::Assigned {
                     secret: cap_secret.clone(),
                     assignees: assignees.clone(),
