@@ -2,7 +2,7 @@ use holochain::test_utils::itertools::Itertools;
 use holochain::{prelude::AppBundleSource, sweettest::SweetConductor};
 use holochain_client::{AdminWebsocket, AppWebsocket, InstallAppPayload, InstalledAppId};
 use holochain_conductor_api::{CellInfo, StorageBlob};
-use holochain_zome_types::ExternIO;
+use holochain_zome_types::prelude::ExternIO;
 use std::{collections::HashMap, path::PathBuf};
 use utilities::{authorize_signing_credentials, sign_zome_call};
 

@@ -8,7 +8,7 @@ use holochain_client::{AdminWebsocket, AppWebsocket, InstallAppPayload};
 use holochain_types::prelude::{
     AppBundleSource, CloneCellId, CloneId, CreateCloneCellPayload, DnaModifiersOpt, InstalledAppId,
 };
-use holochain_zome_types::RoleName;
+use holochain_zome_types::prelude::RoleName;
 use utilities::{authorize_signing_credentials, sign_zome_call};
 
 #[tokio::test(flavor = "multi_thread")]

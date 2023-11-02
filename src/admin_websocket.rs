@@ -8,7 +8,10 @@ use holochain_types::{
     prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload},
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketReceiver, WebsocketSender};
-use holochain_zome_types::{DnaDef, GrantZomeCallCapabilityPayload, Record};
+use holochain_zome_types::{
+    prelude::{DnaDef, GrantZomeCallCapabilityPayload},
+    record::Record,
+};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
