@@ -2397,7 +2397,7 @@ dependencies = [
 
 [[package]]
 name = "holochain_client"
-version = "0.5.0-dev.23"
+version = "0.5.0-dev.24"
 dependencies = [
  "again",
  "anyhow",
