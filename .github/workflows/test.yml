@@ -1,10 +1,9 @@
 name: Test
 
 on:
-  push:
-    branches: [main, develop-0.3]
   pull_request:
-    branches: [main, develop-0.3]
+  push:
+    branches: [develop, main]
 
 env:
   CARGO_TERM_COLOR: always
@@ -24,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install nix
-        uses: cachix/install-nix-action@v22
+        uses: cachix/install-nix-action@v23
 
       - name: Set up cachix
         uses: cachix/cachix-action@v12
