@@ -9,6 +9,6 @@ crate-type = ["cdylib", "rlib"]
 name = "test_wasm_foo"
 
 [dependencies]
-hdi = "0.4.0-beta-dev.13"
-hdk = "0.3.0-beta-dev.17"
+hdi = "0.4.0-beta-dev.16"
+hdk = "0.3.0-beta-dev.20"
 serde = "1"
