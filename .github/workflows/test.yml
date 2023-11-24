@@ -32,13 +32,10 @@ jobs:
 
       - name: Cache fixture
         uses: actions/cache@v3
-        if: always()
         env:
           cache-name: fixture
         with:
-          path: |
-            .cargo
-            fixture/zomes/foo/target
+          path: fixture/zomes/foo/target
           key: ${{ matrix.os }}-build-${{ env.cache-name }}-${{ hashFiles('fixture/zomes/foo/Cargo.lock') }}
 
       - name: Cache client build
@@ -51,7 +48,7 @@ jobs:
           key: ${{ matrix.os }}-cargo-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
 
       - name: Install nix packages
-        run: nix develop -c $SHELL -c "echo Nix packages installed"
+        run: nix develop -c $SHELL -c "holochain --version"
 
       - name: Build fixture
         run: nix develop -c $SHELL -c "./build-fixture.sh"
@@ -60,7 +57,7 @@ jobs:
         run: nix-collect-garbage -d
 
       - name: Build client
-        run: cargo build
+        run: cargo build -p holochain_client
 
       - name: Run tests
         run: cargo test
