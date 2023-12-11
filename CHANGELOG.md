@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2023-12-11: v0.4.6-rc.0
+### Changed
+- Bump deps to Holochain v0.2.4-rc.0
+
 ## 2023-11-23: v0.4.5
 ### Changed
 - Bump deps to Holochain v0.2.3
