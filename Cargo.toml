@@ -25,8 +25,10 @@ holo_hash = { version = "0.2.3", features = ["encoding"] }
 holochain_conductor_api = "0.2.4-rc.0"
 holochain_serialized_bytes = "0.0.53"
 holochain_types = "0.2.4-rc.0"
+holochain_state = "0.2.4-rc.0"
 holochain_websocket = "0.2.3"
 holochain_zome_types = { workspace = true }
+lair_keystore_api = "0.3.0"
 serde = ">=1.0.0, <=1.0.166"
 url = "2.2"
 event-emitter-rs = "0.1"

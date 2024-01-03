@@ -1300,9 +1300,9 @@ dependencies = [
 
 [[package]]
 name = "data-encoding"
-version = "2.4.0"
+version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2e66c9d817f1720209181c316d28635c050fa304f9c79e47a520882661b7308"
+checksum = "7e962a19be5cfc3f3bf6dd8f61eb50107f356ad6270fbb3ed41476571db78be5"
 
 [[package]]
 name = "derivative"
@@ -2417,9 +2417,11 @@ dependencies = [
  "holochain",
  "holochain_conductor_api",
  "holochain_serialized_bytes 0.0.53",
+ "holochain_state",
  "holochain_types",
  "holochain_websocket",
  "holochain_zome_types",
+ "lair_keystore_api",
  "rand 0.7.3",
  "serde",
  "tokio",
@@ -2500,9 +2502,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_metrics"
-version = "0.2.4-rc.0"
+version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fdefc142028a5b97b176a69b73da2cf00a4cd1277460e50993368ab21cef4918"
+checksum = "1bf1a9e96ab255be9c88aa56cb93088b074799a832c1943b08db051054b34363"
 dependencies = [
  "influxive",
  "opentelemetry_api",
@@ -4549,9 +4551,9 @@ dependencies = [
 
 [[package]]
 name = "os_str_bytes"
-version = "6.5.1"
+version = "6.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d5d9eb14b174ee9aa2ef96dc2b94637a2d4b6e7cb873c7e171f0c20c6cf3eac"
+checksum = "e2355d85b9a3786f481747ced0e0ff2ba35213a1f9bd406ed906554d7af805a1"
 
 [[package]]
 name = "ouroboros"
@@ -6468,9 +6470,9 @@ dependencies = [
 
 [[package]]
 name = "termcolor"
-version = "1.3.0"
+version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6093bad37da69aab9d123a8091e4be0aa4a03e4d601ec641c327398315f62b64"
+checksum = "ff1bc3d3f05aff0403e8ac0d92ced918ec05b666a43f83297ccef5bea8a3d449"
 dependencies = [
  "winapi-util",
 ]
