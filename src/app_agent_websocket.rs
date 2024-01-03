@@ -71,7 +71,7 @@ impl AppAgentWebsocket {
             .await
     }
 
-    pub async fn call_zome_fn(
+    pub async fn call_zome(
         &mut self,
         role_name: RoleName,
         zome_name: ZomeName,
