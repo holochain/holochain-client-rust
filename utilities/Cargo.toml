@@ -7,7 +7,7 @@ version = "0.1.0"
 [dependencies]
 arbitrary = "1.2"
 ed25519-dalek = "1"
-holochain_client = {path = "../"}
-holochain_state = "0.2.5-rc.0"
-holochain_zome_types = {workspace = true}
+holochain_client = { path = "../" }
+holochain_state = "0.2.5-rc.1"
+holochain_zome_types = { workspace = true }
 rand = "0.7"
