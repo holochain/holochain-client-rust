@@ -129,11 +129,7 @@ impl AppAgentWebsocket {
             return Ok(clone_cell.cell_id);
         } else {
             let Some(role_cells) = self.app_info.cell_info.get(role_name) else {
-<<<<<<< HEAD
-               return Err(ConductorApiError::CellNotFound);
-=======
                 return Err(ConductorApiError::CellNotFound);
->>>>>>> upstream/develop
             };
 
             let maybe_provisioned: Option<ProvisionedCell> =
