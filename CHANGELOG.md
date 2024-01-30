@@ -9,6 +9,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2024-01-26: v0.5.0-dev.26
+### Added
+- `AppAgentWebsocket` as an app websocket tied to a specific app and agent. Recommended for most applications.
+- `on_signal`: event handler for reacting to app signals; implemented on `AppWebsocket` and `AppAgentWebsocket`.
+### Changed
+- Bump deps to holochain-0.3.0-beta-dev.26
+
 ## 2023-11-23: v0.5.0-dev.25
 ### Changed
 - Bump deps to holochain-0.3.0-beta-dev.25
