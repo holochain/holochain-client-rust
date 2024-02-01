@@ -5,13 +5,10 @@ use holo_hash::DnaHash;
 use holochain_conductor_api::{AdminRequest, AdminResponse, AppInfo, AppStatusFilter, StorageInfo};
 use holochain_types::{
     dna::AgentPubKey,
-    prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload},
+    prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload, UpdateCoordinatorsPayload},
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketReceiver, WebsocketSender};
-use holochain_zome_types::{
-    prelude::{DnaDef, GrantZomeCallCapabilityPayload},
-    record::Record,
-};
+use holochain_zome_types::prelude::{DnaDef, GrantZomeCallCapabilityPayload, Record};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -177,6 +174,18 @@ impl AdminWebsocket {
         let response = self.send(msg).await?;
         match response {
             AdminResponse::NetworkStatsDumped(stats) => Ok(stats),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn update_coordinators(
+        &mut self,
+        update_coordinators_payload: UpdateCoordinatorsPayload,
+    ) -> ConductorApiResult<()> {
+        let msg = AdminRequest::UpdateCoordinators(Box::new(update_coordinators_payload));
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::CoordinatorsUpdated => Ok(()),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
