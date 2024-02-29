@@ -1,10 +1,13 @@
 use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
-use holochain_conductor_api::{AppInfo, CellInfo, ClonedCell, ProvisionedCell, ZomeCall};
+use holochain_conductor_api::{AppInfo, CellInfo, ProvisionedCell, ZomeCall};
 use holochain_nonce::fresh_nonce;
 use holochain_types::prelude::Signal;
-use holochain_zome_types::prelude::{
-    CellId, ExternIO, FunctionName, RoleName, Signature, Timestamp, ZomeCallUnsigned, ZomeName,
+use holochain_zome_types::{
+    clone::ClonedCell,
+    prelude::{
+        CellId, ExternIO, FunctionName, RoleName, Signature, Timestamp, ZomeCallUnsigned, ZomeName,
+    },
 };
 use lair_keystore_api::LairClient;
 

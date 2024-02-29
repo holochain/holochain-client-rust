@@ -9,9 +9,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2024-02-29: v0.5.0-dev.28
+### Added
+- Export `AdminWebsocket::EnableAppResponse` to be available downstream.
+
 ## 2024-02-01: v0.5.0-dev.27
 ### Added
-
 - Added the `update_coordinators` call in the `AdminWebsocket`.
 
 ## 2024-01-26: v0.5.0-dev.26
