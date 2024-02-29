@@ -4,11 +4,10 @@ use anyhow::{Context, Result};
 use event_emitter_rs::EventEmitter;
 use futures::lock::Mutex;
 use futures::stream::StreamExt;
+use holochain_zome_types::clone::ClonedCell;
 use url::Url;
 
-use holochain_conductor_api::{
-    AppInfo, AppRequest, AppResponse, ClonedCell, NetworkInfo, ZomeCall,
-};
+use holochain_conductor_api::{AppInfo, AppRequest, AppResponse, NetworkInfo, ZomeCall};
 use holochain_types::{
     app::InstalledAppId,
     prelude::{
