@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2024-02-29: v0.4.7
+### Added
+- Export `AdminWebsocket::EnableAppResponse` to be available downstream.
+
 ## 2024-02-02: v0.4.7-rc.2
 ### Changed
 - Bump deps to Holochain v0.2.6-rc.0
