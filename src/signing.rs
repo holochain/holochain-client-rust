@@ -37,8 +37,6 @@ pub(crate) async fn sign_zome_call(
     signer: Arc<Box<dyn AgentSigner>>,
 ) -> Result<ZomeCall> {
     let pub_key = zome_call_unsigned.provenance.clone();
-    let mut pub_key_2 = [0; 32];
-    pub_key_2.copy_from_slice(pub_key.get_raw_32());
 
     let data_to_sign = zome_call_unsigned.data_to_sign().map_err(|e| {
         anyhow::anyhow!("Failed to get data to sign from unsigned zome call: {}", e)
