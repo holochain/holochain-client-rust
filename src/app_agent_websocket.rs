@@ -1,28 +1,29 @@
+use std::sync::Arc;
+
 use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
-use holochain_conductor_api::{AppInfo, CellInfo, ProvisionedCell, ZomeCall};
+use holochain_conductor_api::{AppInfo, CellInfo, ProvisionedCell};
 use holochain_nonce::fresh_nonce;
 use holochain_types::prelude::Signal;
 use holochain_zome_types::{
     clone::ClonedCell,
     prelude::{
-        CellId, ExternIO, FunctionName, RoleName, Signature, Timestamp, ZomeCallUnsigned, ZomeName,
+        CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName,
     },
 };
-use lair_keystore_api::LairClient;
 
-use crate::{AppWebsocket, ConductorApiError, ConductorApiResult};
+use crate::{signing::{sign_zome_call, AgentSigner}, AppWebsocket, ConductorApiError, ConductorApiResult};
 
 #[derive(Clone)]
 pub struct AppAgentWebsocket {
     pub my_pub_key: AgentPubKey,
     app_ws: AppWebsocket,
     app_info: AppInfo,
-    lair_client: LairClient,
+    signer: Arc<Box<dyn AgentSigner>>,
 }
 
 impl AppAgentWebsocket {
-    pub async fn connect(url: String, app_id: String, lair_client: LairClient) -> Result<Self> {
+    pub async fn connect(url: String, app_id: String, signer: Arc<Box<dyn AgentSigner>>) -> Result<Self> {
         let mut app_ws = AppWebsocket::connect(url).await?;
 
         let app_info = app_ws
@@ -35,7 +36,7 @@ impl AppAgentWebsocket {
             my_pub_key: app_info.agent_pub_key.clone(),
             app_ws,
             app_info,
-            lair_client,
+            signer,
         })
     }
 
@@ -99,10 +100,10 @@ impl AppAgentWebsocket {
             nonce,
         };
 
-        let signed_zome_call = sign_zome_call_with_client(zome_call_unsigned, &self.lair_client)
-            .await
-            .map_err(|err| crate::ConductorApiError::SignZomeCallError(err))?;
-
+        let signed_zome_call = sign_zome_call(zome_call_unsigned, self.signer.clone()).await.map_err(|e| {
+            ConductorApiError::SignZomeCallError(e.to_string())
+        })?;
+  
         let result = self.app_ws.call_zome(signed_zome_call).await?;
 
         Ok(result)
@@ -162,40 +163,4 @@ fn get_base_role_name_from_clone_id(role_name: &RoleName) -> RoleName {
             .first()
             .unwrap(),
     )
-}
-
-/// Signs an unsigned zome call with the given LairClient
-pub async fn sign_zome_call_with_client(
-    zome_call_unsigned: ZomeCallUnsigned,
-    client: &LairClient,
-) -> Result<ZomeCall, String> {
-    // sign the zome call
-    let pub_key = zome_call_unsigned.provenance.clone();
-    let mut pub_key_2 = [0; 32];
-    pub_key_2.copy_from_slice(pub_key.get_raw_32());
-
-    let data_to_sign = zome_call_unsigned
-        .data_to_sign()
-        .map_err(|e| format!("Failed to get data to sign from unsigned zome call: {}", e))?;
-
-    let sig = client
-        .sign_by_pub_key(pub_key_2.into(), None, data_to_sign)
-        .await
-        .map_err(|e| format!("Failed to sign zome call by pubkey: {}", e.str_kind()))?;
-
-    let signature = Signature(*sig.0);
-
-    let signed_zome_call = ZomeCall {
-        cell_id: zome_call_unsigned.cell_id,
-        zome_name: zome_call_unsigned.zome_name,
-        fn_name: zome_call_unsigned.fn_name,
-        payload: zome_call_unsigned.payload,
-        cap_secret: zome_call_unsigned.cap_secret,
-        provenance: zome_call_unsigned.provenance,
-        nonce: zome_call_unsigned.nonce,
-        expires_at: zome_call_unsigned.expires_at,
-        signature,
-    };
-
-    return Ok(signed_zome_call);
 }

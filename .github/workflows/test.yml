@@ -61,6 +61,11 @@ jobs:
 
       - name: Run tests
         run: cargo test
+      
+      - name: Verify feature independence
+        run: |
+          cargo build --no-default-features --features "client_signing"
+          cargo build --no-default-features --features "lair_signing"
 
       - name: Setup tmate session if build and test run failed
         if: ${{ failure() }}
