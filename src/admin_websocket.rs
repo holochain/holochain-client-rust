@@ -228,12 +228,10 @@ impl AdminWebsocket {
         let mut csprng = OsRng;
         let keypair = ed25519_dalek::SigningKey::generate(&mut csprng);
         let public_key = keypair.verifying_key();
-        println!("Using public key {:?}", public_key.as_bytes().to_vec());
         let signing_agent_key = AgentPubKey::from_raw_32(public_key.as_bytes().to_vec());
 
         let mut cap_secret = [0; CAP_SECRET_BYTES];
         csprng.fill_bytes(&mut cap_secret);
-        println!("Cap secret {:?}", cap_secret.to_vec());
 
         self.grant_zome_call_capability(GrantZomeCallCapabilityPayload {
             cell_id: request.cell_id,

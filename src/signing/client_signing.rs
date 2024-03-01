@@ -51,9 +51,7 @@ impl AgentSigner for ClientAgentSigner {
             .credentials
             .get(cell_id)
             .ok_or_else(|| anyhow::anyhow!("No credentials found for cell: {:?}", cell_id))?;
-        println!("Using credentials: {:?}", credentials);
         let signature = credentials.keypair.try_sign(&data_to_sign)?;
-        println!("Signature: {:?}", signature.to_bytes());
         Ok(Signature(signature.to_bytes()))
     }
 
