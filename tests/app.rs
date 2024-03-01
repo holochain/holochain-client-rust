@@ -2,7 +2,10 @@ use holochain::{
     prelude::{AppBundleSource, NetworkInfoRequestPayload, Signal},
     sweettest::SweetConductor,
 };
-use holochain_client::{AdminWebsocket, AppWebsocket, InstallAppPayload, InstalledAppId};
+use holochain_client::{
+    AdminWebsocket, AppAgentWebsocket, AppWebsocket, InstallAppPayload, InstalledAppId,
+    ClientAgentSigner, AuthorizeSigningCredentialsPayload
+};
 use holochain_conductor_api::{CellInfo, NetworkInfo};
 use kitsune_p2p_types::fetch_pool::FetchPoolInfo;
 use serde::{Deserialize, Serialize};
@@ -11,7 +14,7 @@ use std::{
     path::PathBuf,
     sync::{Arc, Barrier},
 };
-use utilities::{authorize_signing_credentials, sign_zome_call};
+use holochain_zome_types::zome_io::ExternIO;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn network_info() {
@@ -99,7 +102,7 @@ async fn handle_signal() {
         .await
         .unwrap();
 
-    let installed_app = app_ws.app_info(app_id).await.unwrap().unwrap();
+    let installed_app = app_ws.app_info(app_id.clone()).await.unwrap().unwrap();
 
     let cells = installed_app.cell_info.into_values().next().unwrap();
     let cell_id = match cells[0].clone() {
@@ -112,14 +115,18 @@ async fn handle_signal() {
     const TEST_ZOME_NAME: &str = "foo";
     const TEST_FN_NAME: &str = "emitter";
 
-    let signing_credentials = authorize_signing_credentials(&mut admin_ws, &cell_id).await;
-    let signed_zome_call = sign_zome_call(
-        &cell_id,
-        &TEST_ZOME_NAME,
-        &TEST_FN_NAME,
-        &signing_credentials,
-    )
-    .await;
+    let mut signer = ClientAgentSigner::default();
+    let credentials = admin_ws
+        .authorize_signing_credentials(AuthorizeSigningCredentialsPayload {
+            cell_id: cell_id.clone(),
+            functions: None,
+        })
+        .await
+        .unwrap();
+    signer.add_credentials(cell_id.clone(), credentials);
+
+    let mut app_ws =
+        AppAgentWebsocket::from_existing(app_ws, app_id.clone(), signer.into()).await.unwrap();
 
     let barrier = Arc::new(Barrier::new(2));
     let barrier_clone = barrier.clone();
@@ -136,7 +143,15 @@ async fn handle_signal() {
         .await
         .unwrap();
 
-    let _response = app_ws.call_zome(signed_zome_call).await.unwrap();
+    app_ws
+        .call_zome(
+            cell_id.into(),
+            TEST_ZOME_NAME.into(),
+            TEST_FN_NAME.into(),
+            ExternIO::encode(()).unwrap(),
+        )
+        .await
+        .unwrap();
 
     barrier.wait();
 }

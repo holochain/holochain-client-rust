@@ -1,18 +1,20 @@
-use std::sync::Arc;
+use std::{ops::DerefMut, sync::Arc};
 
 use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
 use holochain_conductor_api::{AppInfo, CellInfo, ProvisionedCell};
 use holochain_nonce::fresh_nonce;
-use holochain_types::prelude::Signal;
+use holochain_types::{app::InstalledAppId, prelude::Signal};
 use holochain_zome_types::{
-    clone::ClonedCell,
-    prelude::{
-        CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName,
-    },
+    clone::{ClonedCell, CloneCellId},
+    prelude::{CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName},
 };
+use std::ops::Deref;
 
-use crate::{signing::{sign_zome_call, AgentSigner}, AppWebsocket, ConductorApiError, ConductorApiResult};
+use crate::{
+    signing::{sign_zome_call, AgentSigner},
+    AppWebsocket, ConductorApiError, ConductorApiResult,
+};
 
 #[derive(Clone)]
 pub struct AppAgentWebsocket {
@@ -23,9 +25,20 @@ pub struct AppAgentWebsocket {
 }
 
 impl AppAgentWebsocket {
-    pub async fn connect(url: String, app_id: String, signer: Arc<Box<dyn AgentSigner>>) -> Result<Self> {
-        let mut app_ws = AppWebsocket::connect(url).await?;
+    pub async fn connect(
+        url: String,
+        app_id: InstalledAppId,
+        signer: Arc<Box<dyn AgentSigner>>,
+    ) -> Result<Self> {
+        let app_ws = AppWebsocket::connect(url).await?;
+        AppAgentWebsocket::from_existing(app_ws, app_id, signer).await
+    }
 
+    pub async fn from_existing(
+        mut app_ws: AppWebsocket,
+        app_id: InstalledAppId,
+        signer: Arc<Box<dyn AgentSigner>>,
+    ) -> Result<Self> {
         let app_info = app_ws
             .app_info(app_id.clone())
             .await
@@ -77,33 +90,40 @@ impl AppAgentWebsocket {
 
     pub async fn call_zome(
         &mut self,
-        role_name: RoleName,
+        target: ZomeCallTarget,
         zome_name: ZomeName,
         fn_name: FunctionName,
         payload: ExternIO,
     ) -> ConductorApiResult<ExternIO> {
-        let cell_id = self.get_cell_id_from_role_name(&role_name)?;
-
-        let agent_pub_key = self.app_info.agent_pub_key.clone();
+        let cell_id = match target {
+            ZomeCallTarget::CellId(cell_id) => cell_id,
+            ZomeCallTarget::RoleName(role_name) => self.get_cell_id_from_role_name(&role_name)?,
+            ZomeCallTarget::CloneId(clone_id) => {
+                match clone_id {
+                    CloneCellId::CellId(cell_id) => cell_id,
+                    CloneCellId::CloneId(clone_id) => self.get_cell_id_from_role_name(&clone_id.0)?,
+                }
+            }
+        };
 
         let (nonce, expires_at) = fresh_nonce(Timestamp::now())
             .map_err(|err| crate::ConductorApiError::FreshNonceError(err))?;
 
         let zome_call_unsigned = ZomeCallUnsigned {
-            provenance: agent_pub_key,
-            cell_id,
+            provenance: self.signer.get_provenance(&cell_id).ok_or(ConductorApiError::SignZomeCallError("Provenance not found".to_string()))?,
+            cap_secret: self.signer.get_cap_secret(&cell_id),
+            cell_id: cell_id.clone(),
             zome_name,
             fn_name,
             payload,
-            cap_secret: None,
             expires_at,
             nonce,
         };
 
-        let signed_zome_call = sign_zome_call(zome_call_unsigned, self.signer.clone()).await.map_err(|e| {
-            ConductorApiError::SignZomeCallError(e.to_string())
-        })?;
-  
+        let signed_zome_call = sign_zome_call(zome_call_unsigned, self.signer.clone())
+            .await
+            .map_err(|e| ConductorApiError::SignZomeCallError(e.to_string()))?;
+
         let result = self.app_ws.call_zome(signed_zome_call).await?;
 
         Ok(result)
@@ -148,6 +168,33 @@ impl AppAgentWebsocket {
     }
 }
 
+pub enum ZomeCallTarget {
+    CellId(CellId),
+    /// You can call by role name for provisioned cells but any clone cells you create after
+    /// creating the [AppAgentWebsocket] will need to be called by [ZomeCallTarget::CellId].
+    RoleName(RoleName),
+    /// Any clone cells you create after creating the [AppAgentWebsocket] will need to be called by [ZomeCallTarget::CellId].
+    CloneId(CloneCellId),
+}
+
+impl From<CellId> for ZomeCallTarget {
+    fn from(cell_id: CellId) -> Self {
+        ZomeCallTarget::CellId(cell_id)
+    }
+}
+
+impl From<RoleName> for ZomeCallTarget {
+    fn from(role_name: RoleName) -> Self {
+        ZomeCallTarget::RoleName(role_name)
+    }
+}
+
+impl From<CloneCellId> for ZomeCallTarget {
+    fn from(clone_id: CloneCellId) -> Self {
+        ZomeCallTarget::CloneId(clone_id)
+    }
+}
+
 fn is_clone_id(role_name: &RoleName) -> bool {
     role_name.as_str().contains(".")
 }
@@ -163,4 +210,19 @@ fn get_base_role_name_from_clone_id(role_name: &RoleName) -> RoleName {
             .first()
             .unwrap(),
     )
+}
+
+/// Make the [AppWebsocket] functionality available through the [AppAgentWebsocket]
+impl Deref for AppAgentWebsocket {
+    type Target = AppWebsocket;
+
+    fn deref(&self) -> &Self::Target {
+        &self.app_ws
+    }
+}
+
+impl DerefMut for AppAgentWebsocket {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.app_ws
+    }
 }

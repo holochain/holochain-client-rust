@@ -1,10 +1,12 @@
 use std::sync::Arc;
 
 use anyhow::Result;
+use async_trait::async_trait;
 use holo_hash::AgentPubKey;
 use holochain_conductor_api::ZomeCall;
-use holochain_zome_types::{cell::CellId, dependencies::holochain_integrity_types::Signature, zome_io::ZomeCallUnsigned};
-use async_trait::async_trait;
+use holochain_zome_types::{
+    capability::CapSecret, cell::CellId, dependencies::holochain_integrity_types::Signature, zome_io::ZomeCallUnsigned
+};
 
 #[cfg(feature = "client_signing")]
 pub(crate) mod client_signing;
@@ -15,7 +17,17 @@ pub(crate) mod lair_signing;
 #[async_trait]
 pub trait AgentSigner {
     /// Sign the given data with the public key found in the agent id of the provenance.
-    async fn sign(&self, cell_id: &CellId, provenance: AgentPubKey, data_to_sign: Arc<[u8]>) -> Result<Signature>;
+    async fn sign(
+        &self,
+        cell_id: &CellId,
+        provenance: AgentPubKey,
+        data_to_sign: Arc<[u8]>,
+    ) -> Result<Signature>;
+
+    fn get_provenance(&self, cell_id: &CellId) -> Option<AgentPubKey>;
+
+    /// Get the capability secret for the given `cell_id` if it exists.
+    fn get_cap_secret(&self, cell_id: &CellId) -> Option<CapSecret>;
 }
 
 /// Signs an unsigned zome call using the provided signing implementation
@@ -27,13 +39,13 @@ pub(crate) async fn sign_zome_call(
     let mut pub_key_2 = [0; 32];
     pub_key_2.copy_from_slice(pub_key.get_raw_32());
 
-    let data_to_sign = zome_call_unsigned
-        .data_to_sign()
-        .map_err(|e| anyhow::anyhow!("Failed to get data to sign from unsigned zome call: {}", e))?;
+    let data_to_sign = zome_call_unsigned.data_to_sign().map_err(|e| {
+        anyhow::anyhow!("Failed to get data to sign from unsigned zome call: {}", e)
+    })?;
 
-    let signature = signer.sign(&zome_call_unsigned.cell_id, pub_key, data_to_sign).await?;
-
-    // let signature = Signature(*sig.0);
+    let signature = signer
+        .sign(&zome_call_unsigned.cell_id, pub_key, data_to_sign)
+        .await?;
 
     Ok(ZomeCall {
         cell_id: zome_call_unsigned.cell_id,
@@ -47,4 +59,3 @@ pub(crate) async fn sign_zome_call(
         signature,
     })
 }
-
