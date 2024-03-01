@@ -64,7 +64,7 @@ impl AgentSigner for ClientAgentSigner {
     }
 
     fn get_cap_secret(&self, cell_id: &CellId) -> Option<CapSecret> {
-        self.credentials.get(cell_id).map(|c| c.cap_secret).clone()
+        self.credentials.get(cell_id).map(|c| c.cap_secret)
     }
 }
 

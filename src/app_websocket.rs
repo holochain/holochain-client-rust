@@ -148,7 +148,7 @@ impl AppWebsocket {
             .tx
             .request(msg)
             .await
-            .map_err(|err| ConductorApiError::WebsocketError(err))?;
+            .map_err(ConductorApiError::WebsocketError)?;
 
         match response {
             AppResponse::Error(error) => Err(ConductorApiError::ExternalApiWireError(error)),
