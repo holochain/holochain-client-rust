@@ -66,19 +66,13 @@ impl AppAgentWebsocket {
                     signal: _,
                 } = signal.clone()
                 {
-                    if app_info
-                        .cell_info
-                        .values()
-                        .any(|cells| {
-                            cells
-                                .iter()
-                                .any(|cell_info| match cell_info {
-                                    CellInfo::Provisioned(cell) => cell.cell_id.eq(&cell_id),
-                                    CellInfo::Cloned(cell) => cell.cell_id.eq(&cell_id),
-                                    _ => false,
-                                })
+                    if app_info.cell_info.values().any(|cells| {
+                        cells.iter().any(|cell_info| match cell_info {
+                            CellInfo::Provisioned(cell) => cell.cell_id.eq(&cell_id),
+                            CellInfo::Cloned(cell) => cell.cell_id.eq(&cell_id),
+                            _ => false,
                         })
-                    {
+                    }) {
                         handler(signal);
                     }
                 }
@@ -102,8 +96,8 @@ impl AppAgentWebsocket {
             },
         };
 
-        let (nonce, expires_at) = fresh_nonce(Timestamp::now())
-            .map_err(ConductorApiError::FreshNonceError)?;
+        let (nonce, expires_at) =
+            fresh_nonce(Timestamp::now()).map_err(ConductorApiError::FreshNonceError)?;
 
         let zome_call_unsigned = ZomeCallUnsigned {
             provenance: self.signer.get_provenance(&cell_id).ok_or(

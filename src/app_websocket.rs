@@ -44,13 +44,10 @@ impl AppWebsocket {
         std::thread::spawn(move || {
             futures::executor::block_on(async {
                 while let Some((msg, resp)) = rx.next().await {
-                    match resp {
-                        Respond::Signal => {
-                            let mut ee = m.lock().await;
-                            let signal = Signal::try_from(msg).expect("Malformed signal");
-                            ee.emit("signal", signal);
-                        }
-                        _ => {}
+                    if let Respond::Signal = resp {
+                        let mut ee = m.lock().await;
+                        let signal = Signal::try_from(msg).expect("Malformed signal");
+                        ee.emit("signal", signal);
                     }
                 }
             });
