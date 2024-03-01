@@ -4,7 +4,10 @@ use holochain::{
     prelude::{DeleteCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload},
     sweettest::SweetConductor,
 };
-use holochain_client::{AdminWebsocket, AppAgentWebsocket, AppWebsocket, AuthorizeSigningCredentialsPayload, ClientAgentSigner, InstallAppPayload};
+use holochain_client::{
+    AdminWebsocket, AppAgentWebsocket, AppWebsocket, AuthorizeSigningCredentialsPayload,
+    ClientAgentSigner, InstallAppPayload,
+};
 use holochain_types::prelude::{
     AppBundleSource, CloneCellId, CloneId, CreateCloneCellPayload, DnaModifiersOpt, InstalledAppId,
 };
@@ -62,13 +65,23 @@ async fn clone_cell_management() {
         .unwrap();
     signer.add_credentials(cell_id.clone(), credentials);
 
-    let mut app_ws = AppAgentWebsocket::from_existing(app_ws, app_id.clone(), signer.into()).await.unwrap();
-    
+    let mut app_ws = AppAgentWebsocket::from_existing(app_ws, app_id.clone(), signer.into())
+        .await
+        .unwrap();
+
     const TEST_ZOME_NAME: &str = "foo";
     const TEST_FN_NAME: &str = "foo";
-    
+
     // call clone cell should succeed
-    let response = app_ws.call_zome(cell_id.clone().into(), TEST_ZOME_NAME.into(), TEST_FN_NAME.into(), ExternIO::encode(()).unwrap()).await.unwrap();
+    let response = app_ws
+        .call_zome(
+            cell_id.clone().into(),
+            TEST_ZOME_NAME.into(),
+            TEST_FN_NAME.into(),
+            ExternIO::encode(()).unwrap(),
+        )
+        .await
+        .unwrap();
     assert_eq!(response.decode::<String>().unwrap(), "foo");
 
     // disable clone cell
@@ -81,7 +94,14 @@ async fn clone_cell_management() {
         .unwrap();
 
     // call disabled clone cell should fail
-    let response = app_ws.call_zome(cell_id.clone().into(), TEST_ZOME_NAME.into(), TEST_FN_NAME.into(), ExternIO::encode(()).unwrap()).await;
+    let response = app_ws
+        .call_zome(
+            cell_id.clone().into(),
+            TEST_ZOME_NAME.into(),
+            TEST_FN_NAME.into(),
+            ExternIO::encode(()).unwrap(),
+        )
+        .await;
     assert!(response.is_err());
 
     // enable clone cell
@@ -95,7 +115,15 @@ async fn clone_cell_management() {
     assert_eq!(enabled_cell, clone_cell);
 
     // call enabled clone cell should succeed
-    let response = app_ws.call_zome(cell_id.clone().into(), TEST_ZOME_NAME.into(), TEST_FN_NAME.into(), ExternIO::encode(()).unwrap()).await.unwrap();
+    let response = app_ws
+        .call_zome(
+            cell_id.clone().into(),
+            TEST_ZOME_NAME.into(),
+            TEST_FN_NAME.into(),
+            ExternIO::encode(()).unwrap(),
+        )
+        .await
+        .unwrap();
     assert_eq!(response.decode::<String>().unwrap(), "foo");
 
     // disable clone cell again

@@ -2,10 +2,12 @@ use crate::AgentSigner;
 use anyhow::Result;
 use async_trait::async_trait;
 use holo_hash::AgentPubKey;
-use holochain_zome_types::{capability::CapSecret, cell::CellId, dependencies::holochain_integrity_types::Signature};
+use holochain_zome_types::{
+    capability::CapSecret, cell::CellId, dependencies::holochain_integrity_types::Signature,
+};
 use lair_keystore_api::LairClient;
-use std::sync::Arc;
 use std::collections::HashMap;
+use std::sync::Arc;
 
 pub struct LairAgentSigner {
     lair_client: Arc<LairClient>,
@@ -14,7 +16,10 @@ pub struct LairAgentSigner {
 
 impl LairAgentSigner {
     pub fn new(lair_client: Arc<LairClient>) -> Self {
-        Self { lair_client, credentials: HashMap::new() }
+        Self {
+            lair_client,
+            credentials: HashMap::new(),
+        }
     }
 
     /// Add credentials for a cell to the signer.

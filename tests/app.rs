@@ -3,10 +3,11 @@ use holochain::{
     sweettest::SweetConductor,
 };
 use holochain_client::{
-    AdminWebsocket, AppAgentWebsocket, AppWebsocket, InstallAppPayload, InstalledAppId,
-    ClientAgentSigner, AuthorizeSigningCredentialsPayload
+    AdminWebsocket, AppAgentWebsocket, AppWebsocket, AuthorizeSigningCredentialsPayload,
+    ClientAgentSigner, InstallAppPayload, InstalledAppId,
 };
 use holochain_conductor_api::{CellInfo, NetworkInfo};
+use holochain_zome_types::zome_io::ExternIO;
 use kitsune_p2p_types::fetch_pool::FetchPoolInfo;
 use serde::{Deserialize, Serialize};
 use std::{
@@ -14,7 +15,6 @@ use std::{
     path::PathBuf,
     sync::{Arc, Barrier},
 };
-use holochain_zome_types::zome_io::ExternIO;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn network_info() {
@@ -125,8 +125,9 @@ async fn handle_signal() {
         .unwrap();
     signer.add_credentials(cell_id.clone(), credentials);
 
-    let mut app_ws =
-        AppAgentWebsocket::from_existing(app_ws, app_id.clone(), signer.into()).await.unwrap();
+    let mut app_ws = AppAgentWebsocket::from_existing(app_ws, app_id.clone(), signer.into())
+        .await
+        .unwrap();
 
     let barrier = Arc::new(Barrier::new(2));
     let barrier_clone = barrier.clone();

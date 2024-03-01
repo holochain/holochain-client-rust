@@ -6,7 +6,7 @@ use holochain_conductor_api::{AppInfo, CellInfo, ProvisionedCell};
 use holochain_nonce::fresh_nonce;
 use holochain_types::{app::InstalledAppId, prelude::Signal};
 use holochain_zome_types::{
-    clone::{ClonedCell, CloneCellId},
+    clone::{CloneCellId, ClonedCell},
     prelude::{CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName},
 };
 use std::ops::Deref;
@@ -53,37 +53,35 @@ impl AppAgentWebsocket {
         })
     }
 
-    pub async fn on_signal<F: Fn(Signal) -> () + 'static + Sync + Send>(
+    pub async fn on_signal<F: Fn(Signal) + 'static + Sync + Send>(
         &mut self,
         handler: F,
     ) -> Result<String> {
         let app_info = self.app_info.clone();
         self.app_ws
-            .on_signal(move |signal| match signal.clone() {
-                Signal::App {
+            .on_signal(move |signal| {
+                if let Signal::App {
                     cell_id,
                     zome_name: _,
                     signal: _,
-                } => {
+                } = signal.clone()
+                {
                     if app_info
                         .cell_info
                         .values()
-                        .find(|cells| {
+                        .any(|cells| {
                             cells
                                 .iter()
-                                .find(|cell_info| match cell_info {
+                                .any(|cell_info| match cell_info {
                                     CellInfo::Provisioned(cell) => cell.cell_id.eq(&cell_id),
                                     CellInfo::Cloned(cell) => cell.cell_id.eq(&cell_id),
                                     _ => false,
                                 })
-                                .is_some()
                         })
-                        .is_some()
                     {
                         handler(signal);
                     }
                 }
-                _ => {}
             })
             .await
     }
@@ -98,19 +96,19 @@ impl AppAgentWebsocket {
         let cell_id = match target {
             ZomeCallTarget::CellId(cell_id) => cell_id,
             ZomeCallTarget::RoleName(role_name) => self.get_cell_id_from_role_name(&role_name)?,
-            ZomeCallTarget::CloneId(clone_id) => {
-                match clone_id {
-                    CloneCellId::CellId(cell_id) => cell_id,
-                    CloneCellId::CloneId(clone_id) => self.get_cell_id_from_role_name(&clone_id.0)?,
-                }
-            }
+            ZomeCallTarget::CloneId(clone_id) => match clone_id {
+                CloneCellId::CellId(cell_id) => cell_id,
+                CloneCellId::CloneId(clone_id) => self.get_cell_id_from_role_name(&clone_id.0)?,
+            },
         };
 
         let (nonce, expires_at) = fresh_nonce(Timestamp::now())
-            .map_err(|err| crate::ConductorApiError::FreshNonceError(err))?;
+            .map_err(ConductorApiError::FreshNonceError)?;
 
         let zome_call_unsigned = ZomeCallUnsigned {
-            provenance: self.signer.get_provenance(&cell_id).ok_or(ConductorApiError::SignZomeCallError("Provenance not found".to_string()))?,
+            provenance: self.signer.get_provenance(&cell_id).ok_or(
+                ConductorApiError::SignZomeCallError("Provenance not found".to_string()),
+            )?,
             cap_secret: self.signer.get_cap_secret(&cell_id),
             cell_id: cell_id.clone(),
             zome_name,
@@ -138,7 +136,7 @@ impl AppAgentWebsocket {
             };
 
             let maybe_clone_cell: Option<ClonedCell> =
-                role_cells.into_iter().find_map(|cell| match cell {
+                role_cells.iter().find_map(|cell| match cell {
                     CellInfo::Cloned(cloned_cell) => {
                         if cloned_cell.clone_id.0.eq(role_name) {
                             Some(cloned_cell.clone())
@@ -150,20 +148,20 @@ impl AppAgentWebsocket {
                 });
 
             let clone_cell = maybe_clone_cell.ok_or(ConductorApiError::CellNotFound)?;
-            return Ok(clone_cell.cell_id);
+            Ok(clone_cell.cell_id)
         } else {
             let Some(role_cells) = self.app_info.cell_info.get(role_name) else {
                 return Err(ConductorApiError::CellNotFound);
             };
 
             let maybe_provisioned: Option<ProvisionedCell> =
-                role_cells.into_iter().find_map(|cell| match cell {
+                role_cells.iter().find_map(|cell| match cell {
                     CellInfo::Provisioned(provisioned_cell) => Some(provisioned_cell.clone()),
                     _ => None,
                 });
 
             let provisioned_cell = maybe_provisioned.ok_or(ConductorApiError::CellNotFound)?;
-            return Ok(provisioned_cell.cell_id);
+            Ok(provisioned_cell.cell_id)
         }
     }
 }
@@ -196,15 +194,14 @@ impl From<CloneCellId> for ZomeCallTarget {
 }
 
 fn is_clone_id(role_name: &RoleName) -> bool {
-    role_name.as_str().contains(".")
+    role_name.as_str().contains('.')
 }
 
 fn get_base_role_name_from_clone_id(role_name: &RoleName) -> RoleName {
     RoleName::from(
         role_name
             .as_str()
-            .split(".")
-            .into_iter()
+            .split('.')
             .map(|s| s.to_string())
             .collect::<Vec<String>>()
             .first()

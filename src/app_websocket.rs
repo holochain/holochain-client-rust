@@ -62,7 +62,7 @@ impl AppWebsocket {
         })
     }
 
-    pub async fn on_signal<F: Fn(Signal) -> () + 'static + Sync + Send>(
+    pub async fn on_signal<F: Fn(Signal) + 'static + Sync + Send>(
         &mut self,
         handler: F,
     ) -> Result<String> {

@@ -2,7 +2,9 @@ use super::AgentSigner;
 use async_trait::async_trait;
 use ed25519_dalek::Signer;
 use holo_hash::AgentPubKey;
-use holochain_zome_types::{capability::CapSecret, cell::CellId, dependencies::holochain_integrity_types::Signature};
+use holochain_zome_types::{
+    capability::CapSecret, cell::CellId, dependencies::holochain_integrity_types::Signature,
+};
 use std::{collections::HashMap, sync::Arc};
 
 pub struct SigningCredentials {
@@ -56,7 +58,9 @@ impl AgentSigner for ClientAgentSigner {
     }
 
     fn get_provenance(&self, cell_id: &CellId) -> Option<AgentPubKey> {
-        self.credentials.get(cell_id).map(|c| c.signing_agent_key.clone())
+        self.credentials
+            .get(cell_id)
+            .map(|c| c.signing_agent_key.clone())
     }
 
     fn get_cap_secret(&self, cell_id: &CellId) -> Option<CapSecret> {
