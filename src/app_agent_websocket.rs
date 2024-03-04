@@ -4,9 +4,9 @@ use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
 use holochain_conductor_api::{AppInfo, CellInfo, ProvisionedCell};
 use holochain_nonce::fresh_nonce;
-use holochain_types::{app::InstalledAppId, prelude::Signal};
+use holochain_types::{app::InstalledAppId, prelude::{Signal, CloneId}};
 use holochain_zome_types::{
-    clone::{CloneCellId, ClonedCell},
+    clone::ClonedCell,
     prelude::{CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName},
 };
 use std::ops::Deref;
@@ -90,10 +90,7 @@ impl AppAgentWebsocket {
         let cell_id = match target {
             ZomeCallTarget::CellId(cell_id) => cell_id,
             ZomeCallTarget::RoleName(role_name) => self.get_cell_id_from_role_name(&role_name)?,
-            ZomeCallTarget::CloneId(clone_id) => match clone_id {
-                CloneCellId::CellId(cell_id) => cell_id,
-                CloneCellId::CloneId(clone_id) => self.get_cell_id_from_role_name(&clone_id.0)?,
-            },
+            ZomeCallTarget::CloneId(clone_id) => self.get_cell_id_from_role_name(&clone_id.0)?,
         };
 
         let (nonce, expires_at) =
@@ -181,11 +178,11 @@ pub enum ZomeCallTarget {
     /// Note that when using clone cells, if you create them after creating the [AppAgentWebsocket], you will need to call [AppAgentWebsocket::refresh_app_info]
     /// for the right CellId to be found to make the call.
     RoleName(RoleName),
-    /// Call a cell by its clone cell id.
+    /// Call a cell by its clone id.
     ///
     /// Note that when using clone cells, if you create them after creating the [AppAgentWebsocket], you will need to call [AppAgentWebsocket::refresh_app_info]
     /// for the right CellId to be found to make the call.
-    CloneId(CloneCellId),
+    CloneId(CloneId),
 }
 
 impl From<CellId> for ZomeCallTarget {
@@ -200,8 +197,8 @@ impl From<RoleName> for ZomeCallTarget {
     }
 }
 
-impl From<CloneCellId> for ZomeCallTarget {
-    fn from(clone_id: CloneCellId) -> Self {
+impl From<CloneId> for ZomeCallTarget {
+    fn from(clone_id: CloneId) -> Self {
         ZomeCallTarget::CloneId(clone_id)
     }
 }
