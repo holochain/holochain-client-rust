@@ -8,7 +8,7 @@ use holochain_client::{
 };
 use holochain_conductor_api::{CellInfo, NetworkInfo};
 use holochain_zome_types::zome_io::ExternIO;
-use kitsune_p2p_types::fetch_pool::FetchPoolInfo;
+use kitsune_p2p_fetch::FetchPoolInfo;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
