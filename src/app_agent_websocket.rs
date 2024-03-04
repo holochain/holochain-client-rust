@@ -2,13 +2,16 @@ use std::{ops::DerefMut, sync::Arc};
 
 use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
-use holochain_conductor_api::{AppInfo, CellInfo, ProvisionedCell, ClonedCell};
-use holochain_types::{app::InstalledAppId, prelude::{Signal, CloneCellId}};
-use holochain_zome_types::{
-    prelude::{CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName},
+use holochain_conductor_api::{AppInfo, CellInfo, ClonedCell, ProvisionedCell};
+use holochain_state::nonce::fresh_nonce;
+use holochain_types::{
+    app::InstalledAppId,
+    prelude::{CloneCellId, Signal},
+};
+use holochain_zome_types::prelude::{
+    CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName,
 };
 use std::ops::Deref;
-use holochain_state::nonce::fresh_nonce;
 
 use crate::{
     signing::{sign_zome_call, AgentSigner},
@@ -95,10 +98,8 @@ impl AppAgentWebsocket {
             },
         };
 
-        let (nonce, expires_at) =
-            fresh_nonce(Timestamp::now()).map_err(|e| {
-                ConductorApiError::FreshNonceError(format!("{:?}", e).into())
-            })?;
+        let (nonce, expires_at) = fresh_nonce(Timestamp::now())
+            .map_err(|e| ConductorApiError::FreshNonceError(format!("{:?}", e).into()))?;
 
         let zome_call_unsigned = ZomeCallUnsigned {
             provenance: self.signer.get_provenance(&cell_id).ok_or(

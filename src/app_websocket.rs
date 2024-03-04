@@ -6,12 +6,14 @@ use futures::lock::Mutex;
 use futures::stream::StreamExt;
 use url::Url;
 
-use holochain_conductor_api::{AppInfo, AppRequest, AppResponse, NetworkInfo, ZomeCall, ClonedCell};
+use holochain_conductor_api::{
+    AppInfo, AppRequest, AppResponse, ClonedCell, NetworkInfo, ZomeCall,
+};
 use holochain_types::{
     app::InstalledAppId,
     prelude::{
         CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload, ExternIO,
-        NetworkInfoRequestPayload
+        NetworkInfoRequestPayload,
     },
     signal::Signal,
 };
