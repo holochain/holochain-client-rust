@@ -5,7 +5,7 @@ mod error;
 mod signing;
 
 pub use admin_websocket::{AdminWebsocket, AuthorizeSigningCredentialsPayload, EnableAppResponse};
-pub use app_agent_websocket::AppAgentWebsocket;
+pub use app_agent_websocket::{AppAgentWebsocket, ZomeCallTarget};
 pub use app_websocket::AppWebsocket;
 pub use error::{ConductorApiError, ConductorApiResult};
 pub use holochain_conductor_api::{
