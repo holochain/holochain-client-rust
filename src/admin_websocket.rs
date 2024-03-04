@@ -44,10 +44,9 @@ impl AdminWebsocket {
         Ok(Self { tx, rx })
     }
 
-    pub fn close(&mut self) -> () {
-        match self.rx.take_handle() {
-            Some(h) => h.close(),
-            None => (),
+    pub fn close(&mut self) {
+        if let Some(h) = self.rx.take_handle() {
+            h.close()
         }
     }
 
@@ -245,7 +244,7 @@ impl AdminWebsocket {
             .tx
             .request(msg)
             .await
-            .map_err(|err| ConductorApiError::WebsocketError(err))?;
+            .map_err(ConductorApiError::WebsocketError)?;
         match response {
             AdminResponse::Error(error) => Err(ConductorApiError::ExternalApiWireError(error)),
             _ => Ok(response),
