@@ -1,4 +1,4 @@
-use std::{fmt::Result, ops::DerefMut, sync::Arc};
+use std::{ops::DerefMut, sync::Arc};
 
 use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
@@ -121,7 +121,10 @@ impl AppAgentWebsocket {
         Ok(result)
     }
 
-    pub fn refresh_app_info(&mut self) -> Result<()> {
+    /// Gets a new copy of the [AppInfo] for the app this agent is connected to.
+    ///
+    /// This is useful if you have made changes to the app, such as creating new clone cells, and need to refresh the app info.
+    pub async fn refresh_app_info(&mut self) -> Result<()> {
         self.app_info = self
             .app_ws
             .app_info(self.app_info.installed_app_id.clone())
