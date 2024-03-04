@@ -34,7 +34,7 @@ pub trait AgentSigner {
 /// Signs an unsigned zome call using the provided signing implementation
 pub(crate) async fn sign_zome_call(
     zome_call_unsigned: ZomeCallUnsigned,
-    signer: Arc<Box<dyn AgentSigner>>,
+    signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
 ) -> Result<ZomeCall> {
     let pub_key = zome_call_unsigned.provenance.clone();
 

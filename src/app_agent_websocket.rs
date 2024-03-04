@@ -1,4 +1,4 @@
-use std::{ops::DerefMut, sync::Arc};
+use std::{fmt::Result, ops::DerefMut, sync::Arc};
 
 use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
@@ -21,14 +21,14 @@ pub struct AppAgentWebsocket {
     pub my_pub_key: AgentPubKey,
     app_ws: AppWebsocket,
     app_info: AppInfo,
-    signer: Arc<Box<dyn AgentSigner>>,
+    signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
 }
 
 impl AppAgentWebsocket {
     pub async fn connect(
         url: String,
         app_id: InstalledAppId,
-        signer: Arc<Box<dyn AgentSigner>>,
+        signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
     ) -> Result<Self> {
         let app_ws = AppWebsocket::connect(url).await?;
         AppAgentWebsocket::from_existing(app_ws, app_id, signer).await
@@ -37,7 +37,7 @@ impl AppAgentWebsocket {
     pub async fn from_existing(
         mut app_ws: AppWebsocket,
         app_id: InstalledAppId,
-        signer: Arc<Box<dyn AgentSigner>>,
+        signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
     ) -> Result<Self> {
         let app_info = app_ws
             .app_info(app_id.clone())
@@ -121,6 +121,17 @@ impl AppAgentWebsocket {
         Ok(result)
     }
 
+    pub fn refresh_app_info(&mut self) -> Result<()> {
+        self.app_info = self
+            .app_ws
+            .app_info(self.app_info.installed_app_id.clone())
+            .await
+            .map_err(|err| anyhow!("Error fetching app_info {err:?}"))?
+            .ok_or(anyhow!("App doesn't exist"))?;
+
+        Ok(())
+    }
+
     fn get_cell_id_from_role_name(&self, role_name: &RoleName) -> ConductorApiResult<CellId> {
         if is_clone_id(role_name) {
             let base_role_name = get_base_role_name_from_clone_id(role_name);
@@ -162,10 +173,15 @@ impl AppAgentWebsocket {
 
 pub enum ZomeCallTarget {
     CellId(CellId),
-    /// You can call by role name for provisioned cells but any clone cells you create after
-    /// creating the [AppAgentWebsocket] will need to be called by [ZomeCallTarget::CellId].
+    /// Call a cell by its role name.
+    ///
+    /// Note that when using clone cells, if you create them after creating the [AppAgentWebsocket], you will need to call [AppAgentWebsocket::refresh_app_info]
+    /// for the right CellId to be found to make the call.
     RoleName(RoleName),
-    /// Any clone cells you create after creating the [AppAgentWebsocket] will need to be called by [ZomeCallTarget::CellId].
+    /// Call a cell by its clone cell id.
+    ///
+    /// Note that when using clone cells, if you create them after creating the [AppAgentWebsocket], you will need to call [AppAgentWebsocket::refresh_app_info]
+    /// for the right CellId to be found to make the call.
     CloneId(CloneCellId),
 }
 
