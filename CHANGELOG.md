@@ -5,9 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
+- Capability to create zome call signing credentials with the `AdminWebsocket` using `authorize_signing_credentials`.
+- `ClientAgentSigner` type which can store (in memory) signing credentials created with `authorize_signing_credentials`.
+- `AppAgentWebsocket` to simplify making zome calls. It is a wrapper around a `AppWebsocket` but can be created directly.
 ### Changed
 ### Fixed
 ### Removed
+- The utilities crate, it is now replaced by signing built into the client. Please see the updated tests for examples of how to use this.
 
 ## 2024-02-29: v0.4.7
 ### Added

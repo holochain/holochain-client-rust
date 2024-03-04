@@ -66,7 +66,7 @@ impl AgentSigner for ClientAgentSigner {
     }
 }
 
-/// Convert the ClientAgentSigner into an Arc<Box<dyn AgentSigner>>
+/// Convert the ClientAgentSigner into an `Arc<Box<dyn AgentSigner + Send + Sync>>`
 impl From<ClientAgentSigner> for Arc<Box<dyn AgentSigner + Send + Sync>> {
     fn from(cas: ClientAgentSigner) -> Self {
         Arc::new(Box::new(cas))

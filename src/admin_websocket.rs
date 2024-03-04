@@ -201,7 +201,6 @@ impl AdminWebsocket {
         }
     }
 
-    #[cfg(feature = "client_signing")]
     pub async fn authorize_signing_credentials(
         &mut self,
         request: AuthorizeSigningCredentialsPayload,

@@ -92,6 +92,20 @@ impl AppAgentWebsocket {
         Ok(result)
     }
 
+    /// Gets a new copy of the [AppInfo] for the app this agent is connected to.
+    ///
+    /// This is useful if you have made changes to the app, such as creating new clone cells, and need to refresh the app info.
+    pub async fn refresh_app_info(&mut self) -> Result<()> {
+        self.app_info = self
+            .app_ws
+            .app_info(self.app_info.installed_app_id.clone())
+            .await
+            .map_err(|err| anyhow!("Error fetching app_info {err:?}"))?
+            .ok_or(anyhow!("App doesn't exist"))?;
+
+        Ok(())
+    }
+
     fn get_cell_id_from_role_name(&self, role_name: &RoleName) -> ConductorApiResult<CellId> {
         if is_clone_id(role_name) {
             let base_role_name = get_base_role_name_from_clone_id(role_name);
@@ -133,10 +147,15 @@ impl AppAgentWebsocket {
 
 pub enum ZomeCallTarget {
     CellId(CellId),
-    /// You can call by role name for provisioned cells but any clone cells you create after
-    /// creating the [AppAgentWebsocket] will need to be called by [ZomeCallTarget::CellId].
+    /// Call a cell by its role name.
+    ///
+    /// Note that when using clone cells, if you create them after creating the [AppAgentWebsocket], you will need to call [AppAgentWebsocket::refresh_app_info]
+    /// for the right CellId to be found to make the call.
     RoleName(RoleName),
-    /// Any clone cells you create after creating the [AppAgentWebsocket] will need to be called by [ZomeCallTarget::CellId].
+    /// Call a cell by its clone cell id.
+    ///
+    /// Note that when using clone cells, if you create them after creating the [AppAgentWebsocket], you will need to call [AppAgentWebsocket::refresh_app_info]
+    /// for the right CellId to be found to make the call.
     CloneId(CloneCellId),
 }
 
