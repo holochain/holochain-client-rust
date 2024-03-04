@@ -15,7 +15,9 @@ Types and bindings to connect easily to a running Holochain conductor from Rust.
 
 **Rust client v0.4.x** is compatible with **Holochain v0.2.x**.
 
-## Running The Tests
+**Rust client v0.5.x** is compatible with **Holochain v0.3.x**.
+
+## Running the tests
 
 ``` bash
 ./build-fixture.sh

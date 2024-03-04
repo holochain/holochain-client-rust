@@ -1,36 +1,71 @@
 use std::sync::Arc;
 
 use anyhow::{Context, Result};
-use holochain_conductor_api::{
-    AppInfo, AppRequest, AppResponse, ClonedCell, NetworkInfo, ZomeCall,
-};
+use event_emitter_rs::EventEmitter;
+use futures::lock::Mutex;
+use futures::stream::StreamExt;
+use holochain_zome_types::clone::ClonedCell;
+use url::Url;
+
+use holochain_conductor_api::{AppInfo, AppRequest, AppResponse, NetworkInfo, ZomeCall};
 use holochain_types::{
     app::InstalledAppId,
     prelude::{
         CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload, ExternIO,
         NetworkInfoRequestPayload,
     },
+    signal::Signal,
 };
-use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
-use url::Url;
+use holochain_websocket::{connect, Respond, WebsocketConfig, WebsocketSender};
 
 use crate::error::{ConductorApiError, ConductorApiResult};
 
 #[derive(Clone)]
 pub struct AppWebsocket {
     tx: WebsocketSender,
+    event_emitter_mutex: Arc<Mutex<EventEmitter>>,
 }
 
 impl AppWebsocket {
     pub async fn connect(app_url: String) -> Result<Self> {
         let url = Url::parse(&app_url).context("invalid ws:// URL")?;
         let websocket_config = Arc::new(WebsocketConfig::default());
-        let (tx, _rx) = again::retry(|| {
+        let (tx, mut rx) = again::retry(|| {
             let websocket_config = Arc::clone(&websocket_config);
             connect(url.clone().into(), websocket_config)
         })
         .await?;
-        Ok(Self { tx })
+
+        let event_emitter = EventEmitter::new();
+        let mutex = Arc::new(Mutex::new(event_emitter));
+
+        let m = mutex.clone();
+
+        std::thread::spawn(move || {
+            futures::executor::block_on(async {
+                while let Some((msg, resp)) = rx.next().await {
+                    if let Respond::Signal = resp {
+                        let mut ee = m.lock().await;
+                        let signal = Signal::try_from(msg).expect("Malformed signal");
+                        ee.emit("signal", signal);
+                    }
+                }
+            });
+        });
+
+        Ok(Self {
+            tx,
+            event_emitter_mutex: mutex,
+        })
+    }
+
+    pub async fn on_signal<F: Fn(Signal) + 'static + Sync + Send>(
+        &mut self,
+        handler: F,
+    ) -> Result<String> {
+        let mut ee = self.event_emitter_mutex.lock().await;
+        let id = ee.on("signal", handler);
+        Ok(id)
     }
 
     pub async fn app_info(
@@ -110,7 +145,7 @@ impl AppWebsocket {
             .tx
             .request(msg)
             .await
-            .map_err(|err| ConductorApiError::WebsocketError(err))?;
+            .map_err(ConductorApiError::WebsocketError)?;
 
         match response {
             AppResponse::Error(error) => Err(ConductorApiError::ExternalApiWireError(error)),

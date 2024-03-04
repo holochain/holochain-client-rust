@@ -4,7 +4,57 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## \[Unreleased\]
 
+### Removed
+- The utilities crate, it is now replaced by signing built into the client. Please see the updated tests for examples of how to use this.
+- `sign_zome_call_with_client` which was used internally but also exposed in the public interface. You probably don't need to call this but if you wish to for some reason then use one of the two new `*Signer` types, and convert them to a `Arc<Box<dyn AgentSigner>>`, then use the `sign` method to compute a signature. The logic to prepare the data to be signed is no longer public so you would have to set this up yourself following the `sign_zome_call` function in the `signer` module.
+
 ### Added
+- Capability to create zome call signing credentials with the AdminWebsocket using `authorize_signing_credentials`.
+- `ClientAgentSigner` type which can store (in memory) signing credentials created with `authorize_signing_credentials`.
+- `LairAgentSigner` which is analagous to the `ClientAgentSigner` but is a wrapper around a Lair client instead so that private keys are stored in Lair.
+- `from_existing` method to the `AppAgentWebsocket` which allows it to wrap an existing `AppWebsocket` instead of having to open a new connection. This is useful if you already have an `AppWebsocket` but otherwise you should just use the `connect` method of the `AppAgentWebsocket` rather than two steps.
+
+### Changed
+- `AppAgentWebsocket::connect` now takes an `Arc<Box<dyn AgentSigner>>` instead of a `LairClient`. The `Arc<Box<dyn AgentSigner>>` can be created from a `.into()` on either a `ClientAgentSigner` or a `LairAgentSigner`. Use the latter to restore the previous behaviour.
+- `AppAgentWebsocket::call_zome` used to take a `RoleName` as its first parameter. This is now a `ZomeCallTarget`. There is a `.into()` which restores the previous behaviour. Now you can also pass a `CloneCellId` or a `CellId`, also using a `.into()`. Using `CellId` is stronly recommended for now. Please see the doc comments on `ZomeCallTarget` if you intend to use the other options.
+
+### Added
+### Changed
+### Fixed
+### Removed
+
+## 2024-02-29: v0.5.0-dev.28
+### Added
+- Export `AdminWebsocket::EnableAppResponse` to be available downstream.
+
+## 2024-02-01: v0.5.0-dev.27
+### Added
+- Added the `update_coordinators` call in the `AdminWebsocket`.
+
+## 2024-01-26: v0.5.0-dev.26
+### Added
+- `AppAgentWebsocket` as an app websocket tied to a specific app and agent. Recommended for most applications.
+- `on_signal`: event handler for reacting to app signals; implemented on `AppWebsocket` and `AppAgentWebsocket`.
+### Changed
+- Bump deps to holochain-0.3.0-beta-dev.26
+
+## 2023-11-23: v0.5.0-dev.25
+### Changed
+- Bump deps to holochain-0.3.0-beta-dev.25
+
+## 2023-11-15: v0.5.0-dev.24
+### Changed
+- Bump deps to holochain-0.3.0-beta-dev.24
+
+## 2023-11-02: v0.5.0-dev.23
+### Changed
+- Bump deps to holochain-0.3.0-beta-dev.23
+
+## 2023-10-20: v0.5.0-dev.0
+### Changed
+- Bump deps to holochain-0.3.0-beta-dev.22
+
+## 2023-10-11: v0.4.5-rc.0
 ### Changed
 ### Fixed
 ### Removed
