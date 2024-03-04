@@ -19,14 +19,14 @@ pub struct AppAgentWebsocket {
     pub my_pub_key: AgentPubKey,
     app_ws: AppWebsocket,
     app_info: AppInfo,
-    signer: Arc<Box<dyn AgentSigner>>,
+    signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
 }
 
 impl AppAgentWebsocket {
     pub async fn connect(
         url: String,
         app_id: InstalledAppId,
-        signer: Arc<Box<dyn AgentSigner>>,
+        signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
     ) -> Result<Self> {
         let app_ws = AppWebsocket::connect(url).await?;
         AppAgentWebsocket::from_existing(app_ws, app_id, signer).await
@@ -35,7 +35,7 @@ impl AppAgentWebsocket {
     pub async fn from_existing(
         mut app_ws: AppWebsocket,
         app_id: InstalledAppId,
-        signer: Arc<Box<dyn AgentSigner>>,
+        signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
     ) -> Result<Self> {
         let app_info = app_ws
             .app_info(app_id.clone())
