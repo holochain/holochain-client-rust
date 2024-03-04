@@ -9,7 +9,6 @@ use holochain_zome_types::{
     zome_io::ZomeCallUnsigned,
 };
 
-#[cfg(feature = "client_signing")]
 pub(crate) mod client_signing;
 
 #[cfg(feature = "lair_signing")]
