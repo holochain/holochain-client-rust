@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `sign_zome_call_with_client` which was used internally but also exposed in the public interface. You probably don't need to call this but if you wish to for some reason then use one of the two new `*Signer` types, and convert them to a `Arc<Box<dyn AgentSigner>>`, then use the `sign` method to compute a signature. The logic to prepare the data to be signed is no longer public so you would have to set this up yourself following the `sign_zome_call` function in the `signer` module.
 
 ### Added
-- Capability to create zome call signing credentials with the AdminWebsocket using `authorize_signing_credentials`.
+- Capability to create zome call signing credentials with the `AdminWebsocket` using `authorize_signing_credentials`.
 - `ClientAgentSigner` type which can store (in memory) signing credentials created with `authorize_signing_credentials`.
 - `LairAgentSigner` which is analagous to the `ClientAgentSigner` but is a wrapper around a Lair client instead so that private keys are stored in Lair.
 - `from_existing` method to the `AppAgentWebsocket` which allows it to wrap an existing `AppWebsocket` instead of having to open a new connection. This is useful if you already have an `AppWebsocket` but otherwise you should just use the `connect` method of the `AppAgentWebsocket` rather than two steps.
