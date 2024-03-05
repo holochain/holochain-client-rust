@@ -2575,6 +2575,7 @@ dependencies = [
  "holochain_types",
  "holochain_websocket",
  "holochain_zome_types",
+ "parking_lot 0.12.1",
  "rand 0.8.5",
  "serde",
  "tokio",

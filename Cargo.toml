@@ -20,7 +20,7 @@ holochain_zome_types = "0.2.6"
 [dependencies]
 again = "0.1"
 anyhow = "1.0"
-ed25519-dalek = "2.1"
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 holo_hash = { version = "0.2.6", features = ["encoding"] }
 holochain_conductor_api = "0.2.6"
 holochain_serialized_bytes = "0.0.53"
@@ -30,19 +30,11 @@ holochain_websocket = "0.2.6"
 holochain_zome_types = { workspace = true }
 serde = ">=1.0.0, <=1.0.166"
 url = "2.2"
-rand = { version = "0.8", optional = true }
+rand = "0.8"
 async-trait = "0.1"
+parking_lot = "0.12.1"
 
 [dev-dependencies]
 arbitrary = "1.2"
 holochain = { version = "0.2.6", features = ["test_utils"] }
-rand = "0.8"
 tokio = { version = "1.3", features = ["full"] }
-
-[features]
-default = ["client_signing"]
-
-client_signing = [
-    "dep:rand",
-    "ed25519-dalek/rand_core",
-]

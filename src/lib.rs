@@ -15,6 +15,5 @@ pub use holochain_types::{
     app::{InstallAppPayload, InstalledAppId},
     dna::AgentPubKey,
 };
-#[cfg(feature = "client_signing")]
 pub use signing::client_signing::{ClientAgentSigner, SigningCredentials};
 pub use signing::AgentSigner;

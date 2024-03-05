@@ -5,6 +5,7 @@ use holo_hash::AgentPubKey;
 use holochain_zome_types::{
     capability::CapSecret, cell::CellId, dependencies::holochain_integrity_types::Signature,
 };
+use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc};
 
 pub struct SigningCredentials {
@@ -22,20 +23,20 @@ impl std::fmt::Debug for SigningCredentials {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct ClientAgentSigner {
-    credentials: HashMap<CellId, SigningCredentials>,
+    credentials: Arc<RwLock<HashMap<CellId, SigningCredentials>>>,
 }
 
 impl ClientAgentSigner {
     pub fn new() -> Self {
         Self {
-            credentials: HashMap::new(),
+            credentials: Arc::new(RwLock::new(HashMap::new())),
         }
     }
 
     pub fn add_credentials(&mut self, cell_id: CellId, credentials: SigningCredentials) {
-        self.credentials.insert(cell_id, credentials);
+        self.credentials.write().insert(cell_id, credentials);
     }
 }
 
@@ -47,8 +48,8 @@ impl AgentSigner for ClientAgentSigner {
         _provenance: AgentPubKey,
         data_to_sign: Arc<[u8]>,
     ) -> Result<Signature, anyhow::Error> {
-        let credentials = self
-            .credentials
+        let credentials_lock = self.credentials.read();
+        let credentials = credentials_lock
             .get(cell_id)
             .ok_or_else(|| anyhow::anyhow!("No credentials found for cell: {:?}", cell_id))?;
         let signature = credentials.keypair.try_sign(&data_to_sign)?;
@@ -57,12 +58,13 @@ impl AgentSigner for ClientAgentSigner {
 
     fn get_provenance(&self, cell_id: &CellId) -> Option<AgentPubKey> {
         self.credentials
+            .read()
             .get(cell_id)
             .map(|c| c.signing_agent_key.clone())
     }
 
     fn get_cap_secret(&self, cell_id: &CellId) -> Option<CapSecret> {
-        self.credentials.get(cell_id).map(|c| c.cap_secret)
+        self.credentials.read().get(cell_id).map(|c| c.cap_secret)
     }
 }
 
