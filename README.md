@@ -11,9 +11,9 @@ Types and bindings to connect easily to a running Holochain conductor from Rust.
 
 ## Compatibility
 
-**Rust client v0.3.x** is compatible with **Holochain v0.1.x** _**(deprecated)**_.
-
 **Rust client v0.4.x** is compatible with **Holochain v0.2.x**.
+
+**Rust client v0.3.x** is compatible with **Holochain v0.1.x** _**(no longer supported)**_.
 
 ## Running The Tests
 
