@@ -39,21 +39,19 @@ impl AppWebsocket {
         let event_emitter = EventEmitter::new();
         let mutex = Arc::new(Mutex::new(event_emitter));
 
-        let m = mutex.clone();
-
-        std::thread::spawn(move || {
-            futures::executor::block_on(async {
-                while let Some((msg, resp)) = rx.next().await {
-                    match resp {
-                        Respond::Signal => {
-                            let mut ee = m.lock().await;
+        std::thread::spawn({
+            let mutex = mutex.clone();
+            move || {
+                futures::executor::block_on(async {
+                    while let Some((msg, resp)) = rx.next().await {
+                        if let Respond::Signal = resp {
+                            let mut event_emitter = mutex.lock().await;
                             let signal = Signal::try_from(msg).expect("Malformed signal");
-                            ee.emit("signal", signal);
+                            event_emitter.emit("signal", signal);
                         }
-                        _ => {}
                     }
-                }
-            });
+                });
+            }
         });
 
         Ok(Self {
@@ -62,7 +60,7 @@ impl AppWebsocket {
         })
     }
 
-    pub async fn on_signal<F: Fn(Signal) -> () + 'static + Sync + Send>(
+    pub async fn on_signal<F: Fn(Signal) + 'static + Sync + Send>(
         &mut self,
         handler: F,
     ) -> Result<String> {
@@ -148,7 +146,7 @@ impl AppWebsocket {
             .tx
             .request(msg)
             .await
-            .map_err(|err| ConductorApiError::WebsocketError(err))?;
+            .map_err(ConductorApiError::WebsocketError)?;
 
         match response {
             AppResponse::Error(error) => Err(ConductorApiError::ExternalApiWireError(error)),
