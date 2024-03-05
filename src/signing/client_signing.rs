@@ -5,8 +5,8 @@ use holo_hash::AgentPubKey;
 use holochain_zome_types::{
     capability::CapSecret, cell::CellId, dependencies::holochain_integrity_types::Signature,
 };
-use std::{collections::HashMap, sync::Arc};
 use parking_lot::RwLock;
+use std::{collections::HashMap, sync::Arc};
 
 pub struct SigningCredentials {
     pub signing_agent_key: holo_hash::AgentPubKey,
@@ -48,9 +48,7 @@ impl AgentSigner for ClientAgentSigner {
         _provenance: AgentPubKey,
         data_to_sign: Arc<[u8]>,
     ) -> Result<Signature, anyhow::Error> {
-        let credentials_lock = self
-        .credentials
-        .read();
+        let credentials_lock = self.credentials.read();
         let credentials = credentials_lock
             .get(cell_id)
             .ok_or_else(|| anyhow::anyhow!("No credentials found for cell: {:?}", cell_id))?;

@@ -5,7 +5,8 @@ use holochain::{
     sweettest::SweetConductor,
 };
 use holochain_client::{
-    AdminWebsocket, AppAgentWebsocket, AppWebsocket, AuthorizeSigningCredentialsPayload, ClientAgentSigner, ConductorApiError, InstallAppPayload
+    AdminWebsocket, AppAgentWebsocket, AppWebsocket, AuthorizeSigningCredentialsPayload,
+    ClientAgentSigner, ConductorApiError, InstallAppPayload,
 };
 use holochain_types::prelude::{
     AppBundleSource, CloneCellId, CloneId, CreateCloneCellPayload, DnaModifiersOpt, InstalledAppId,
@@ -180,29 +181,49 @@ pub async fn app_info_refresh() {
     admin_ws.enable_app(app_id.clone()).await.unwrap();
 
     let mut signer = ClientAgentSigner::default();
-    
+
     // Create an app interface and connect an app agent to it
     let app_api_port = admin_ws.attach_app_interface(30000).await.unwrap();
-    let mut app_agent_ws = AppAgentWebsocket::connect(format!("ws://localhost:{}", app_api_port), app_id.clone(), signer.clone().into()).await.unwrap();
+    let mut app_agent_ws = AppAgentWebsocket::connect(
+        format!("ws://localhost:{}", app_api_port),
+        app_id.clone(),
+        signer.clone().into(),
+    )
+    .await
+    .unwrap();
 
     // Create a clone cell, AFTER the app agent has been created
-    let cloned_cell = app_agent_ws.create_clone_cell(CreateCloneCellPayload {
-        app_id: app_id.clone(),
-        role_name: role_name.clone(),
-        modifiers: DnaModifiersOpt::none().with_network_seed("test seed".into()),
-        membrane_proof: None,
-        name: None,
-    }).await.unwrap();
+    let cloned_cell = app_agent_ws
+        .create_clone_cell(CreateCloneCellPayload {
+            app_id: app_id.clone(),
+            role_name: role_name.clone(),
+            modifiers: DnaModifiersOpt::none().with_network_seed("test seed".into()),
+            membrane_proof: None,
+            name: None,
+        })
+        .await
+        .unwrap();
 
     // Authorise signing credentials for the cloned cell
-    let credentials = admin_ws.authorize_signing_credentials(AuthorizeSigningCredentialsPayload {
-        cell_id: cloned_cell.cell_id.clone(),
-        functions: None,
-    }).await.unwrap();
+    let credentials = admin_ws
+        .authorize_signing_credentials(AuthorizeSigningCredentialsPayload {
+            cell_id: cloned_cell.cell_id.clone(),
+            functions: None,
+        })
+        .await
+        .unwrap();
     signer.add_credentials(cloned_cell.cell_id.clone(), credentials);
 
     // Call the zome function on the clone cell, expecting a failure
-    let err = app_agent_ws.call_zome(cloned_cell.clone_id.clone().into(), "foo".into(), "foo".into(), ExternIO::encode(()).unwrap()).await.expect_err("Should fail because the client doesn't know the clone cell exists");
+    let err = app_agent_ws
+        .call_zome(
+            cloned_cell.clone_id.clone().into(),
+            "foo".into(),
+            "foo".into(),
+            ExternIO::encode(()).unwrap(),
+        )
+        .await
+        .expect_err("Should fail because the client doesn't know the clone cell exists");
     match err {
         ConductorApiError::CellNotFound => (),
         _ => panic!("Unexpected error: {:?}", err),
@@ -212,5 +233,13 @@ pub async fn app_info_refresh() {
     app_agent_ws.refresh_app_info().await.unwrap();
 
     // Call the zome function on the clone cell again, expecting success
-    app_agent_ws.call_zome(cloned_cell.clone_id.clone().into(), "foo".into(), "foo".into(), ExternIO::encode(()).unwrap()).await.unwrap();
+    app_agent_ws
+        .call_zome(
+            cloned_cell.clone_id.clone().into(),
+            "foo".into(),
+            "foo".into(),
+            ExternIO::encode(()).unwrap(),
+        )
+        .await
+        .unwrap();
 }

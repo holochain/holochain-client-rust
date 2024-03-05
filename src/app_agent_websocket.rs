@@ -4,7 +4,10 @@ use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
 use holochain_conductor_api::{AppInfo, CellInfo, ProvisionedCell};
 use holochain_nonce::fresh_nonce;
-use holochain_types::{app::InstalledAppId, prelude::{Signal, CloneId}};
+use holochain_types::{
+    app::InstalledAppId,
+    prelude::{CloneId, Signal},
+};
 use holochain_zome_types::{
     clone::ClonedCell,
     prelude::{CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName},
