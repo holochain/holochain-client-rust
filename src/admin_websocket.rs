@@ -8,7 +8,7 @@ use holochain_types::{
     prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload},
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketReceiver, WebsocketSender};
-use holochain_zome_types::{DnaDef, GrantZomeCallCapabilityPayload, Record};
+use holochain_zome_types::{DnaDef, GrantZomeCallCapabilityPayload, GrantedFunctions, Record};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -25,6 +25,12 @@ pub struct EnableAppResponse {
     pub errors: Vec<(CellId, String)>,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct AuthorizeSigningCredentialsPayload {
+    pub cell_id: CellId,
+    pub functions: Option<GrantedFunctions>,
+}
+
 impl AdminWebsocket {
     pub async fn connect(admin_url: String) -> Result<Self> {
         let url = Url::parse(&admin_url).context("invalid ws:// URL")?;
@@ -38,10 +44,9 @@ impl AdminWebsocket {
         Ok(Self { tx, rx })
     }
 
-    pub fn close(&mut self) -> () {
-        match self.rx.take_handle() {
-            Some(h) => h.close(),
-            None => (),
+    pub fn close(&mut self) {
+        if let Some(h) = self.rx.take_handle() {
+            h.close()
         }
     }
 
@@ -196,12 +201,49 @@ impl AdminWebsocket {
         }
     }
 
+    pub async fn authorize_signing_credentials(
+        &mut self,
+        request: AuthorizeSigningCredentialsPayload,
+    ) -> Result<crate::signing::client_signing::SigningCredentials> {
+        use holochain_zome_types::capability::{ZomeCallCapGrant, CAP_SECRET_BYTES};
+        use rand::{rngs::OsRng, RngCore};
+        use std::collections::BTreeSet;
+
+        let mut csprng = OsRng;
+        let keypair = ed25519_dalek::SigningKey::generate(&mut csprng);
+        let public_key = keypair.verifying_key();
+        let signing_agent_key = AgentPubKey::from_raw_32(public_key.as_bytes().to_vec());
+
+        let mut cap_secret = [0; CAP_SECRET_BYTES];
+        csprng.fill_bytes(&mut cap_secret);
+
+        self.grant_zome_call_capability(GrantZomeCallCapabilityPayload {
+            cell_id: request.cell_id,
+            cap_grant: ZomeCallCapGrant {
+                tag: "zome-call-signing-key".to_string(),
+                access: holochain_zome_types::capability::CapAccess::Assigned {
+                    secret: cap_secret.into(),
+                    assignees: BTreeSet::from([signing_agent_key.clone()]),
+                },
+                functions: request.functions.unwrap_or(GrantedFunctions::All),
+            },
+        })
+        .await
+        .map_err(|e| anyhow::anyhow!("Conductor API error: {:?}", e))?;
+
+        Ok(crate::signing::client_signing::SigningCredentials {
+            signing_agent_key,
+            keypair,
+            cap_secret: cap_secret.into(),
+        })
+    }
+
     async fn send(&mut self, msg: AdminRequest) -> ConductorApiResult<AdminResponse> {
         let response: AdminResponse = self
             .tx
             .request(msg)
             .await
-            .map_err(|err| ConductorApiError::WebsocketError(err))?;
+            .map_err(ConductorApiError::WebsocketError)?;
         match response {
             AdminResponse::Error(error) => Err(ConductorApiError::ExternalApiWireError(error)),
             _ => Ok(response),
