@@ -9,7 +9,7 @@ name = "holochain_client"
 readme = "README.md"
 repository = "https://github.com/holochain/holochain-client-rust"
 resolver = "2"
-version = "0.5.0-dev.28"
+version = "0.5.0-dev.29"
 
 [workspace]
 members = ["fixture/zomes/foo"]
@@ -49,6 +49,4 @@ kitsune_p2p_types = "0.3.0-beta-dev.14"
 [features]
 default = ["lair_signing"]
 
-lair_signing = [
-    "dep:lair_keystore_api",
-]
+lair_signing = ["dep:lair_keystore_api"]
