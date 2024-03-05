@@ -35,7 +35,7 @@ async fn clone_cell_management() {
         .await
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
-    let app_api_port = admin_ws.attach_app_interface(30000).await.unwrap();
+    let app_api_port = admin_ws.attach_app_interface(0).await.unwrap();
     let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_api_port))
         .await
         .unwrap();
