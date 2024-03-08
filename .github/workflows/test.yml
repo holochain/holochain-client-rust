@@ -2,9 +2,9 @@ name: Test
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, main-rcs, develop]
   pull_request:
-    branches: [main, develop]
+    branches: [main, main-rcs, develop]
 
 env:
   CARGO_TERM_COLOR: always
@@ -59,7 +59,7 @@ jobs:
 
       - name: Build client
         run: cargo build -p holochain_client
-      
+
       - name: Lint
         run: cargo clippy --all-features -- -D warnings
 
