@@ -33,8 +33,8 @@ url = "2.2"
 rand = "0.8"
 async-trait = "0.1"
 parking_lot = "0.12.1"
+tokio = { version = "1.36", features = ["full"] }
 
 [dev-dependencies]
 arbitrary = "1.2"
 holochain = { version = "0.2.7-rc.1", features = ["test_utils"] }
-tokio = { version = "1.3", features = ["full"] }

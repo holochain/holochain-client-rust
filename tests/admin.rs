@@ -124,6 +124,7 @@ async fn storage_info() {
 async fn dump_network_stats() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+    println!("admin port {admin_port}");
     let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
         .await
         .unwrap();

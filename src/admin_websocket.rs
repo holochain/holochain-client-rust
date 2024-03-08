@@ -9,7 +9,8 @@ use holochain_types::{
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
 use holochain_zome_types::{DnaDef, GrantZomeCallCapabilityPayload, GrantedFunctions, Record};
 use serde::{Deserialize, Serialize};
-use std::{net::SocketAddr, str::FromStr, sync::Arc};
+use std::{net::ToSocketAddrs, sync::Arc};
+use url::Url;
 
 pub struct AdminWebsocket {
     tx: WebsocketSender,
@@ -29,20 +30,36 @@ pub struct AuthorizeSigningCredentialsPayload {
 
 impl AdminWebsocket {
     pub async fn connect(admin_url: String) -> Result<Self> {
-        let addr = SocketAddr::from_str(&admin_url)?;
+        let url = Url::parse(&admin_url)?;
+        let host = url
+            .host_str()
+            .expect("websocket url does not have valid host part");
+        let port = url.port().expect("websocket url does not have valid port");
+        println!("port is {port}");
+        let admin_addr = format!("{}:{}", host, port);
+        let addr = admin_addr
+            .to_socket_addrs()?
+            .find(|addr| addr.is_ipv4())
+            .expect("no valid ipv4 websocket addresses found");
+        println!("addr {addr:?}");
+
         let websocket_config = Arc::new(WebsocketConfig::default());
-        let (tx, _rx) = again::retry(|| {
+        let (tx, mut rx) = again::retry(|| {
             let websocket_config = Arc::clone(&websocket_config);
             connect(websocket_config, addr)
         })
         .await?;
+
+        // WebsocketReceiver needs to be polled in order to receive responses
+        // from remote to sender requests.
+        tokio::task::spawn(async move { while rx.recv::<AdminResponse>().await.is_ok() {} });
 
         Ok(Self { tx })
     }
 
     pub fn close(&mut self) {
         // no op
-        // an AdminWebsocket is closed when it is dropped
+        // An AdminWebsocket is closed when the WebsocketReceiver rx is dropped.
     }
 
     pub async fn generate_agent_pub_key(&mut self) -> ConductorApiResult<AgentPubKey> {
