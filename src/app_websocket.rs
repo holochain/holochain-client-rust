@@ -1,6 +1,5 @@
-use std::sync::Arc;
-
-use anyhow::{Context, Result};
+use crate::error::{ConductorApiError, ConductorApiResult};
+use anyhow::Result;
 use holochain_conductor_api::{
     AppInfo, AppRequest, AppResponse, ClonedCell, NetworkInfo, ZomeCall,
 };
@@ -12,9 +11,7 @@ use holochain_types::{
     },
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
-use url::Url;
-
-use crate::error::{ConductorApiError, ConductorApiResult};
+use std::{net::SocketAddr, str::FromStr, sync::Arc};
 
 #[derive(Clone)]
 pub struct AppWebsocket {
@@ -23,11 +20,11 @@ pub struct AppWebsocket {
 
 impl AppWebsocket {
     pub async fn connect(app_url: String) -> Result<Self> {
-        let url = Url::parse(&app_url).context("invalid ws:// URL")?;
+        let addr = SocketAddr::from_str(&app_url)?;
         let websocket_config = Arc::new(WebsocketConfig::default());
         let (tx, _rx) = again::retry(|| {
             let websocket_config = Arc::clone(&websocket_config);
-            connect(url.clone().into(), websocket_config)
+            connect(websocket_config, addr)
         })
         .await?;
         Ok(Self { tx })
