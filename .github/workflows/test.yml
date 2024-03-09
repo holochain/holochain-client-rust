@@ -31,34 +31,49 @@ jobs:
         with:
           name: holochain-ci
 
-      - name: Cache fixture
-        uses: actions/cache@v4
+      - name: Install nix packages
+        run: nix develop -c $SHELL -c "holochain --version"
+
+      - name: Restore fixture
+        uses: actions/cache/restore@v4
         env:
           cache-name: fixture
         with:
           path: fixture/zomes/foo/target
           key: ${{ matrix.os }}-build-${{ env.cache-name }}-${{ hashFiles('fixture/zomes/foo/Cargo.lock') }}
 
-      - name: Cache client build
-        uses: actions/cache@v4
-        if: always()
+      - name: Build fixture
+        run: nix develop -c $SHELL -c "./build-fixture.sh"
+
+      - name: Save fixture to cache
+        uses: actions/cache/save@v4
+        env:
+          cache-name: fixture
+        with:
+          path: fixture/zomes/foo/target
+          key: ${{ matrix.os }}-build-${{ env.cache-name }}-${{ hashFiles('fixture/zomes/foo/Cargo.lock') }}
+
+      - name: Clean up nix files to prevent insufficient disk space
+        run: nix-collect-garbage -d
+
+      - name: Restore client build
+        uses: actions/cache/restore@v4
         env:
           cache-name: client
         with:
           path: target
           key: ${{ matrix.os }}-cargo-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
 
-      - name: Install nix packages
-        run: nix develop -c $SHELL -c "holochain --version"
-
-      - name: Build fixture
-        run: nix develop -c $SHELL -c "./build-fixture.sh"
-
-      - name: Clean up nix files to prevent insufficient disk space
-        run: nix-collect-garbage -d
-
       - name: Build client
         run: cargo build -p holochain_client
+
+      - name: Save client build to cache
+        uses: actions/cache/save@v4
+        env:
+          cache-name: client
+        with:
+          path: target
+          key: ${{ matrix.os }}-cargo-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
 
       - name: Lint
         run: cargo clippy --all-features -- -D warnings
