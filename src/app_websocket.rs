@@ -26,13 +26,11 @@ impl AppWebsocket {
             .host_str()
             .expect("websocket url does not have valid host part");
         let port = url.port().expect("websocket url does not have valid port");
-        println!("port is {port}");
         let app_addr = format!("{}:{}", host, port);
         let addr = app_addr
             .to_socket_addrs()?
             .find(|addr| addr.is_ipv4())
             .expect("no valid ipv4 websocket addresses found");
-        println!("addr {addr:?}");
 
         let websocket_config = Arc::new(WebsocketConfig::default());
         let (tx, mut rx) = again::retry(|| {
