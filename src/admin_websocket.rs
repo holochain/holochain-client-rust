@@ -43,7 +43,10 @@ impl AdminWebsocket {
             .find(|addr| addr.is_ipv4())
             .expect("no valid ipv4 websocket addresses found");
 
-        let websocket_config = Arc::new(WebsocketConfig::default());
+        let websocket_config = Arc::new(WebsocketConfig {
+            default_request_timeout: std::time::Duration::from_secs(120),
+            ..Default::default()
+        });
         let (tx, mut rx) = again::retry(|| {
             let websocket_config = Arc::clone(&websocket_config);
             connect(websocket_config, addr)
