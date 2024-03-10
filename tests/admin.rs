@@ -6,19 +6,15 @@ use holochain_client::{
 };
 use holochain_conductor_api::{CellInfo, StorageBlob};
 use holochain_zome_types::prelude::ExternIO;
-use std::net::{Ipv4Addr, SocketAddr, SocketAddrV4};
 use std::{collections::HashMap, path::PathBuf};
 
 #[tokio::test(flavor = "multi_thread")]
 async fn app_interfaces() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(SocketAddr::V4(SocketAddrV4::new(
-        Ipv4Addr::new(127, 0, 0, 1),
-        admin_port,
-    )))
-    .await
-    .unwrap();
+    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
+        .await
+        .unwrap();
 
     let app_interfaces = admin_ws.list_app_interfaces().await.unwrap();
 
@@ -29,12 +25,9 @@ async fn app_interfaces() {
 async fn signed_zome_call() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(SocketAddr::V4(SocketAddrV4::new(
-        Ipv4Addr::new(127, 0, 0, 1),
-        admin_port,
-    )))
-    .await
-    .unwrap();
+    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
+        .await
+        .unwrap();
     let app_id: InstalledAppId = "test-app".into();
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
     admin_ws
@@ -49,12 +42,9 @@ async fn signed_zome_call() {
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_ws_port = admin_ws.attach_app_interface(30000).await.unwrap();
-    let mut app_ws = AppWebsocket::connect(SocketAddr::V4(SocketAddrV4::new(
-        Ipv4Addr::new(127, 0, 0, 1),
-        app_ws_port,
-    )))
-    .await
-    .unwrap();
+    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_ws_port))
+        .await
+        .unwrap();
     let installed_app = app_ws.app_info(app_id.clone()).await.unwrap().unwrap();
 
     let cells = installed_app.cell_info.into_values().next().unwrap();
@@ -101,12 +91,9 @@ async fn signed_zome_call() {
 async fn storage_info() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(SocketAddr::V4(SocketAddrV4::new(
-        Ipv4Addr::new(127, 0, 0, 1),
-        admin_port,
-    )))
-    .await
-    .unwrap();
+    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
+        .await
+        .unwrap();
     let app_id: InstalledAppId = "test-app".into();
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
     admin_ws
@@ -137,12 +124,9 @@ async fn storage_info() {
 async fn dump_network_stats() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(SocketAddr::V4(SocketAddrV4::new(
-        Ipv4Addr::new(127, 0, 0, 1),
-        admin_port,
-    )))
-    .await
-    .unwrap();
+    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
+        .await
+        .unwrap();
     let app_id: InstalledAppId = "test-app".into();
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
     admin_ws

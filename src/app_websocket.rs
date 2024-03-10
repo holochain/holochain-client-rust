@@ -12,8 +12,9 @@ use holochain_types::{
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
 use holochain_zome_types::clone::ClonedCell;
-use std::{net::SocketAddr, sync::Arc};
+use std::{net::ToSocketAddrs, sync::Arc};
 use tokio::sync::Mutex;
+use url::Url;
 
 #[derive(Clone)]
 pub struct AppWebsocket {
@@ -22,11 +23,22 @@ pub struct AppWebsocket {
 }
 
 impl AppWebsocket {
-    pub async fn connect(socket_addr: SocketAddr) -> Result<Self> {
+    pub async fn connect(app_url: String) -> Result<Self> {
+        let url = Url::parse(&app_url)?;
+        let host = url
+            .host_str()
+            .expect("websocket url does not have valid host part");
+        let port = url.port().expect("websocket url does not have valid port");
+        let admin_addr = format!("{}:{}", host, port);
+        let addr = admin_addr
+            .to_socket_addrs()?
+            .find(|addr| addr.is_ipv4())
+            .expect("no valid ipv4 websocket addresses found");
+
         let websocket_config = Arc::new(WebsocketConfig::default());
         let (tx, mut rx) = again::retry(|| {
             let websocket_config = Arc::clone(&websocket_config);
-            connect(websocket_config, socket_addr)
+            connect(websocket_config, addr)
         })
         .await?;
 

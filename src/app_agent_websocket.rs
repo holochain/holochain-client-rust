@@ -1,5 +1,7 @@
-use std::{net::SocketAddr, ops::DerefMut, sync::Arc};
-
+use crate::{
+    signing::{sign_zome_call, AgentSigner},
+    AppWebsocket, ConductorApiError, ConductorApiResult,
+};
 use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
 use holochain_conductor_api::{AppInfo, CellInfo, ProvisionedCell};
@@ -13,11 +15,7 @@ use holochain_zome_types::{
     prelude::{CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName},
 };
 use std::ops::Deref;
-
-use crate::{
-    signing::{sign_zome_call, AgentSigner},
-    AppWebsocket, ConductorApiError, ConductorApiResult,
-};
+use std::{ops::DerefMut, sync::Arc};
 
 #[derive(Clone)]
 pub struct AppAgentWebsocket {
@@ -29,11 +27,11 @@ pub struct AppAgentWebsocket {
 
 impl AppAgentWebsocket {
     pub async fn connect(
-        addr: SocketAddr,
+        app_url: String,
         app_id: InstalledAppId,
         signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
     ) -> Result<Self> {
-        let app_ws = AppWebsocket::connect(addr).await?;
+        let app_ws = AppWebsocket::connect(app_url).await?;
         AppAgentWebsocket::from_existing(app_ws, app_id, signer).await
     }
 
