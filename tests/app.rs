@@ -12,6 +12,7 @@ use kitsune_p2p_types::fetch_pool::FetchPoolInfo;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::HashMap,
+    net::{Ipv4Addr, SocketAddr, SocketAddrV4},
     path::PathBuf,
     sync::{Arc, Barrier},
 };
@@ -20,9 +21,12 @@ use std::{
 async fn network_info() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
-        .await
-        .unwrap();
+    let mut admin_ws = AdminWebsocket::connect(SocketAddr::V4(SocketAddrV4::new(
+        Ipv4Addr::new(127, 0, 0, 1),
+        admin_port,
+    )))
+    .await
+    .unwrap();
 
     let app_id: InstalledAppId = "test-app".into();
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
@@ -40,9 +44,12 @@ async fn network_info() {
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_ws_port = 33000;
     admin_ws.attach_app_interface(app_ws_port).await.unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_ws_port))
-        .await
-        .unwrap();
+    let mut app_ws = AppWebsocket::connect(SocketAddr::V4(SocketAddrV4::new(
+        Ipv4Addr::new(127, 0, 0, 1),
+        app_ws_port,
+    )))
+    .await
+    .unwrap();
 
     let dna_hash = match &app_info.cell_info.get("foo").unwrap()[0] {
         holochain_conductor_api::CellInfo::Provisioned(cell) => cell.cell_id.dna_hash().to_owned(),
@@ -78,9 +85,12 @@ async fn network_info() {
 async fn handle_signal() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
-        .await
-        .unwrap();
+    let mut admin_ws = AdminWebsocket::connect(SocketAddr::V4(SocketAddrV4::new(
+        Ipv4Addr::new(127, 0, 0, 1),
+        admin_port,
+    )))
+    .await
+    .unwrap();
 
     let app_id: InstalledAppId = "test-app".into();
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
@@ -98,9 +108,12 @@ async fn handle_signal() {
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_ws_port = 33001;
     admin_ws.attach_app_interface(app_ws_port).await.unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_ws_port))
-        .await
-        .unwrap();
+    let mut app_ws = AppWebsocket::connect(SocketAddr::V4(SocketAddrV4::new(
+        Ipv4Addr::new(127, 0, 0, 1),
+        app_ws_port,
+    )))
+    .await
+    .unwrap();
 
     let installed_app = app_ws.app_info(app_id.clone()).await.unwrap().unwrap();
 

@@ -1,5 +1,3 @@
-use std::{collections::HashMap, path::PathBuf};
-
 use holochain::{
     prelude::{DeleteCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload},
     sweettest::SweetConductor,
@@ -12,14 +10,22 @@ use holochain_types::prelude::{
     AppBundleSource, CloneCellId, CloneId, CreateCloneCellPayload, DnaModifiersOpt, InstalledAppId,
 };
 use holochain_zome_types::{dependencies::holochain_integrity_types::ExternIO, prelude::RoleName};
+use std::{
+    collections::HashMap,
+    net::{Ipv4Addr, SocketAddr, SocketAddrV4},
+    path::PathBuf,
+};
 
 #[tokio::test(flavor = "multi_thread")]
 async fn clone_cell_management() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
-        .await
-        .unwrap();
+    let mut admin_ws = AdminWebsocket::connect(SocketAddr::V4(SocketAddrV4::new(
+        Ipv4Addr::new(127, 0, 0, 1),
+        admin_port,
+    )))
+    .await
+    .unwrap();
     let app_id: InstalledAppId = "test-app".into();
     let role_name: RoleName = "foo".into();
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
@@ -35,9 +41,12 @@ async fn clone_cell_management() {
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_api_port = admin_ws.attach_app_interface(0).await.unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_api_port))
-        .await
-        .unwrap();
+    let mut app_ws = AppWebsocket::connect(SocketAddr::V4(SocketAddrV4::new(
+        Ipv4Addr::new(127, 0, 0, 1),
+        app_api_port,
+    )))
+    .await
+    .unwrap();
     let clone_cell = {
         let clone_cell = app_ws
             .create_clone_cell(CreateCloneCellPayload {
@@ -158,9 +167,12 @@ async fn clone_cell_management() {
 pub async fn app_info_refresh() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
-        .await
-        .unwrap();
+    let mut admin_ws = AdminWebsocket::connect(SocketAddr::V4(SocketAddrV4::new(
+        Ipv4Addr::new(127, 0, 0, 1),
+        admin_port,
+    )))
+    .await
+    .unwrap();
     let app_id: InstalledAppId = "test-app".into();
     let role_name: RoleName = "foo".into();
 
@@ -185,7 +197,7 @@ pub async fn app_info_refresh() {
     // Create an app interface and connect an app agent to it
     let app_api_port = admin_ws.attach_app_interface(0).await.unwrap();
     let mut app_agent_ws = AppAgentWebsocket::connect(
-        format!("ws://localhost:{}", app_api_port),
+        SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::new(127, 0, 0, 1), app_api_port)),
         app_id.clone(),
         signer.clone().into(),
     )

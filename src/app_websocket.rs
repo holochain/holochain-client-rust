@@ -1,12 +1,6 @@
-use std::sync::Arc;
-
-use anyhow::{Context, Result};
+use crate::error::{ConductorApiError, ConductorApiResult};
+use anyhow::Result;
 use event_emitter_rs::EventEmitter;
-use futures::lock::Mutex;
-use futures::stream::StreamExt;
-use holochain_zome_types::clone::ClonedCell;
-use url::Url;
-
 use holochain_conductor_api::{AppInfo, AppRequest, AppResponse, NetworkInfo, ZomeCall};
 use holochain_types::{
     app::InstalledAppId,
@@ -16,47 +10,45 @@ use holochain_types::{
     },
     signal::Signal,
 };
-use holochain_websocket::{connect, Respond, WebsocketConfig, WebsocketSender};
-
-use crate::error::{ConductorApiError, ConductorApiResult};
+use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
+use holochain_zome_types::clone::ClonedCell;
+use std::{net::SocketAddr, sync::Arc};
+use tokio::sync::Mutex;
 
 #[derive(Clone)]
 pub struct AppWebsocket {
     tx: WebsocketSender,
-    event_emitter_mutex: Arc<Mutex<EventEmitter>>,
+    event_emitter: Arc<Mutex<EventEmitter>>,
 }
 
 impl AppWebsocket {
-    pub async fn connect(app_url: String) -> Result<Self> {
-        let url = Url::parse(&app_url).context("invalid ws:// URL")?;
+    pub async fn connect(socket_addr: SocketAddr) -> Result<Self> {
         let websocket_config = Arc::new(WebsocketConfig::default());
         let (tx, mut rx) = again::retry(|| {
             let websocket_config = Arc::clone(&websocket_config);
-            connect(url.clone().into(), websocket_config)
+            connect(websocket_config, socket_addr)
         })
         .await?;
 
         let event_emitter = EventEmitter::new();
         let mutex = Arc::new(Mutex::new(event_emitter));
 
-        std::thread::spawn({
+        tokio::task::spawn({
             let mutex = mutex.clone();
-            move || {
-                futures::executor::block_on(async {
-                    while let Some((msg, resp)) = rx.next().await {
-                        if let Respond::Signal = resp {
-                            let mut event_emitter = mutex.lock().await;
-                            let signal = Signal::try_from(msg).expect("Malformed signal");
-                            event_emitter.emit("signal", signal);
-                        }
+            async move {
+                while let Ok(msg) = rx.recv::<AppResponse>().await {
+                    if let holochain_websocket::ReceiveMessage::Signal(signal_bytes) = msg {
+                        let mut event_emitter = mutex.lock().await;
+                        let signal = Signal::try_from_vec(signal_bytes).expect("Malformed signal");
+                        event_emitter.emit("signal", signal);
                     }
-                });
+                }
             }
         });
 
         Ok(Self {
             tx,
-            event_emitter_mutex: mutex,
+            event_emitter: mutex,
         })
     }
 
@@ -64,8 +56,8 @@ impl AppWebsocket {
         &mut self,
         handler: F,
     ) -> Result<String> {
-        let mut ee = self.event_emitter_mutex.lock().await;
-        let id = ee.on("signal", handler);
+        let mut event_emitter = self.event_emitter.lock().await;
+        let id = event_emitter.on("signal", handler);
         Ok(id)
     }
 

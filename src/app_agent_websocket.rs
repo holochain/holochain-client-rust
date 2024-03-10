@@ -1,4 +1,4 @@
-use std::{ops::DerefMut, sync::Arc};
+use std::{net::SocketAddr, ops::DerefMut, sync::Arc};
 
 use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
@@ -29,11 +29,11 @@ pub struct AppAgentWebsocket {
 
 impl AppAgentWebsocket {
     pub async fn connect(
-        url: String,
+        addr: SocketAddr,
         app_id: InstalledAppId,
         signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
     ) -> Result<Self> {
-        let app_ws = AppWebsocket::connect(url).await?;
+        let app_ws = AppWebsocket::connect(addr).await?;
         AppAgentWebsocket::from_existing(app_ws, app_id, signer).await
     }
 

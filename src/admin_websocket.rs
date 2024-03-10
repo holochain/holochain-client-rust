@@ -1,25 +1,20 @@
-use std::sync::Arc;
-
-use anyhow::{Context, Result};
+use crate::error::{ConductorApiError, ConductorApiResult};
+use anyhow::Result;
 use holo_hash::DnaHash;
 use holochain_conductor_api::{AdminRequest, AdminResponse, AppInfo, AppStatusFilter, StorageInfo};
 use holochain_types::{
     dna::AgentPubKey,
     prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload, UpdateCoordinatorsPayload},
 };
-use holochain_websocket::{connect, WebsocketConfig, WebsocketReceiver, WebsocketSender};
+use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
 use holochain_zome_types::{
     capability::GrantedFunctions,
     prelude::{DnaDef, GrantZomeCallCapabilityPayload, Record},
 };
 use serde::{Deserialize, Serialize};
-use url::Url;
-
-use crate::error::{ConductorApiError, ConductorApiResult};
-
+use std::{net::SocketAddr, sync::Arc};
 pub struct AdminWebsocket {
     tx: WebsocketSender,
-    rx: WebsocketReceiver,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -35,22 +30,19 @@ pub struct AuthorizeSigningCredentialsPayload {
 }
 
 impl AdminWebsocket {
-    pub async fn connect(admin_url: String) -> Result<Self> {
-        let url = Url::parse(&admin_url).context("invalid ws:// URL")?;
+    pub async fn connect(socket_addr: SocketAddr) -> Result<Self> {
         let websocket_config = Arc::new(WebsocketConfig::default());
-        let (tx, rx) = again::retry(|| {
+        let (tx, mut rx) = again::retry(|| {
             let websocket_config = Arc::clone(&websocket_config);
-            connect(url.clone().into(), websocket_config)
+            connect(websocket_config, socket_addr)
         })
         .await?;
 
-        Ok(Self { tx, rx })
-    }
+        // WebsocketReceiver needs to be polled in order to receive responses
+        // from remote to sender requests.
+        tokio::task::spawn(async move { while rx.recv::<AdminResponse>().await.is_ok() {} });
 
-    pub fn close(&mut self) {
-        if let Some(h) = self.rx.take_handle() {
-            h.close()
-        }
+        Ok(Self { tx })
     }
 
     pub async fn generate_agent_pub_key(&mut self) -> ConductorApiResult<AgentPubKey> {
