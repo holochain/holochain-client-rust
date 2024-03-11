@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
+- **BREAKING**: The underlying package `holochain_websocket` changed. All websockets in this client follow the new `connect` function and take a socket address that implements `ToSocketAddr` instead of a URL `String`. Examples for the new parameter are `"localhost:30000"` and `([127.0.0.1], 30000)`. See trait [`ToSocketAddr`](https://doc.rust-lang.org/std/net/trait.ToSocketAddrs.html#tymethod.to_socket_addrs).
 ### Fixed
 ### Removed
 
