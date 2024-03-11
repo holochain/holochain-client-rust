@@ -2684,7 +2684,6 @@ dependencies = [
  "rand 0.8.5",
  "serde",
  "tokio",
- "url 2.5.0",
 ]
 
 [[package]]

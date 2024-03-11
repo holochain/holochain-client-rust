@@ -13,7 +13,6 @@ use holochain_zome_types::{
 };
 use serde::{Deserialize, Serialize};
 use std::{net::ToSocketAddrs, sync::Arc};
-use url::Url;
 pub struct AdminWebsocket {
     tx: WebsocketSender,
 }
@@ -31,18 +30,13 @@ pub struct AuthorizeSigningCredentialsPayload {
 }
 
 impl AdminWebsocket {
-    pub async fn connect(admin_url: String) -> Result<Self> {
-        let url = Url::parse(&admin_url)?;
-        let host = url
-            .host_str()
-            .expect("websocket url does not have valid host part");
-        let port = url.port().expect("websocket url does not have valid port");
-        let admin_addr = format!("{}:{}", host, port);
-        let addr = admin_addr
+    pub async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
+        let addr = socket_addr
             .to_socket_addrs()?
-            .find(|addr| addr.is_ipv4())
-            .expect("no valid ipv4 websocket addresses found");
-
+            .next()
+            .expect("invalid websocket address");
+        // app installation takes > 2 min on CI at the moment, hence the high
+        // request timeout
         let websocket_config = Arc::new(WebsocketConfig {
             default_request_timeout: std::time::Duration::from_secs(180),
             ..Default::default()

@@ -14,7 +14,7 @@ use holochain_zome_types::{
     clone::ClonedCell,
     prelude::{CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName},
 };
-use std::ops::Deref;
+use std::{net::ToSocketAddrs, ops::Deref};
 use std::{ops::DerefMut, sync::Arc};
 
 #[derive(Clone)]
@@ -27,11 +27,11 @@ pub struct AppAgentWebsocket {
 
 impl AppAgentWebsocket {
     pub async fn connect(
-        app_url: String,
+        socket_addr: impl ToSocketAddrs,
         app_id: InstalledAppId,
         signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
     ) -> Result<Self> {
-        let app_ws = AppWebsocket::connect(app_url).await?;
+        let app_ws = AppWebsocket::connect(socket_addr).await?;
         AppAgentWebsocket::from_existing(app_ws, app_id, signer).await
     }
 

@@ -22,7 +22,6 @@ again = "0.1"
 anyhow = "1.0"
 ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 serde = "1.0.193"
-url = "2.2"
 event-emitter-rs = "0.1"
 rand = { version = "0.8" }
 async-trait = "0.1"
