@@ -44,7 +44,7 @@ impl AdminWebsocket {
             .expect("no valid ipv4 websocket addresses found");
 
         let websocket_config = Arc::new(WebsocketConfig {
-            default_request_timeout: std::time::Duration::from_secs(120),
+            default_request_timeout: std::time::Duration::from_secs(180),
             ..Default::default()
         });
         let (tx, mut rx) = again::retry(|| {
