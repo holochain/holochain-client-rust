@@ -29,7 +29,6 @@ jobs:
           remove-dotnet: 'true'
           remove-android: 'true'
           remove-codeql: 'true'
-          remove-docker-images: 'true'
 
       - name: Install nix
         uses: cachix/install-nix-action@v25
