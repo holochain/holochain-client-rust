@@ -35,7 +35,10 @@ async fn clone_cell_management() {
         .await
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
-    let app_api_port = admin_ws.attach_app_interface(0, AllowedOrigins::Any).await.unwrap();
+    let app_api_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::Any)
+        .await
+        .unwrap();
     let mut app_ws = AppWebsocket::connect(format!("127.0.0.1:{}", app_api_port))
         .await
         .unwrap();
@@ -184,7 +187,10 @@ pub async fn app_info_refresh() {
     let mut signer = ClientAgentSigner::default();
 
     // Create an app interface and connect an app agent to it
-    let app_api_port = admin_ws.attach_app_interface(0, AllowedOrigins::Any).await.unwrap();
+    let app_api_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::Any)
+        .await
+        .unwrap();
     let mut app_agent_ws = AppAgentWebsocket::connect(
         format!("127.0.0.1:{}", app_api_port),
         app_id.clone(),
