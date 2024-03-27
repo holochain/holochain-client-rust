@@ -15,6 +15,7 @@ use std::{
     path::PathBuf,
     sync::{Arc, Barrier},
 };
+use holochain_types::websocket::AllowedOrigins;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn network_info() {
@@ -39,7 +40,7 @@ async fn network_info() {
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_ws_port = 33000;
-    admin_ws.attach_app_interface(app_ws_port).await.unwrap();
+    admin_ws.attach_app_interface(app_ws_port, AllowedOrigins::Any).await.unwrap();
     let mut app_ws = AppWebsocket::connect(format!("127.0.0.1:{}", app_ws_port))
         .await
         .unwrap();
@@ -97,7 +98,7 @@ async fn handle_signal() {
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_ws_port = 33001;
-    admin_ws.attach_app_interface(app_ws_port).await.unwrap();
+    admin_ws.attach_app_interface(app_ws_port, AllowedOrigins::Any).await.unwrap();
     let mut app_ws = AppWebsocket::connect(format!("127.0.0.1:{}", app_ws_port))
         .await
         .unwrap();
