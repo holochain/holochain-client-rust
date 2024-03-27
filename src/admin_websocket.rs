@@ -2,6 +2,7 @@ use crate::error::{ConductorApiError, ConductorApiResult};
 use anyhow::Result;
 use holo_hash::DnaHash;
 use holochain_conductor_api::{AdminRequest, AdminResponse, AppInfo, AppStatusFilter, StorageInfo};
+use holochain_types::websocket::AllowedOrigins;
 use holochain_types::{
     dna::AgentPubKey,
     prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload, UpdateCoordinatorsPayload},
@@ -13,6 +14,7 @@ use holochain_zome_types::{
 };
 use serde::{Deserialize, Serialize};
 use std::{net::ToSocketAddrs, sync::Arc};
+
 pub struct AdminWebsocket {
     tx: WebsocketSender,
 }
@@ -37,10 +39,11 @@ impl AdminWebsocket {
             .expect("invalid websocket address");
         // app installation takes > 2 min on CI at the moment, hence the high
         // request timeout
-        let websocket_config = Arc::new(WebsocketConfig {
-            default_request_timeout: std::time::Duration::from_secs(180),
-            ..Default::default()
-        });
+        let mut websocket_config = WebsocketConfig::CLIENT_DEFAULT;
+        websocket_config.default_request_timeout = std::time::Duration::from_secs(180);
+
+        let websocket_config = Arc::new(websocket_config);
+
         let (tx, mut rx) = again::retry(|| {
             let websocket_config = Arc::clone(&websocket_config);
             connect(websocket_config, addr)
@@ -72,8 +75,15 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn attach_app_interface(&mut self, port: u16) -> ConductorApiResult<u16> {
-        let msg = AdminRequest::AttachAppInterface { port: Some(port) };
+    pub async fn attach_app_interface(
+        &mut self,
+        port: u16,
+        allowed_origins: AllowedOrigins,
+    ) -> ConductorApiResult<u16> {
+        let msg = AdminRequest::AttachAppInterface {
+            port: Some(port),
+            allowed_origins,
+        };
         let response = self.send(msg).await?;
         match response {
             AdminResponse::AppInterfaceAttached { port } => Ok(port),

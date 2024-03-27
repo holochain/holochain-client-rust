@@ -27,7 +27,7 @@ impl AppWebsocket {
             .to_socket_addrs()?
             .next()
             .expect("invalid websocket address");
-        let websocket_config = Arc::new(WebsocketConfig::default());
+        let websocket_config = Arc::new(WebsocketConfig::CLIENT_DEFAULT);
         let (tx, mut rx) = again::retry(|| {
             let websocket_config = Arc::clone(&websocket_config);
             connect(websocket_config, addr)
