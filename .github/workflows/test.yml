@@ -23,8 +23,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Maximize build space
+        uses: AdityaGarg8/remove-unwanted-software@v2
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
+
       - name: Install nix
         uses: cachix/install-nix-action@v25
+        with:
+          install_url: https://releases.nixos.org/nix/nix-2.20.4/install
 
       - name: Set up cachix
         uses: cachix/cachix-action@v14
@@ -52,9 +63,6 @@ jobs:
         with:
           path: fixture/zomes/foo/target
           key: ${{ matrix.os }}-build-${{ env.cache-name }}-${{ hashFiles('fixture/zomes/foo/Cargo.lock') }}
-
-      - name: Clean up nix files to prevent insufficient disk space
-        run: nix-collect-garbage -d
 
       - name: Restore client build
         uses: actions/cache/restore@v4
