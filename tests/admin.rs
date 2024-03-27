@@ -5,6 +5,7 @@ use holochain_client::{
     ClientAgentSigner, InstallAppPayload, InstalledAppId,
 };
 use holochain_conductor_api::{CellInfo, StorageBlob};
+use holochain_types::websocket::AllowedOrigins;
 use holochain_zome_types::prelude::ExternIO;
 use std::{collections::HashMap, path::PathBuf};
 
@@ -41,7 +42,10 @@ async fn signed_zome_call() {
         .await
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
-    let app_ws_port = admin_ws.attach_app_interface(30000).await.unwrap();
+    let app_ws_port = admin_ws
+        .attach_app_interface(30000, AllowedOrigins::Any)
+        .await
+        .unwrap();
     let mut app_ws = AppWebsocket::connect(format!("127.0.0.1:{}", app_ws_port))
         .await
         .unwrap();
