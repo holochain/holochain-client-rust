@@ -26,6 +26,14 @@ pub struct AppAgentWebsocket {
 }
 
 impl AppAgentWebsocket {
+    /// Connect to a Conductor API AppWebsocket with a specific app id.
+    ///
+    /// `socket_addr` is a websocket address that implements `ToSocketAddr`.
+    /// See trait [`ToSocketAddr`](https://doc.rust-lang.org/std/net/trait.ToSocketAddrs.html#tymethod.to_socket_addrs).
+    ///
+    /// # Examples
+    /// As string `"localhost:30000"`
+    /// As tuple `([127.0.0.1], 30000)`
     pub async fn connect(
         socket_addr: impl ToSocketAddrs,
         app_id: InstalledAppId,

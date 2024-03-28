@@ -32,6 +32,14 @@ pub struct AuthorizeSigningCredentialsPayload {
 }
 
 impl AdminWebsocket {
+    /// Connect to a Conductor API AdminWebsocket.
+    ///
+    /// `socket_addr` is a websocket address that implements `ToSocketAddr`.
+    /// See trait [`ToSocketAddr`](https://doc.rust-lang.org/std/net/trait.ToSocketAddrs.html#tymethod.to_socket_addrs).
+    ///
+    /// # Examples
+    /// As string `"localhost:30000"`
+    /// As tuple `([127.0.0.1], 30000)`
     pub async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
         let addr = socket_addr
             .to_socket_addrs()?
