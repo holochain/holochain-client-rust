@@ -7,8 +7,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 ### Changed
 ### Fixed
-- Handling signals on app websocket.
 ### Removed
+
+## 2024-04-02: v0.4.9-rc.2
+### Added
+- Signal handling on app websocket.
 
 ## 2024-03-08: v0.4.9-rc.1
 ### Changed
