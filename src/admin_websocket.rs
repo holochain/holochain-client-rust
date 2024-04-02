@@ -4,13 +4,15 @@ use holo_hash::DnaHash;
 use holochain_conductor_api::{AdminRequest, AdminResponse, AppInfo, AppStatusFilter, StorageInfo};
 use holochain_types::{
     dna::AgentPubKey,
-    prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload},
+    prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload, UpdateCoordinatorsPayload},
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
-use holochain_zome_types::{DnaDef, GrantZomeCallCapabilityPayload, GrantedFunctions, Record};
+use holochain_zome_types::{
+    capability::GrantedFunctions,
+    prelude::{DnaDef, GrantZomeCallCapabilityPayload, Record},
+};
 use serde::{Deserialize, Serialize};
 use std::{net::ToSocketAddrs, sync::Arc};
-use url::Url;
 
 pub struct AdminWebsocket {
     tx: WebsocketSender,
@@ -29,19 +31,26 @@ pub struct AuthorizeSigningCredentialsPayload {
 }
 
 impl AdminWebsocket {
-    pub async fn connect(admin_url: String) -> Result<Self> {
-        let url = Url::parse(&admin_url)?;
-        let host = url
-            .host_str()
-            .expect("websocket url does not have valid host part");
-        let port = url.port().expect("websocket url does not have valid port");
-        let admin_addr = format!("{}:{}", host, port);
-        let addr = admin_addr
+    /// Connect to a Conductor API AdminWebsocket.
+    ///
+    /// `socket_addr` is a websocket address that implements `ToSocketAddr`.
+    /// See trait [`ToSocketAddr`](https://doc.rust-lang.org/std/net/trait.ToSocketAddrs.html#tymethod.to_socket_addrs).
+    ///
+    /// # Examples
+    /// As string `"localhost:30000"`
+    /// As tuple `([127.0.0.1], 30000)`
+    pub async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
+        let addr = socket_addr
             .to_socket_addrs()?
-            .find(|addr| addr.is_ipv4())
-            .expect("no valid ipv4 websocket addresses found");
+            .next()
+            .expect("invalid websocket address");
+        // app installation takes > 2 min on CI at the moment, hence the high
+        // request timeout
+        let mut websocket_config = WebsocketConfig::default();
+        websocket_config.default_request_timeout = std::time::Duration::from_secs(180);
 
-        let websocket_config = Arc::new(WebsocketConfig::default());
+        let websocket_config = Arc::new(websocket_config);
+
         let (tx, mut rx) = again::retry(|| {
             let websocket_config = Arc::clone(&websocket_config);
             connect(websocket_config, addr)
@@ -53,11 +62,6 @@ impl AdminWebsocket {
         tokio::task::spawn(async move { while rx.recv::<AdminResponse>().await.is_ok() {} });
 
         Ok(Self { tx })
-    }
-
-    pub fn close(&mut self) {
-        // no op
-        // An AdminWebsocket is closed when the WebsocketReceiver rx is dropped.
     }
 
     pub async fn generate_agent_pub_key(&mut self) -> ConductorApiResult<AgentPubKey> {
@@ -189,6 +193,18 @@ impl AdminWebsocket {
         let response = self.send(msg).await?;
         match response {
             AdminResponse::NetworkStatsDumped(stats) => Ok(stats),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn update_coordinators(
+        &mut self,
+        update_coordinators_payload: UpdateCoordinatorsPayload,
+    ) -> ConductorApiResult<()> {
+        let msg = AdminRequest::UpdateCoordinators(Box::new(update_coordinators_payload));
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::CoordinatorsUpdated => Ok(()),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
