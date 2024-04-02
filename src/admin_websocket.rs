@@ -46,9 +46,10 @@ impl AdminWebsocket {
             .expect("invalid websocket address");
         // app installation takes > 2 min on CI at the moment, hence the high
         // request timeout
-        let mut websocket_config = WebsocketConfig::default();
-        websocket_config.default_request_timeout = std::time::Duration::from_secs(180);
-
+        let websocket_config = WebsocketConfig {
+            default_request_timeout: std::time::Duration::from_secs(180),
+            ..Default::default()
+        };
         let websocket_config = Arc::new(websocket_config);
 
         let (tx, mut rx) = again::retry(|| {
