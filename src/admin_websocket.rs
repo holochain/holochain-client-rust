@@ -4,10 +4,13 @@ use holo_hash::DnaHash;
 use holochain_conductor_api::{AdminRequest, AdminResponse, AppInfo, AppStatusFilter, StorageInfo};
 use holochain_types::{
     dna::AgentPubKey,
-    prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload},
+    prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload, UpdateCoordinatorsPayload},
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
-use holochain_zome_types::{DnaDef, GrantZomeCallCapabilityPayload, GrantedFunctions, Record};
+use holochain_zome_types::{
+    capability::GrantedFunctions,
+    prelude::{DnaDef, GrantZomeCallCapabilityPayload, Record},
+};
 use serde::{Deserialize, Serialize};
 use std::{net::ToSocketAddrs, sync::Arc};
 use url::Url;
@@ -41,7 +44,14 @@ impl AdminWebsocket {
             .find(|addr| addr.is_ipv4())
             .expect("no valid ipv4 websocket addresses found");
 
-        let websocket_config = Arc::new(WebsocketConfig::default());
+        // app installation takes > 2 min on CI at the moment, hence the high
+        // request timeout
+        let websocket_config = WebsocketConfig {
+            default_request_timeout: std::time::Duration::from_secs(180),
+            ..Default::default()
+        };
+        let websocket_config = Arc::new(websocket_config);
+
         let (tx, mut rx) = again::retry(|| {
             let websocket_config = Arc::clone(&websocket_config);
             connect(websocket_config, addr)
@@ -53,11 +63,6 @@ impl AdminWebsocket {
         tokio::task::spawn(async move { while rx.recv::<AdminResponse>().await.is_ok() {} });
 
         Ok(Self { tx })
-    }
-
-    pub fn close(&mut self) {
-        // no op
-        // An AdminWebsocket is closed when the WebsocketReceiver rx is dropped.
     }
 
     pub async fn generate_agent_pub_key(&mut self) -> ConductorApiResult<AgentPubKey> {
@@ -189,6 +194,18 @@ impl AdminWebsocket {
         let response = self.send(msg).await?;
         match response {
             AdminResponse::NetworkStatsDumped(stats) => Ok(stats),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn update_coordinators(
+        &mut self,
+        update_coordinators_payload: UpdateCoordinatorsPayload,
+    ) -> ConductorApiResult<()> {
+        let msg = AdminRequest::UpdateCoordinators(Box::new(update_coordinators_payload));
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::CoordinatorsUpdated => Ok(()),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }

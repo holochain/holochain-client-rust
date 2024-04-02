@@ -9,7 +9,7 @@ name = "holochain_client"
 readme = "README.md"
 repository = "https://github.com/holochain/holochain-client-rust"
 resolver = "2"
-version = "0.4.9-rc.1"
+version = "0.4.9-rc.2"
 
 [workspace]
 members = ["fixture/zomes/foo"]
@@ -21,6 +21,7 @@ holochain_zome_types = "0.2.7-rc.0"
 again = "0.1"
 anyhow = "1.0"
 ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+event-emitter-rs = "0.1"
 holo_hash = { version = "0.2.6", features = ["encoding"] }
 holochain_conductor_api = "0.2.7-rc.1"
 holochain_serialized_bytes = "0.0.53"
