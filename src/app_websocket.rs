@@ -1,37 +1,40 @@
 use crate::error::{ConductorApiError, ConductorApiResult};
 use anyhow::Result;
-use holochain_conductor_api::{
-    AppInfo, AppRequest, AppResponse, ClonedCell, NetworkInfo, ZomeCall,
-};
+use event_emitter_rs::EventEmitter;
+use holochain_conductor_api::{AppInfo, AppRequest, AppResponse, NetworkInfo, ZomeCall};
 use holochain_types::{
     app::InstalledAppId,
     prelude::{
         CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload, ExternIO,
         NetworkInfoRequestPayload,
     },
+    signal::Signal,
 };
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
+use holochain_zome_types::clone::ClonedCell;
 use std::{net::ToSocketAddrs, sync::Arc};
-use url::Url;
+use tokio::sync::Mutex;
 
 #[derive(Clone)]
 pub struct AppWebsocket {
     tx: WebsocketSender,
+    event_emitter: Arc<Mutex<EventEmitter>>,
 }
 
 impl AppWebsocket {
-    pub async fn connect(app_url: String) -> Result<Self> {
-        let url = Url::parse(&app_url)?;
-        let host = url
-            .host_str()
-            .expect("websocket url does not have valid host part");
-        let port = url.port().expect("websocket url does not have valid port");
-        let app_addr = format!("{}:{}", host, port);
-        let addr = app_addr
+    /// Connect to a Conductor API AppWebsocket.
+    ///
+    /// `socket_addr` is a websocket address that implements `ToSocketAddr`.
+    /// See trait [`ToSocketAddr`](https://doc.rust-lang.org/std/net/trait.ToSocketAddrs.html#tymethod.to_socket_addrs).
+    ///
+    /// # Examples
+    /// As string `"localhost:30000"`
+    /// As tuple `([127.0.0.1], 30000)`
+    pub async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
+        let addr = socket_addr
             .to_socket_addrs()?
-            .find(|addr| addr.is_ipv4())
-            .expect("no valid ipv4 websocket addresses found");
-
+            .next()
+            .expect("invalid websocket address");
         let websocket_config = Arc::new(WebsocketConfig::default());
         let (tx, mut rx) = again::retry(|| {
             let websocket_config = Arc::clone(&websocket_config);
@@ -39,11 +42,35 @@ impl AppWebsocket {
         })
         .await?;
 
-        // WebsocketReceiver needs to be polled in order to receive responses
-        // from remote to sender requests.
-        tokio::task::spawn(async move { while rx.recv::<AppResponse>().await.is_ok() {} });
+        let event_emitter = EventEmitter::new();
+        let mutex = Arc::new(Mutex::new(event_emitter));
 
-        Ok(Self { tx })
+        tokio::task::spawn({
+            let mutex = mutex.clone();
+            async move {
+                while let Ok(msg) = rx.recv::<AppResponse>().await {
+                    if let holochain_websocket::ReceiveMessage::Signal(signal_bytes) = msg {
+                        let mut event_emitter = mutex.lock().await;
+                        let signal = Signal::try_from_vec(signal_bytes).expect("Malformed signal");
+                        event_emitter.emit("signal", signal);
+                    }
+                }
+            }
+        });
+
+        Ok(Self {
+            tx,
+            event_emitter: mutex,
+        })
+    }
+
+    pub async fn on_signal<F: Fn(Signal) + 'static + Sync + Send>(
+        &mut self,
+        handler: F,
+    ) -> Result<String> {
+        let mut event_emitter = self.event_emitter.lock().await;
+        let id = event_emitter.on("signal", handler);
+        Ok(id)
     }
 
     pub async fn app_info(
