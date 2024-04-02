@@ -1,18 +1,21 @@
-use std::{ops::DerefMut, sync::Arc};
-
 use crate::{
     signing::{sign_zome_call, AgentSigner},
     AppWebsocket, ConductorApiError, ConductorApiResult,
 };
 use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
-use holochain_conductor_api::{AppInfo, CellInfo, ClonedCell, ProvisionedCell};
+use holochain_conductor_api::{AppInfo, CellInfo, ProvisionedCell};
 use holochain_state::nonce::fresh_nonce;
-use holochain_types::{app::InstalledAppId, prelude::CloneId};
-use holochain_zome_types::prelude::{
-    CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName,
+use holochain_types::{
+    app::InstalledAppId,
+    prelude::{CloneId, Signal},
 };
-use std::ops::Deref;
+use holochain_zome_types::{
+    clone::ClonedCell,
+    prelude::{CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName},
+};
+use std::{net::ToSocketAddrs, ops::Deref};
+use std::{ops::DerefMut, sync::Arc};
 
 #[derive(Clone)]
 pub struct AppAgentWebsocket {
@@ -23,12 +26,20 @@ pub struct AppAgentWebsocket {
 }
 
 impl AppAgentWebsocket {
+    /// Connect to a Conductor API AppWebsocket with a specific app id.
+    ///
+    /// `socket_addr` is a websocket address that implements `ToSocketAddr`.
+    /// See trait [`ToSocketAddr`](https://doc.rust-lang.org/std/net/trait.ToSocketAddrs.html#tymethod.to_socket_addrs).
+    ///
+    /// # Examples
+    /// As string `"localhost:30000"`
+    /// As tuple `([127.0.0.1], 30000)`
     pub async fn connect(
-        url: String,
+        socket_addr: impl ToSocketAddrs,
         app_id: InstalledAppId,
         signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
     ) -> Result<Self> {
-        let app_ws = AppWebsocket::connect(url).await?;
+        let app_ws = AppWebsocket::connect(socket_addr).await?;
         AppAgentWebsocket::from_existing(app_ws, app_id, signer).await
     }
 
@@ -49,6 +60,33 @@ impl AppAgentWebsocket {
             app_info,
             signer,
         })
+    }
+
+    pub async fn on_signal<F: Fn(Signal) + 'static + Sync + Send>(
+        &mut self,
+        handler: F,
+    ) -> Result<String> {
+        let app_info = self.app_info.clone();
+        self.app_ws
+            .on_signal(move |signal| {
+                if let Signal::App {
+                    cell_id,
+                    zome_name: _,
+                    signal: _,
+                } = signal.clone()
+                {
+                    if app_info.cell_info.values().any(|cells| {
+                        cells.iter().any(|cell_info| match cell_info {
+                            CellInfo::Provisioned(cell) => cell.cell_id.eq(&cell_id),
+                            CellInfo::Cloned(cell) => cell.cell_id.eq(&cell_id),
+                            _ => false,
+                        })
+                    }) {
+                        handler(signal);
+                    }
+                }
+            })
+            .await
     }
 
     pub async fn call_zome(

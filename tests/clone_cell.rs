@@ -18,7 +18,7 @@ use holochain_zome_types::{ExternIO, RoleName};
 async fn clone_cell_management() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
+    let mut admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
         .await
         .unwrap();
     let app_id: InstalledAppId = "test-app".into();
@@ -36,7 +36,7 @@ async fn clone_cell_management() {
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_api_port = admin_ws.attach_app_interface(0).await.unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_api_port))
+    let mut app_ws = AppWebsocket::connect(format!("127.0.0.1:{}", app_api_port))
         .await
         .unwrap();
     let clone_cell = {
@@ -159,7 +159,7 @@ async fn clone_cell_management() {
 pub async fn app_info_refresh() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
+    let mut admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
         .await
         .unwrap();
     let app_id: InstalledAppId = "test-app".into();
@@ -186,7 +186,7 @@ pub async fn app_info_refresh() {
     // Create an app interface and connect an app agent to it
     let app_api_port = admin_ws.attach_app_interface(0).await.unwrap();
     let mut app_agent_ws = AppAgentWebsocket::connect(
-        format!("ws://localhost:{}", app_api_port),
+        format!("127.0.0.1:{}", app_api_port),
         app_id.clone(),
         signer.clone().into(),
     )
