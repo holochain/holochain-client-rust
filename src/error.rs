@@ -1,6 +1,6 @@
 use holochain_conductor_api::ExternalApiWireError;
 use holochain_state::prelude::DatabaseError;
-use holochain_websocket::WebsocketError;
+use holochain_websocket::Error as WebsocketError;
 
 #[derive(Debug)]
 pub enum ConductorApiError {
