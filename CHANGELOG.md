@@ -9,6 +9,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2024-04-09: v0.4.10
+### Added
+- Signal handling on app websocket.
+### Changed
+- Update deps to Holochain v0.2.7.
+- Adapt admin and app websocket to new version of package `holochain_websocket`.
+
 ## 2024-03-05: v0.4.8
 ### Added
 - Capability to create zome call signing credentials with the `AdminWebsocket` using `authorize_signing_credentials`.
