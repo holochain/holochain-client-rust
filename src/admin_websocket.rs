@@ -41,8 +41,8 @@ impl AdminWebsocket {
         let admin_addr = format!("{}:{}", host, port);
         let addr = admin_addr
             .to_socket_addrs()?
-            .find(|addr| addr.is_ipv4())
-            .expect("no valid ipv4 websocket addresses found");
+            .next()
+            .expect("Failed to resolve localhost");
 
         // app installation takes > 2 min on CI at the moment, hence the high
         // request timeout
