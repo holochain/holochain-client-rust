@@ -21,7 +21,7 @@ use std::{
 async fn network_info() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+    let mut admin_ws = AdminWebsocket::connect(format!("localhost:{}", admin_port))
         .await
         .unwrap();
 
@@ -44,7 +44,7 @@ async fn network_info() {
         .attach_app_interface(app_ws_port, AllowedOrigins::Any)
         .await
         .unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("127.0.0.1:{}", app_ws_port))
+    let mut app_ws = AppWebsocket::connect(format!("localhost:{}", app_ws_port))
         .await
         .unwrap();
 
@@ -82,7 +82,7 @@ async fn network_info() {
 async fn handle_signal() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+    let mut admin_ws = AdminWebsocket::connect(format!("localhost:{}", admin_port))
         .await
         .unwrap();
 
@@ -105,7 +105,7 @@ async fn handle_signal() {
         .attach_app_interface(app_ws_port, AllowedOrigins::Any)
         .await
         .unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("127.0.0.1:{}", app_ws_port))
+    let mut app_ws = AppWebsocket::connect(format!("localhost:{}", app_ws_port))
         .await
         .unwrap();
 

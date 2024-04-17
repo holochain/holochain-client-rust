@@ -18,7 +18,7 @@ use holochain_zome_types::{dependencies::holochain_integrity_types::ExternIO, pr
 async fn clone_cell_management() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+    let mut admin_ws = AdminWebsocket::connect(format!("localhost:{}", admin_port))
         .await
         .unwrap();
     let app_id: InstalledAppId = "test-app".into();
@@ -39,7 +39,7 @@ async fn clone_cell_management() {
         .attach_app_interface(0, AllowedOrigins::Any)
         .await
         .unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("127.0.0.1:{}", app_api_port))
+    let mut app_ws = AppWebsocket::connect(format!("localhost:{}", app_api_port))
         .await
         .unwrap();
     let clone_cell = {
@@ -162,7 +162,7 @@ async fn clone_cell_management() {
 pub async fn app_info_refresh() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+    let mut admin_ws = AdminWebsocket::connect(format!("localhost:{}", admin_port))
         .await
         .unwrap();
     let app_id: InstalledAppId = "test-app".into();
@@ -192,7 +192,7 @@ pub async fn app_info_refresh() {
         .await
         .unwrap();
     let mut app_agent_ws = AppAgentWebsocket::connect(
-        format!("127.0.0.1:{}", app_api_port),
+        format!("localhost:{}", app_api_port),
         app_id.clone(),
         signer.clone().into(),
     )
