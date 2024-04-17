@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
+- Remove expectation of an IPv4 address and allow for IPv4 and IPv6.
 ### Fixed
 ### Removed
 
