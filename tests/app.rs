@@ -13,7 +13,7 @@ use std::{collections::HashMap, path::PathBuf};
 async fn network_info() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("ws://127.0.0.1:{}", admin_port))
+    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
         .await
         .unwrap();
 
@@ -33,7 +33,7 @@ async fn network_info() {
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_ws_port = 33000;
     admin_ws.attach_app_interface(app_ws_port).await.unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("ws://127.0.0.1:{}", app_ws_port))
+    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_ws_port))
         .await
         .unwrap();
 

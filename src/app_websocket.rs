@@ -32,8 +32,8 @@ impl AppWebsocket {
         let app_addr = format!("{}:{}", host, port);
         let addr = app_addr
             .to_socket_addrs()?
-            .find(|addr| addr.is_ipv4())
-            .expect("no valid ipv4 websocket addresses found");
+            .next()
+            .expect("Failed to resolve localhost");
 
         let websocket_config = Arc::new(WebsocketConfig::default());
         let (tx, mut rx) = again::retry(|| {
