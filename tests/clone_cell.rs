@@ -6,7 +6,7 @@ use holochain::{
     sweettest::SweetConductor,
 };
 use holochain_client::{
-    AdminWebsocket, AppAgentWebsocket, AuthorizeSigningCredentialsPayload, ClientAgentSigner,
+    AdminWebsocket, AppWebsocket, AuthorizeSigningCredentialsPayload, ClientAgentSigner,
     ConductorApiError, InstallAppPayload,
 };
 use holochain_types::prelude::{
@@ -51,7 +51,7 @@ async fn clone_cell_management() {
         .await
         .unwrap();
     let mut signer = ClientAgentSigner::default();
-    let mut app_ws = AppAgentWebsocket::connect(
+    let mut app_ws = AppWebsocket::connect(
         format!("127.0.0.1:{}", app_api_port),
         issued_token.token,
         signer.clone().into(),
@@ -206,7 +206,7 @@ pub async fn app_info_refresh() {
         .issue_app_auth_token(app_id.clone().into())
         .await
         .unwrap();
-    let mut app_agent_ws = AppAgentWebsocket::connect(
+    let mut app_agent_ws = AppWebsocket::connect(
         (Ipv4Addr::LOCALHOST, app_api_port),
         token_issued.token,
         signer.clone().into(),

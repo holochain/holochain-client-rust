@@ -23,14 +23,14 @@ use std::net::ToSocketAddrs;
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub struct AppAgentWebsocket {
+pub struct AppWebsocket {
     pub my_pub_key: AgentPubKey,
-    app_ws: AppWebsocketInner,
+    inner: AppWebsocketInner,
     app_info: AppInfo,
     signer: Arc<dyn AgentSigner + Send + Sync>,
 }
 
-impl AppAgentWebsocket {
+impl AppWebsocket {
     /// Connect to a Conductor API AppWebsocket with a specific app id.
     ///
     /// `socket_addr` is a websocket address that implements `ToSocketAddr`.
@@ -47,7 +47,7 @@ impl AppAgentWebsocket {
     /// let app_id = "test-app".to_string();
     /// let issued = admin_ws.issue_app_auth_token(app_id.clone().into()).await.unwrap();
     /// let signer = holochain_client::ClientAgentSigner::default();
-    /// let app_ws = holochain_client::AppAgentWebsocket::connect((Ipv4Addr::LOCALHOST, 30_001), issued.token, signer.into()).await?;
+    /// let app_ws = holochain_client::AppWebsocket::connect((Ipv4Addr::LOCALHOST, 30_001), issued.token, signer.into()).await?;
     /// # Ok(())
     /// # }
     /// ```
@@ -72,9 +72,9 @@ impl AppAgentWebsocket {
             .map_err(|err| anyhow!("Error fetching app_info {err:?}"))?
             .ok_or(anyhow!("App doesn't exist"))?;
 
-        Ok(AppAgentWebsocket {
+        Ok(AppWebsocket {
             my_pub_key: app_info.agent_pub_key.clone(),
-            app_ws,
+            inner: app_ws,
             app_info,
             signer,
         })
@@ -85,7 +85,7 @@ impl AppAgentWebsocket {
         handler: F,
     ) -> Result<String> {
         let app_info = self.app_info.clone();
-        self.app_ws
+        self.inner
             .on_signal(move |signal| {
                 if let Signal::App {
                     cell_id,
@@ -108,7 +108,7 @@ impl AppAgentWebsocket {
     }
 
     pub async fn app_info(&mut self) -> ConductorApiResult<Option<AppInfo>> {
-        self.app_ws.app_info().await
+        self.inner.app_info().await
     }
 
     pub async fn call_zome(
@@ -145,7 +145,7 @@ impl AppAgentWebsocket {
             .map_err(|e| ConductorApiError::SignZomeCallError(e.to_string()))?;
 
         let app_request = AppRequest::CallZome(Box::new(signed_zome_call));
-        let response = self.app_ws.send(app_request).await?;
+        let response = self.inner.send(app_request).await?;
 
         match response {
             AppResponse::ZomeCalled(result) => Ok(*result),
@@ -158,7 +158,7 @@ impl AppAgentWebsocket {
         msg: CreateCloneCellPayload,
     ) -> ConductorApiResult<ClonedCell> {
         let app_request = AppRequest::CreateCloneCell(Box::new(msg));
-        let response = self.app_ws.send(app_request).await?;
+        let response = self.inner.send(app_request).await?;
         match response {
             AppResponse::CloneCellCreated(clone_cell) => Ok(clone_cell),
             _ => unreachable!("Unexpected response {:?}", response),
@@ -170,7 +170,7 @@ impl AppAgentWebsocket {
         payload: DisableCloneCellPayload,
     ) -> ConductorApiResult<()> {
         let app_request = AppRequest::DisableCloneCell(Box::new(payload));
-        let response = self.app_ws.send(app_request).await?;
+        let response = self.inner.send(app_request).await?;
         match response {
             AppResponse::CloneCellDisabled => Ok(()),
             _ => unreachable!("Unexpected response {:?}", response),
@@ -182,7 +182,7 @@ impl AppAgentWebsocket {
         payload: EnableCloneCellPayload,
     ) -> ConductorApiResult<ClonedCell> {
         let msg = AppRequest::EnableCloneCell(Box::new(payload));
-        let response = self.app_ws.send(msg).await?;
+        let response = self.inner.send(msg).await?;
         match response {
             AppResponse::CloneCellEnabled(enabled_cell) => Ok(enabled_cell),
             _ => unreachable!("Unexpected response {:?}", response),
@@ -194,7 +194,7 @@ impl AppAgentWebsocket {
         payload: NetworkInfoRequestPayload,
     ) -> ConductorApiResult<Vec<NetworkInfo>> {
         let msg = AppRequest::NetworkInfo(Box::new(payload));
-        let response = self.app_ws.send(msg).await?;
+        let response = self.inner.send(msg).await?;
         match response {
             AppResponse::NetworkInfo(infos) => Ok(infos),
             _ => unreachable!("Unexpected response {:?}", response),
@@ -203,7 +203,7 @@ impl AppAgentWebsocket {
 
     pub async fn list_wasm_host_functions(&mut self) -> ConductorApiResult<Vec<String>> {
         let msg = AppRequest::ListWasmHostFunctions;
-        let response = self.app_ws.send(msg).await?;
+        let response = self.inner.send(msg).await?;
         match response {
             AppResponse::ListWasmHostFunctions(functions) => Ok(functions),
             _ => unreachable!("Unexpected response {:?}", response),
@@ -266,12 +266,12 @@ pub enum ZomeCallTarget {
     CellId(CellId),
     /// Call a cell by its role name.
     ///
-    /// Note that when using clone cells, if you create them after creating the [AppAgentWebsocket], you will need to call [AppAgentWebsocket::refresh_app_info]
+    /// Note that when using clone cells, if you create them after creating the [AppWebsocket], you will need to call [AppWebsocket::refresh_app_info]
     /// for the right CellId to be found to make the call.
     RoleName(RoleName),
     /// Call a cell by its clone id.
     ///
-    /// Note that when using clone cells, if you create them after creating the [AppAgentWebsocket], you will need to call [AppAgentWebsocket::refresh_app_info]
+    /// Note that when using clone cells, if you create them after creating the [AppWebsocket], you will need to call [AppWebsocket::refresh_app_info]
     /// for the right CellId to be found to make the call.
     CloneId(CloneId),
 }

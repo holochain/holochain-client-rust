@@ -3,7 +3,7 @@ use holochain::{
     sweettest::SweetConductor,
 };
 use holochain_client::{
-    AdminWebsocket, AppAgentWebsocket, AuthorizeSigningCredentialsPayload, ClientAgentSigner,
+    AdminWebsocket, AppWebsocket, AuthorizeSigningCredentialsPayload, ClientAgentSigner,
     InstallAppPayload, InstalledAppId,
 };
 use holochain_conductor_api::{CellInfo, NetworkInfo};
@@ -53,7 +53,7 @@ async fn network_info() {
         .await
         .unwrap();
     let signer = ClientAgentSigner::default().into();
-    let mut app_ws = AppAgentWebsocket::connect(
+    let mut app_ws = AppWebsocket::connect(
         (Ipv4Addr::LOCALHOST, app_ws_port),
         token_issued.token,
         signer,
@@ -126,7 +126,7 @@ async fn handle_signal() {
         .await
         .unwrap();
     let mut signer = ClientAgentSigner::default();
-    let mut app_ws = AppAgentWebsocket::connect(
+    let mut app_ws = AppWebsocket::connect(
         (Ipv4Addr::LOCALHOST, app_ws_port),
         token_issued.token,
         signer.clone().into(),

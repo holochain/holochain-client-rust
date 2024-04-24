@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - New admin call `issue_app_auth_token` which allows you to issue an app auth token. This is now required when creating
-  an app websocket connection. See the example for `AppAgentWebsocket::connect` for how to use this.
+  an app websocket connection. See the example for `AppWebsocket::connect` for how to use this.
 - Missing app interface function `list_wasm_host_functions` has been added.
 
 ### Changed
@@ -16,7 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 ### Removed
-- **BREAKING**: The `AppWebsocket` is gone, all functionality is available on the `AppAgentWebsocket` instead.
+- **BREAKING**: The old `AppWebsocket` is gone, its functionality was merged into the `AppAgentWebsocket` which has been renamed to `AppWebsocket`.
 
 ## 2024-03-27: v0.5.0-dev.31
 ### Changed

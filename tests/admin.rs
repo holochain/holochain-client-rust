@@ -1,7 +1,7 @@
 use holochain::test_utils::itertools::Itertools;
 use holochain::{prelude::AppBundleSource, sweettest::SweetConductor};
 use holochain_client::{
-    AdminWebsocket, AppAgentWebsocket, AuthorizeSigningCredentialsPayload, ClientAgentSigner,
+    AdminWebsocket, AppWebsocket, AuthorizeSigningCredentialsPayload, ClientAgentSigner,
     InstallAppPayload, InstalledAppId,
 };
 use holochain_conductor_api::{CellInfo, StorageBlob};
@@ -60,7 +60,7 @@ async fn signed_zome_call() {
         .await
         .unwrap();
     let mut signer = ClientAgentSigner::default();
-    let mut app_ws = AppAgentWebsocket::connect(
+    let mut app_ws = AppWebsocket::connect(
         (Ipv4Addr::LOCALHOST, app_ws_port),
         issued_token.token,
         signer.clone().into(),
