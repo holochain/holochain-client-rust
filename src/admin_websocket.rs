@@ -129,7 +129,7 @@ impl AdminWebsocket {
     ///
     /// If you want to restrict this app interface so that it is only accessible to a specific
     /// installed app then you can provide the installed_app_id. The client will still need to
-    /// authenticate with a valid token for the same app but clients for other apps will not be
+    /// authenticate with a valid token for the same app, but clients for other apps will not be
     /// able to connect. If you want to allow all apps to connect then set this to `None`.
     pub async fn attach_app_interface(
         &mut self,
