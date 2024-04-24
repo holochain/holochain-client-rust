@@ -1,7 +1,10 @@
 use crate::error::{ConductorApiError, ConductorApiResult};
 use anyhow::Result;
 use holo_hash::DnaHash;
-use holochain_conductor_api::{AdminRequest, AdminResponse, AppInfo, AppStatusFilter, StorageInfo};
+use holochain_conductor_api::{
+    AdminRequest, AdminResponse, AppAuthenticationTokenIssued, AppInfo, AppInterfaceInfo,
+    AppStatusFilter, IssueAppAuthenticationTokenPayload, StorageInfo,
+};
 use holochain_types::websocket::AllowedOrigins;
 use holochain_types::{
     dna::AgentPubKey,
@@ -38,6 +41,16 @@ impl AdminWebsocket {
     /// See trait [`ToSocketAddr`](https://doc.rust-lang.org/std/net/trait.ToSocketAddrs.html#tymethod.to_socket_addrs).
     ///
     /// # Examples
+    ///
+    /// ```rust,no_run
+    /// # #[tokio::main]
+    /// # async fn main() -> anyhow::Result<()> {
+    /// use std::net::Ipv4Addr;
+    /// let admin_ws = holochain_client::AdminWebsocket::connect((Ipv4Addr::LOCALHOST, 30_000)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
     /// As string `"localhost:30000"`
     /// As tuple `([127.0.0.1], 30000)`
     pub async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
@@ -65,6 +78,22 @@ impl AdminWebsocket {
         Ok(Self { tx })
     }
 
+    /// Issue an app authentication token for the specified app.
+    ///
+    /// A token is required to create an [AppAgentWebsocket] connection.
+    pub async fn issue_app_auth_token(
+        &mut self,
+        payload: IssueAppAuthenticationTokenPayload,
+    ) -> ConductorApiResult<AppAuthenticationTokenIssued> {
+        let response = self
+            .send(AdminRequest::IssueAppAuthenticationToken(payload))
+            .await?;
+        match response {
+            AdminResponse::AppAuthenticationTokenIssued(issued) => Ok(issued),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
     pub async fn generate_agent_pub_key(&mut self) -> ConductorApiResult<AgentPubKey> {
         // Create agent key in Lair and save it in file
         let response = self.send(AdminRequest::GenerateAgentPubKey).await?;
@@ -74,23 +103,44 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn list_app_interfaces(&mut self) -> ConductorApiResult<Vec<u16>> {
+    /// List all app interfaces attached to the conductor.
+    ///
+    /// See the documentation for [AdminWebsocket::attach_app_interface] to understand the content
+    /// of `AppInterfaceInfo` and help you to select an appropriate interface to connect to.
+    pub async fn list_app_interfaces(&mut self) -> ConductorApiResult<Vec<AppInterfaceInfo>> {
         let msg = AdminRequest::ListAppInterfaces;
         let response = self.send(msg).await?;
         match response {
-            AdminResponse::AppInterfacesListed(ports) => Ok(ports),
+            AdminResponse::AppInterfacesListed(interfaces) => Ok(interfaces),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
 
+    /// Attach an app interface to the conductor.
+    ///
+    /// This will create a new websocket on the specified port. Alternatively, specify the port as
+    /// 0 to allow the OS to choose a port. The selected port will be returned so you know where
+    /// to connect your app client.
+    ///
+    /// Allowed origins can be used to restrict which domains can connect to the interface.
+    /// This is used to protect the interface from scripts running in web pages. In development it
+    /// is acceptable to use `AllowedOrigins::All` to allow all connections. In production you
+    /// should consider setting an explicit list of origins, such as `"my_cli_app".to_string().into()`.
+    ///
+    /// If you want to restrict this app interface so that it is only accessible to a specific
+    /// installed app then you can provide the installed_app_id. The client will still need to
+    /// authenticate with a valid token for the same app, but clients for other apps will not be
+    /// able to connect. If you want to allow all apps to connect then set this to `None`.
     pub async fn attach_app_interface(
         &mut self,
         port: u16,
         allowed_origins: AllowedOrigins,
+        installed_app_id: Option<String>,
     ) -> ConductorApiResult<u16> {
         let msg = AdminRequest::AttachAppInterface {
             port: Some(port),
             allowed_origins,
+            installed_app_id,
         };
         let response = self.send(msg).await?;
         match response {
