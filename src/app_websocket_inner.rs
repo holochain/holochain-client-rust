@@ -9,13 +9,14 @@ use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
 use std::{net::ToSocketAddrs, sync::Arc};
 use tokio::sync::Mutex;
 
+/// The core functionality for an app websocket.
 #[derive(Clone)]
-pub(crate) struct AppWebsocket {
+pub(crate) struct AppWebsocketInner {
     tx: WebsocketSender,
     event_emitter: Arc<Mutex<EventEmitter>>,
 }
 
-impl AppWebsocket {
+impl AppWebsocketInner {
     /// Connect to a Conductor API AppWebsocket.
     pub(crate) async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
         let addr = socket_addr

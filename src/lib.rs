@@ -1,6 +1,6 @@
 mod admin_websocket;
 mod app_agent_websocket;
-mod app_websocket;
+mod app_websocket_inner;
 mod error;
 mod signing;
 

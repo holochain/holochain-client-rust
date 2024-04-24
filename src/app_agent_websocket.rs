@@ -1,4 +1,4 @@
-use crate::app_websocket::AppWebsocket;
+use crate::app_websocket_inner::AppWebsocketInner;
 use crate::{
     signing::{sign_zome_call, AgentSigner},
     ConductorApiError, ConductorApiResult,
@@ -25,7 +25,7 @@ use std::sync::Arc;
 #[derive(Clone)]
 pub struct AppAgentWebsocket {
     pub my_pub_key: AgentPubKey,
-    app_ws: AppWebsocket,
+    app_ws: AppWebsocketInner,
     app_info: AppInfo,
     signer: Arc<dyn AgentSigner + Send + Sync>,
 }
@@ -59,7 +59,7 @@ impl AppAgentWebsocket {
         token: AppAuthenticationToken,
         signer: Arc<dyn AgentSigner + Send + Sync>,
     ) -> Result<Self> {
-        let mut app_ws = AppWebsocket::connect(socket_addr).await?;
+        let mut app_ws = AppWebsocketInner::connect(socket_addr).await?;
 
         app_ws
             .authenticate(token)
