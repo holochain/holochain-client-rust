@@ -1,7 +1,10 @@
 use crate::error::{ConductorApiError, ConductorApiResult};
 use anyhow::Result;
 use holo_hash::DnaHash;
-use holochain_conductor_api::{AdminRequest, AdminResponse, AppInfo, AppInterfaceInfo, AppStatusFilter, StorageInfo};
+use holochain_conductor_api::{
+    AdminRequest, AdminResponse, AppAuthenticationTokenIssued, AppInfo, AppInterfaceInfo,
+    AppStatusFilter, IssueAppAuthenticationTokenPayload, StorageInfo,
+};
 use holochain_types::websocket::AllowedOrigins;
 use holochain_types::{
     dna::AgentPubKey,
@@ -38,6 +41,16 @@ impl AdminWebsocket {
     /// See trait [`ToSocketAddr`](https://doc.rust-lang.org/std/net/trait.ToSocketAddrs.html#tymethod.to_socket_addrs).
     ///
     /// # Examples
+    ///
+    /// ```rust,no_run
+    /// # #[tokio::main]
+    /// # async fn main() -> anyhow::Result<()> {
+    /// use std::net::Ipv4Addr;
+    /// let admin_ws = holochain_client::AdminWebsocket::connect((Ipv4Addr::LOCALHOST, 30_000)).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
     /// As string `"localhost:30000"`
     /// As tuple `([127.0.0.1], 30000)`
     pub async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
@@ -63,6 +76,22 @@ impl AdminWebsocket {
         tokio::task::spawn(async move { while rx.recv::<AdminResponse>().await.is_ok() {} });
 
         Ok(Self { tx })
+    }
+
+    /// Issue an app authentication token for the specified app.
+    ///
+    /// A token is required to create an [AppAgentWebsocket] connection.
+    pub async fn issue_app_auth_token(
+        &mut self,
+        payload: IssueAppAuthenticationTokenPayload,
+    ) -> ConductorApiResult<AppAuthenticationTokenIssued> {
+        let response = self
+            .send(AdminRequest::IssueAppAuthenticationToken(payload))
+            .await?;
+        match response {
+            AdminResponse::AppAuthenticationTokenIssued(issued) => Ok(issued),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
     }
 
     pub async fn generate_agent_pub_key(&mut self) -> ConductorApiResult<AgentPubKey> {

@@ -1,35 +1,23 @@
 use crate::error::{ConductorApiError, ConductorApiResult};
 use anyhow::Result;
 use event_emitter_rs::EventEmitter;
-use holochain_conductor_api::{AppInfo, AppRequest, AppResponse, NetworkInfo, ZomeCall};
-use holochain_types::{
-    prelude::{
-        CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload, ExternIO,
-        NetworkInfoRequestPayload,
-    },
-    signal::Signal,
+use holochain_conductor_api::{
+    AppAuthenticationRequest, AppAuthenticationToken, AppInfo, AppRequest, AppResponse,
 };
+use holochain_types::signal::Signal;
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
-use holochain_zome_types::clone::ClonedCell;
 use std::{net::ToSocketAddrs, sync::Arc};
 use tokio::sync::Mutex;
 
 #[derive(Clone)]
-pub struct AppWebsocket {
+pub(crate) struct AppWebsocket {
     tx: WebsocketSender,
     event_emitter: Arc<Mutex<EventEmitter>>,
 }
 
 impl AppWebsocket {
     /// Connect to a Conductor API AppWebsocket.
-    ///
-    /// `socket_addr` is a websocket address that implements `ToSocketAddr`.
-    /// See trait [`ToSocketAddr`](https://doc.rust-lang.org/std/net/trait.ToSocketAddrs.html#tymethod.to_socket_addrs).
-    ///
-    /// # Examples
-    /// As string `"localhost:30000"`
-    /// As tuple `([127.0.0.1], 30000)`
-    pub async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
+    pub(crate) async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
         let addr = socket_addr
             .to_socket_addrs()?
             .next()
@@ -63,7 +51,7 @@ impl AppWebsocket {
         })
     }
 
-    pub async fn on_signal<F: Fn(Signal) + 'static + Sync + Send>(
+    pub(crate) async fn on_signal<F: Fn(Signal) + 'static + Sync + Send>(
         &mut self,
         handler: F,
     ) -> Result<String> {
@@ -72,9 +60,7 @@ impl AppWebsocket {
         Ok(id)
     }
 
-    pub async fn app_info(
-        &mut self,
-    ) -> ConductorApiResult<Option<AppInfo>> {
+    pub(crate) async fn app_info(&mut self) -> ConductorApiResult<Option<AppInfo>> {
         let response = self.send(AppRequest::AppInfo).await?;
         match response {
             AppResponse::AppInfo(app_info) => Ok(app_info),
@@ -82,65 +68,17 @@ impl AppWebsocket {
         }
     }
 
-    pub async fn call_zome(&mut self, msg: ZomeCall) -> ConductorApiResult<ExternIO> {
-        let app_request = AppRequest::CallZome(Box::new(msg));
-        let response = self.send(app_request).await?;
-
-        match response {
-            AppResponse::ZomeCalled(result) => Ok(*result),
-            _ => unreachable!("Unexpected response {:?}", response),
-        }
-    }
-
-    pub async fn create_clone_cell(
+    pub(crate) async fn authenticate(
         &mut self,
-        msg: CreateCloneCellPayload,
-    ) -> ConductorApiResult<ClonedCell> {
-        let app_request = AppRequest::CreateCloneCell(Box::new(msg));
-        let response = self.send(app_request).await?;
-        match response {
-            AppResponse::CloneCellCreated(clone_cell) => Ok(clone_cell),
-            _ => unreachable!("Unexpected response {:?}", response),
-        }
-    }
-
-    pub async fn enable_clone_cell(
-        &mut self,
-        payload: EnableCloneCellPayload,
-    ) -> ConductorApiResult<ClonedCell> {
-        let msg = AppRequest::EnableCloneCell(Box::new(payload));
-        let response = self.send(msg).await?;
-        match response {
-            AppResponse::CloneCellEnabled(enabled_cell) => Ok(enabled_cell),
-            _ => unreachable!("Unexpected response {:?}", response),
-        }
-    }
-
-    pub async fn disable_clone_cell(
-        &mut self,
-        payload: DisableCloneCellPayload,
+        token: AppAuthenticationToken,
     ) -> ConductorApiResult<()> {
-        let app_request = AppRequest::DisableCloneCell(Box::new(payload));
-        let response = self.send(app_request).await?;
-        match response {
-            AppResponse::CloneCellDisabled => Ok(()),
-            _ => unreachable!("Unexpected response {:?}", response),
-        }
+        self.tx
+            .authenticate(AppAuthenticationRequest { token })
+            .await
+            .map_err(ConductorApiError::WebsocketError)
     }
 
-    pub async fn network_info(
-        &mut self,
-        payload: NetworkInfoRequestPayload,
-    ) -> ConductorApiResult<Vec<NetworkInfo>> {
-        let msg = AppRequest::NetworkInfo(Box::new(payload));
-        let response = self.send(msg).await?;
-        match response {
-            AppResponse::NetworkInfo(infos) => Ok(infos),
-            _ => unreachable!("Unexpected response {:?}", response),
-        }
-    }
-
-    async fn send(&mut self, msg: AppRequest) -> ConductorApiResult<AppResponse> {
+    pub(crate) async fn send(&mut self, msg: AppRequest) -> ConductorApiResult<AppResponse> {
         let response = self
             .tx
             .request(msg)
