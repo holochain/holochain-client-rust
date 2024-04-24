@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
+- **BREAKING**: The admin call `list_app_interfaces` now returns a `Vec<AppInterfaceInfo>` instead of a `Vec<u16>`. You can map the response to a `Vec<u16>` to get the previous result.
+- **BREAKING**: The admin call `attach_app_interface` now takes an additional parameter of type `InstalledAppId` which allows you to restrict an app interface to a single app.
+- **BREAKING**: The app call `app_info` no longer takes an `installed_app_id` parameter. The conductor uses the app that you have authenticated with.
+
 ### Fixed
 ### Removed
 

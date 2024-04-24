@@ -41,7 +41,7 @@ async fn network_info() {
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_ws_port = 33000;
     admin_ws
-        .attach_app_interface(app_ws_port, AllowedOrigins::Any)
+        .attach_app_interface(app_ws_port, AllowedOrigins::Any, None)
         .await
         .unwrap();
     let mut app_ws = AppWebsocket::connect(format!("127.0.0.1:{}", app_ws_port))
@@ -102,14 +102,14 @@ async fn handle_signal() {
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_ws_port = 33001;
     admin_ws
-        .attach_app_interface(app_ws_port, AllowedOrigins::Any)
+        .attach_app_interface(app_ws_port, AllowedOrigins::Any, None)
         .await
         .unwrap();
     let mut app_ws = AppWebsocket::connect(format!("127.0.0.1:{}", app_ws_port))
         .await
         .unwrap();
 
-    let installed_app = app_ws.app_info(app_id.clone()).await.unwrap().unwrap();
+    let installed_app = app_ws.app_info().await.unwrap().unwrap();
 
     let cells = installed_app.cell_info.into_values().next().unwrap();
     let cell_id = match cells[0].clone() {
@@ -132,7 +132,7 @@ async fn handle_signal() {
         .unwrap();
     signer.add_credentials(cell_id.clone(), credentials);
 
-    let mut app_ws = AppAgentWebsocket::from_existing(app_ws, app_id.clone(), signer.into())
+    let mut app_ws = AppAgentWebsocket::from_existing(app_ws, signer.into())
         .await
         .unwrap();
 

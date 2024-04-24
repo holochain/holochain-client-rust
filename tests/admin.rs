@@ -43,13 +43,13 @@ async fn signed_zome_call() {
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_ws_port = admin_ws
-        .attach_app_interface(30000, AllowedOrigins::Any)
+        .attach_app_interface(30000, AllowedOrigins::Any, None)
         .await
         .unwrap();
     let mut app_ws = AppWebsocket::connect(format!("127.0.0.1:{}", app_ws_port))
         .await
         .unwrap();
-    let installed_app = app_ws.app_info(app_id.clone()).await.unwrap().unwrap();
+    let installed_app = app_ws.app_info().await.unwrap().unwrap();
 
     let cells = installed_app.cell_info.into_values().next().unwrap();
     let cell_id = match cells[0].clone() {
@@ -72,7 +72,7 @@ async fn signed_zome_call() {
         .unwrap();
     signer.add_credentials(cell_id.clone(), credentials);
 
-    let mut app_ws = AppAgentWebsocket::from_existing(app_ws, app_id, signer.into())
+    let mut app_ws = AppAgentWebsocket::from_existing(app_ws, signer.into())
         .await
         .unwrap();
 

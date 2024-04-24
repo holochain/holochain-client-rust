@@ -36,7 +36,7 @@ async fn clone_cell_management() {
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
     let app_api_port = admin_ws
-        .attach_app_interface(0, AllowedOrigins::Any)
+        .attach_app_interface(0, AllowedOrigins::Any, None)
         .await
         .unwrap();
     let mut app_ws = AppWebsocket::connect(format!("127.0.0.1:{}", app_api_port))
@@ -45,7 +45,6 @@ async fn clone_cell_management() {
     let clone_cell = {
         let clone_cell = app_ws
             .create_clone_cell(CreateCloneCellPayload {
-                app_id: app_id.clone(),
                 role_name: role_name.clone(),
                 modifiers: DnaModifiersOpt::none().with_network_seed("seed".into()),
                 membrane_proof: None,
@@ -69,7 +68,7 @@ async fn clone_cell_management() {
         .unwrap();
     signer.add_credentials(cell_id.clone(), credentials);
 
-    let mut app_ws = AppAgentWebsocket::from_existing(app_ws, app_id.clone(), signer.into())
+    let mut app_ws = AppAgentWebsocket::from_existing(app_ws, signer.into())
         .await
         .unwrap();
 
@@ -91,7 +90,6 @@ async fn clone_cell_management() {
     // disable clone cell
     app_ws
         .disable_clone_cell(DisableCloneCellPayload {
-            app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(clone_cell.clone().clone_id),
         })
         .await
@@ -111,7 +109,6 @@ async fn clone_cell_management() {
     // enable clone cell
     let enabled_cell = app_ws
         .enable_clone_cell(EnableCloneCellPayload {
-            app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(clone_cell.clone().clone_id),
         })
         .await
@@ -133,7 +130,6 @@ async fn clone_cell_management() {
     // disable clone cell again
     app_ws
         .disable_clone_cell(DisableCloneCellPayload {
-            app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(clone_cell.clone().clone_id),
         })
         .await
@@ -150,7 +146,6 @@ async fn clone_cell_management() {
     // restore deleted clone cells should fail
     let enable_clone_cell_response = app_ws
         .enable_clone_cell(EnableCloneCellPayload {
-            app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(clone_cell.clone_id),
         })
         .await;
@@ -188,7 +183,7 @@ pub async fn app_info_refresh() {
 
     // Create an app interface and connect an app agent to it
     let app_api_port = admin_ws
-        .attach_app_interface(0, AllowedOrigins::Any)
+        .attach_app_interface(0, AllowedOrigins::Any, None)
         .await
         .unwrap();
     let mut app_agent_ws = AppAgentWebsocket::connect(
@@ -202,7 +197,6 @@ pub async fn app_info_refresh() {
     // Create a clone cell, AFTER the app agent has been created
     let cloned_cell = app_agent_ws
         .create_clone_cell(CreateCloneCellPayload {
-            app_id: app_id.clone(),
             role_name: role_name.clone(),
             modifiers: DnaModifiersOpt::none().with_network_seed("test seed".into()),
             membrane_proof: None,

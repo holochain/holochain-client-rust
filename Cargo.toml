@@ -9,13 +9,13 @@ name = "holochain_client"
 readme = "README.md"
 repository = "https://github.com/holochain/holochain-client-rust"
 resolver = "2"
-version = "0.5.0-dev.31"
+version = "0.5.0-dev.32"
 
 [workspace]
 members = ["fixture/zomes/foo"]
 
 [workspace.dependencies]
-holochain_zome_types = "0.3.0-beta-dev.31"
+holochain_zome_types = "0.3.0-beta-dev.35"
 
 [dependencies]
 again = "0.1"
@@ -27,12 +27,12 @@ rand = { version = "0.8" }
 async-trait = "0.1"
 parking_lot = "0.12.1"
 
-holo_hash = { version = "0.3.0-beta-dev.25", features = ["encoding"] }
-holochain_conductor_api = "0.3.0-beta-dev.42"
-holochain_websocket = "0.3.0-beta-dev.17"
+holo_hash = { version = "0.3.0-beta-dev.28", features = ["encoding"] }
+holochain_conductor_api = "0.3.0-beta-dev.46"
+holochain_websocket = "0.3.0-beta-dev.19"
 holochain_serialized_bytes = "0.0.53"
-holochain_types = "0.3.0-beta-dev.38"
-holochain_nonce = "0.3.0-beta-dev.26"
+holochain_types = "0.3.0-beta-dev.39"
+holochain_nonce = "0.3.0-beta-dev.27"
 holochain_zome_types = { workspace = true }
 
 lair_keystore_api = { version = "0.4.0", optional = true }
@@ -41,9 +41,9 @@ tokio = { version = "1.36", features = ["rt"] }
 
 [dev-dependencies]
 arbitrary = "1.2"
-holochain = { version = "0.3.0-beta-dev.43", features = ["test_utils"] }
+holochain = { version = "0.3.0-beta-dev.47", features = ["test_utils"] }
 rand = "0.8"
-kitsune_p2p_types = "0.3.0-beta-dev.24"
+kitsune_p2p_types = "0.3.0-beta-dev.27"
 
 [features]
 default = ["lair_signing"]

@@ -40,16 +40,15 @@ impl AppAgentWebsocket {
         signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
     ) -> Result<Self> {
         let app_ws = AppWebsocket::connect(socket_addr).await?;
-        AppAgentWebsocket::from_existing(app_ws, app_id, signer).await
+        AppAgentWebsocket::from_existing(app_ws, signer).await
     }
 
     pub async fn from_existing(
         mut app_ws: AppWebsocket,
-        app_id: InstalledAppId,
         signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
     ) -> Result<Self> {
         let app_info = app_ws
-            .app_info(app_id.clone())
+            .app_info()
             .await
             .map_err(|err| anyhow!("Error fetching app_info {err:?}"))?
             .ok_or(anyhow!("App doesn't exist"))?;
@@ -133,7 +132,7 @@ impl AppAgentWebsocket {
     pub async fn refresh_app_info(&mut self) -> Result<()> {
         self.app_info = self
             .app_ws
-            .app_info(self.app_info.installed_app_id.clone())
+            .app_info()
             .await
             .map_err(|err| anyhow!("Error fetching app_info {err:?}"))?
             .ok_or(anyhow!("App doesn't exist"))?;

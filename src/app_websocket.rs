@@ -3,7 +3,6 @@ use anyhow::Result;
 use event_emitter_rs::EventEmitter;
 use holochain_conductor_api::{AppInfo, AppRequest, AppResponse, NetworkInfo, ZomeCall};
 use holochain_types::{
-    app::InstalledAppId,
     prelude::{
         CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload, ExternIO,
         NetworkInfoRequestPayload,
@@ -75,12 +74,8 @@ impl AppWebsocket {
 
     pub async fn app_info(
         &mut self,
-        app_id: InstalledAppId,
     ) -> ConductorApiResult<Option<AppInfo>> {
-        let msg = AppRequest::AppInfo {
-            installed_app_id: app_id,
-        };
-        let response = self.send(msg).await?;
+        let response = self.send(AppRequest::AppInfo).await?;
         match response {
             AppResponse::AppInfo(app_info) => Ok(app_info),
             _ => unreachable!("Unexpected response {:?}", response),
