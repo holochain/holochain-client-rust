@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
+- New admin call `issue_app_auth_token` which allows you to issue an app auth token. This is now required when creating
+  an app websocket connection. See the example for `AppAgentWebsocket::connect` for how to use this.
+- Missing app interface function `list_wasm_host_functions` has been added.
+
 ### Changed
 - **BREAKING**: The admin call `list_app_interfaces` now returns a `Vec<AppInterfaceInfo>` instead of a `Vec<u16>`. You can map the response to a `Vec<u16>` to get the previous result.
 - **BREAKING**: The admin call `attach_app_interface` now takes an additional parameter of type `InstalledAppId` which allows you to restrict an app interface to a single app.
@@ -12,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 ### Removed
+- **BREAKING**: The `AppWebsocket` is gone, all functionality is available on the `AppAgentWebsocket` instead.
 
 ## 2024-03-27: v0.5.0-dev.31
 ### Changed
