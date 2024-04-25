@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
+### Changed
+### Fixed
+### Removed
+
+## 2024-04-24: v0.5.0-dev.32
+### Added
 - New admin call `issue_app_auth_token` which allows you to issue an app auth token. This is now required when creating
   an app websocket connection. See the example for `AppWebsocket::connect` for how to use this.
 - Missing app interface function `list_wasm_host_functions` has been added.
