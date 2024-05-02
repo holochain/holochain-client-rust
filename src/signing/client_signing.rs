@@ -9,7 +9,7 @@ use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc};
 
 pub struct SigningCredentials {
-    pub signing_agent_key: holo_hash::AgentPubKey,
+    pub signing_agent_key: AgentPubKey,
     pub keypair: ed25519_dalek::SigningKey,
     pub cap_secret: CapSecret,
 }
@@ -69,8 +69,8 @@ impl AgentSigner for ClientAgentSigner {
 }
 
 /// Convert the ClientAgentSigner into an `Arc<Box<dyn AgentSigner + Send + Sync>>`
-impl From<ClientAgentSigner> for Arc<Box<dyn AgentSigner + Send + Sync>> {
+impl From<ClientAgentSigner> for Arc<dyn AgentSigner + Send + Sync> {
     fn from(cas: ClientAgentSigner) -> Self {
-        Arc::new(Box::new(cas))
+        Arc::new(cas)
     }
 }

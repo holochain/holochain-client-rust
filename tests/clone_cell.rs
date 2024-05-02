@@ -1,26 +1,31 @@
+use std::net::Ipv4Addr;
 use std::{collections::HashMap, path::PathBuf};
 
 use holochain::{
     prelude::{DeleteCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload},
     sweettest::SweetConductor,
 };
-use holochain_client::ConductorApiError;
 use holochain_client::{
-    AdminWebsocket, AppAgentWebsocket, AppWebsocket, AuthorizeSigningCredentialsPayload,
-    ClientAgentSigner, InstallAppPayload,
+    AdminWebsocket, AppWebsocket, AuthorizeSigningCredentialsPayload, ClientAgentSigner,
+    ConductorApiError, InstallAppPayload,
 };
 use holochain_types::prelude::{
     AppBundleSource, CloneCellId, CloneId, CreateCloneCellPayload, DnaModifiersOpt, InstalledAppId,
 };
-use holochain_zome_types::{ExternIO, RoleName};
+use holochain_types::websocket::AllowedOrigins;
+use holochain_zome_types::{dependencies::holochain_integrity_types::ExternIO, prelude::RoleName};
 
 #[tokio::test(flavor = "multi_thread")]
 async fn clone_cell_management() {
     let conductor = SweetConductor::from_standard_config().await;
+
+    // Connect admin client
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
+    let mut admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
         .await
         .unwrap();
+
+    // Set up the test app
     let app_id: InstalledAppId = "test-app".into();
     let role_name: RoleName = "foo".into();
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
@@ -35,14 +40,28 @@ async fn clone_cell_management() {
         .await
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
-    let app_api_port = admin_ws.attach_app_interface(0).await.unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_api_port))
+    let app_api_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::Any, None)
         .await
         .unwrap();
+
+    // Connect an app agent client
+    let issued_token = admin_ws
+        .issue_app_auth_token(app_id.clone().into())
+        .await
+        .unwrap();
+    let mut signer = ClientAgentSigner::default();
+    let mut app_ws = AppWebsocket::connect(
+        format!("127.0.0.1:{}", app_api_port),
+        issued_token.token,
+        signer.clone().into(),
+    )
+    .await
+    .unwrap();
+
     let clone_cell = {
         let clone_cell = app_ws
             .create_clone_cell(CreateCloneCellPayload {
-                app_id: app_id.clone(),
                 role_name: role_name.clone(),
                 modifiers: DnaModifiersOpt::none().with_network_seed("seed".into()),
                 membrane_proof: None,
@@ -56,7 +75,6 @@ async fn clone_cell_management() {
     };
     let cell_id = clone_cell.cell_id.clone();
 
-    let mut signer = ClientAgentSigner::default();
     let credentials = admin_ws
         .authorize_signing_credentials(AuthorizeSigningCredentialsPayload {
             cell_id: cell_id.clone(),
@@ -65,10 +83,6 @@ async fn clone_cell_management() {
         .await
         .unwrap();
     signer.add_credentials(cell_id.clone(), credentials);
-
-    let mut app_ws = AppAgentWebsocket::from_existing(app_ws, app_id.clone(), signer.into())
-        .await
-        .unwrap();
 
     const TEST_ZOME_NAME: &str = "foo";
     const TEST_FN_NAME: &str = "foo";
@@ -88,7 +102,6 @@ async fn clone_cell_management() {
     // disable clone cell
     app_ws
         .disable_clone_cell(DisableCloneCellPayload {
-            app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(clone_cell.clone().clone_id),
         })
         .await
@@ -108,7 +121,6 @@ async fn clone_cell_management() {
     // enable clone cell
     let enabled_cell = app_ws
         .enable_clone_cell(EnableCloneCellPayload {
-            app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(clone_cell.clone().clone_id),
         })
         .await
@@ -130,7 +142,6 @@ async fn clone_cell_management() {
     // disable clone cell again
     app_ws
         .disable_clone_cell(DisableCloneCellPayload {
-            app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(clone_cell.clone().clone_id),
         })
         .await
@@ -147,7 +158,6 @@ async fn clone_cell_management() {
     // restore deleted clone cells should fail
     let enable_clone_cell_response = app_ws
         .enable_clone_cell(EnableCloneCellPayload {
-            app_id: app_id.clone(),
             clone_cell_id: CloneCellId::CloneId(clone_cell.clone_id),
         })
         .await;
@@ -158,10 +168,13 @@ async fn clone_cell_management() {
 #[tokio::test(flavor = "multi_thread")]
 pub async fn app_info_refresh() {
     let conductor = SweetConductor::from_standard_config().await;
+
+    // Connect admin client
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
+    let mut admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
         .await
         .unwrap();
+
     let app_id: InstalledAppId = "test-app".into();
     let role_name: RoleName = "foo".into();
 
@@ -184,10 +197,18 @@ pub async fn app_info_refresh() {
     let mut signer = ClientAgentSigner::default();
 
     // Create an app interface and connect an app agent to it
-    let app_api_port = admin_ws.attach_app_interface(0).await.unwrap();
-    let mut app_agent_ws = AppAgentWebsocket::connect(
-        format!("ws://localhost:{}", app_api_port),
-        app_id.clone(),
+    let app_api_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::Any, None)
+        .await
+        .unwrap();
+
+    let token_issued = admin_ws
+        .issue_app_auth_token(app_id.clone().into())
+        .await
+        .unwrap();
+    let mut app_agent_ws = AppWebsocket::connect(
+        (Ipv4Addr::LOCALHOST, app_api_port),
+        token_issued.token,
         signer.clone().into(),
     )
     .await
@@ -196,7 +217,6 @@ pub async fn app_info_refresh() {
     // Create a clone cell, AFTER the app agent has been created
     let cloned_cell = app_agent_ws
         .create_clone_cell(CreateCloneCellPayload {
-            app_id: app_id.clone(),
             role_name: role_name.clone(),
             modifiers: DnaModifiersOpt::none().with_network_seed("test seed".into()),
             membrane_proof: None,
