@@ -223,6 +223,10 @@ impl AppWebsocket {
         Ok(())
     }
 
+    pub async fn send(&mut self, msg: AppRequest) -> ConductorApiResult<AppResponse> {
+        self.inner.send(msg).await
+    }
+
     fn get_cell_id_from_role_name(&self, role_name: &RoleName) -> ConductorApiResult<CellId> {
         if is_clone_id(role_name) {
             let base_role_name = get_base_role_name_from_clone_id(role_name);
