@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2024-05-22: v0.5.0-rc.1
+### Changed
+- Backport Conductor API serialization fix.
+
 ## 2024-04-24: v0.5.0-dev.32
 ### Added
 - New admin call `issue_app_auth_token` which allows you to issue an app auth token. This is now required when creating
