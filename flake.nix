@@ -1,9 +1,9 @@
 {
   inputs = {
-    nixpkgs.follows = "holonix/nixpkgs";
     holonix.url = "github:holochain/holochain";
     versions.url = "github:holochain/holochain?dir=versions/0_3_rc";
     holonix.inputs.versions.follows = "versions";
+    nixpkgs.follows = "holonix/nixpkgs";
   };
 
   outputs = inputs@{ holonix, ... }:
@@ -16,8 +16,8 @@
           devShells.default = pkgs.mkShell {
             inputsFrom = [ holonix.devShells.${system}.holochainBinaries ];
             packages = with pkgs; [
-              # add further packages from nixpkgs
-              go
+              # macos requires go as of late
+              (pkgs.lib.optional pkgs.stdenv.isDarwin go)
             ];
           };
         };
