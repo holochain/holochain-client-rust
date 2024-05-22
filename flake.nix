@@ -1,8 +1,8 @@
 {
   inputs = {
     nixpkgs.follows = "holonix/nixpkgs";
-    versions.url = "github:holochain/holochain?dir=versions/weekly";
     holonix.url = "github:holochain/holochain";
+    versions.url = "github:holochain/holochain?dir=versions/0_3_rc";
     holonix.inputs.versions.follows = "versions";
   };
 
@@ -17,6 +17,7 @@
             inputsFrom = [ holonix.devShells.${system}.holochainBinaries ];
             packages = with pkgs; [
               # add further packages from nixpkgs
+              go
             ];
           };
         };
