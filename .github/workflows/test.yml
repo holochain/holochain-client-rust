@@ -78,19 +78,6 @@ jobs:
             target
           key: ${{ matrix.os }}-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
 
-      - name: Build client
-        run: cargo build -p holochain_client
-
-      - name: Save client build to cache
-        uses: actions/cache/save@v4
-        env:
-          cache-name: client
-        with:
-          path: |
-            .cargo
-            target
-          key: ${{ matrix.os }}-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
-
       - name: Lint
         run: cargo clippy --all-features -- -D warnings
 
