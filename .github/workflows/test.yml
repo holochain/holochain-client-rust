@@ -89,8 +89,8 @@ jobs:
 
       - name: Verify feature independence
         run: |
-          cargo build --no-default-features
-          cargo build --no-default-features --features "lair_signing"
+          nix develop -c $SHELL -c "cargo build --no-default-features --release"
+          nix develop -c $SHELL -c "cargo build --no-default-features --features \"lair_signing\" --release"
 
       - name: Build client
         run: nix develop -c $SHELL -c "cargo build -p holochain_client --release"
