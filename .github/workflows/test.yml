@@ -27,10 +27,10 @@ jobs:
         uses: AdityaGarg8/remove-unwanted-software@v2
         if: startsWith(matrix.os, 'ubuntu')
         with:
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-codeql: 'true'
-          remove-docker-images: 'true'
+          remove-dotnet: "true"
+          remove-android: "true"
+          remove-codeql: "true"
+          remove-docker-images: "true"
 
       - name: Install nix
         uses: cachix/install-nix-action@v25
@@ -50,8 +50,10 @@ jobs:
         env:
           cache-name: fixture
         with:
-          path: fixture/zomes/foo/target
-          key: ${{ matrix.os }}-build-${{ env.cache-name }}-${{ hashFiles('fixture/zomes/foo/Cargo.lock') }}
+          path: |
+            fixture/zomes/foo/.cargo
+            fixture/zomes/foo/target
+          key: ${{ matrix.os }}-${{ env.cache-name }}-${{ hashFiles('fixture/zomes/foo/Cargo.lock') }}
 
       - name: Build fixture
         run: nix develop -c $SHELL -c "./build-fixture.sh"
@@ -61,41 +63,47 @@ jobs:
         env:
           cache-name: fixture
         with:
-          path: fixture/zomes/foo/target
-          key: ${{ matrix.os }}-build-${{ env.cache-name }}-${{ hashFiles('fixture/zomes/foo/Cargo.lock') }}
+          path: |
+            fixture/zomes/foo/.cargo
+            fixture/zomes/foo/target
+          key: ${{ matrix.os }}-${{ env.cache-name }}-${{ hashFiles('fixture/zomes/foo/Cargo.lock') }}
 
       - name: Restore client build
         uses: actions/cache/restore@v4
         env:
           cache-name: client
         with:
-          path: target
-          key: ${{ matrix.os }}-cargo-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
+          path: |
+            .cargo
+            target
+          key: ${{ matrix.os }}-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
+
+      - name: Lint
+        run: nix develop -c $SHELL -c "cargo clippy --all-features -- -D warnings"
+
+      - name: Check formatting
+        run: nix develop -c $SHELL -c "cargo fmt --all --check"
+
+      - name: Run tests
+        run: nix develop -c $SHELL -c "cargo test --release"
+
+      - name: Verify feature independence
+        run: |
+          nix develop -c $SHELL -c "cargo build --no-default-features --release"
+          nix develop -c $SHELL -c "cargo build --no-default-features --features \"lair_signing\" --release"
 
       - name: Build client
-        run: cargo build -p holochain_client
+        run: nix develop -c $SHELL -c "cargo build -p holochain_client --release"
 
       - name: Save client build to cache
         uses: actions/cache/save@v4
         env:
           cache-name: client
         with:
-          path: target
-          key: ${{ matrix.os }}-cargo-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
-
-      - name: Lint
-        run: cargo clippy --all-features -- -D warnings
-
-      - name: Check formatting
-        run: cargo fmt --all --check
-
-      - name: Run tests
-        run: cargo test
-
-      - name: Verify feature independence
-        run: |
-          cargo build --no-default-features
-          cargo build --no-default-features --features "lair_signing"
+          path: |
+            .cargo
+            target
+          key: ${{ matrix.os }}-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
 
       - name: Setup tmate session if build and test run failed
         if: ${{ failure() }}

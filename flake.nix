@@ -1,9 +1,9 @@
 {
   inputs = {
-    nixpkgs.follows = "holonix/nixpkgs";
-    versions.url = "github:holochain/holochain?dir=versions/weekly";
     holonix.url = "github:holochain/holochain";
+    versions.url = "github:holochain/holochain?dir=versions/weekly";
     holonix.inputs.versions.follows = "versions";
+    nixpkgs.follows = "holonix/nixpkgs";
   };
 
   outputs = inputs@{ holonix, ... }:
