@@ -16,8 +16,8 @@
           devShells.default = pkgs.mkShell {
             inputsFrom = [ holonix.devShells.${system}.holochainBinaries ];
             packages = with pkgs; [
-              # add further packages from nixpkgs
-              go
+              # macos requires go as of late
+              (pkgs.lib.optional pkgs.stdenv.isDarwin go)
             ];
           };
         };
