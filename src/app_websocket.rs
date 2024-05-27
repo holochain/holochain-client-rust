@@ -59,7 +59,7 @@ impl AppWebsocket {
         token: AppAuthenticationToken,
         signer: Arc<dyn AgentSigner + Send + Sync>,
     ) -> Result<Self> {
-        let mut app_ws = AppWebsocketInner::connect(socket_addr).await?;
+        let app_ws = AppWebsocketInner::connect(socket_addr).await?;
 
         app_ws
             .authenticate(token)
@@ -81,7 +81,7 @@ impl AppWebsocket {
     }
 
     pub async fn on_signal<F: Fn(Signal) + 'static + Sync + Send>(
-        &mut self,
+        &self,
         handler: F,
     ) -> Result<String> {
         let app_info = self.app_info.clone();
@@ -107,12 +107,12 @@ impl AppWebsocket {
             .await
     }
 
-    pub async fn app_info(&mut self) -> ConductorApiResult<Option<AppInfo>> {
+    pub async fn app_info(&self) -> ConductorApiResult<Option<AppInfo>> {
         self.inner.app_info().await
     }
 
     pub async fn call_zome(
-        &mut self,
+        &self,
         target: ZomeCallTarget,
         zome_name: ZomeName,
         fn_name: FunctionName,
@@ -154,7 +154,7 @@ impl AppWebsocket {
     }
 
     pub async fn create_clone_cell(
-        &mut self,
+        &self,
         msg: CreateCloneCellPayload,
     ) -> ConductorApiResult<ClonedCell> {
         let app_request = AppRequest::CreateCloneCell(Box::new(msg));
@@ -166,7 +166,7 @@ impl AppWebsocket {
     }
 
     pub async fn disable_clone_cell(
-        &mut self,
+        &self,
         payload: DisableCloneCellPayload,
     ) -> ConductorApiResult<()> {
         let app_request = AppRequest::DisableCloneCell(Box::new(payload));
@@ -178,7 +178,7 @@ impl AppWebsocket {
     }
 
     pub async fn enable_clone_cell(
-        &mut self,
+        &self,
         payload: EnableCloneCellPayload,
     ) -> ConductorApiResult<ClonedCell> {
         let msg = AppRequest::EnableCloneCell(Box::new(payload));
@@ -190,7 +190,7 @@ impl AppWebsocket {
     }
 
     pub async fn network_info(
-        &mut self,
+        &self,
         payload: NetworkInfoRequestPayload,
     ) -> ConductorApiResult<Vec<NetworkInfo>> {
         let msg = AppRequest::NetworkInfo(Box::new(payload));
@@ -201,7 +201,7 @@ impl AppWebsocket {
         }
     }
 
-    pub async fn list_wasm_host_functions(&mut self) -> ConductorApiResult<Vec<String>> {
+    pub async fn list_wasm_host_functions(&self) -> ConductorApiResult<Vec<String>> {
         let msg = AppRequest::ListWasmHostFunctions;
         let response = self.inner.send(msg).await?;
         match response {

@@ -53,7 +53,7 @@ impl AppWebsocketInner {
     }
 
     pub(crate) async fn on_signal<F: Fn(Signal) + 'static + Sync + Send>(
-        &mut self,
+        &self,
         handler: F,
     ) -> Result<String> {
         let mut event_emitter = self.event_emitter.lock().await;
@@ -61,7 +61,7 @@ impl AppWebsocketInner {
         Ok(id)
     }
 
-    pub(crate) async fn app_info(&mut self) -> ConductorApiResult<Option<AppInfo>> {
+    pub(crate) async fn app_info(&self) -> ConductorApiResult<Option<AppInfo>> {
         let response = self.send(AppRequest::AppInfo).await?;
         match response {
             AppResponse::AppInfo(app_info) => Ok(app_info),
@@ -70,7 +70,7 @@ impl AppWebsocketInner {
     }
 
     pub(crate) async fn authenticate(
-        &mut self,
+        &self,
         token: AppAuthenticationToken,
     ) -> ConductorApiResult<()> {
         self.tx
@@ -79,7 +79,7 @@ impl AppWebsocketInner {
             .map_err(ConductorApiError::WebsocketError)
     }
 
-    pub(crate) async fn send(&mut self, msg: AppRequest) -> ConductorApiResult<AppResponse> {
+    pub(crate) async fn send(&self, msg: AppRequest) -> ConductorApiResult<AppResponse> {
         let response = self
             .tx
             .request(msg)

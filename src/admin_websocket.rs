@@ -82,7 +82,7 @@ impl AdminWebsocket {
     ///
     /// A token is required to create an [AppAgentWebsocket] connection.
     pub async fn issue_app_auth_token(
-        &mut self,
+        &self,
         payload: IssueAppAuthenticationTokenPayload,
     ) -> ConductorApiResult<AppAuthenticationTokenIssued> {
         let response = self
@@ -94,7 +94,7 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn generate_agent_pub_key(&mut self) -> ConductorApiResult<AgentPubKey> {
+    pub async fn generate_agent_pub_key(&self) -> ConductorApiResult<AgentPubKey> {
         // Create agent key in Lair and save it in file
         let response = self.send(AdminRequest::GenerateAgentPubKey).await?;
         match response {
@@ -107,7 +107,7 @@ impl AdminWebsocket {
     ///
     /// See the documentation for [AdminWebsocket::attach_app_interface] to understand the content
     /// of `AppInterfaceInfo` and help you to select an appropriate interface to connect to.
-    pub async fn list_app_interfaces(&mut self) -> ConductorApiResult<Vec<AppInterfaceInfo>> {
+    pub async fn list_app_interfaces(&self) -> ConductorApiResult<Vec<AppInterfaceInfo>> {
         let msg = AdminRequest::ListAppInterfaces;
         let response = self.send(msg).await?;
         match response {
@@ -132,7 +132,7 @@ impl AdminWebsocket {
     /// authenticate with a valid token for the same app, but clients for other apps will not be
     /// able to connect. If you want to allow all apps to connect then set this to `None`.
     pub async fn attach_app_interface(
-        &mut self,
+        &self,
         port: u16,
         allowed_origins: AllowedOrigins,
         installed_app_id: Option<String>,
@@ -150,7 +150,7 @@ impl AdminWebsocket {
     }
 
     pub async fn list_apps(
-        &mut self,
+        &self,
         status_filter: Option<AppStatusFilter>,
     ) -> ConductorApiResult<Vec<AppInfo>> {
         let response = self.send(AdminRequest::ListApps { status_filter }).await?;
@@ -160,7 +160,7 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn install_app(&mut self, payload: InstallAppPayload) -> ConductorApiResult<AppInfo> {
+    pub async fn install_app(&self, payload: InstallAppPayload) -> ConductorApiResult<AppInfo> {
         let msg = AdminRequest::InstallApp(Box::new(payload));
         let response = self.send(msg).await?;
 
@@ -170,7 +170,7 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn uninstall_app(&mut self, installed_app_id: String) -> ConductorApiResult<()> {
+    pub async fn uninstall_app(&self, installed_app_id: String) -> ConductorApiResult<()> {
         let msg = AdminRequest::UninstallApp { installed_app_id };
         let response = self.send(msg).await?;
 
@@ -181,7 +181,7 @@ impl AdminWebsocket {
     }
 
     pub async fn enable_app(
-        &mut self,
+        &self,
         installed_app_id: String,
     ) -> ConductorApiResult<EnableAppResponse> {
         let msg = AdminRequest::EnableApp { installed_app_id };
@@ -193,7 +193,7 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn disable_app(&mut self, installed_app_id: String) -> ConductorApiResult<()> {
+    pub async fn disable_app(&self, installed_app_id: String) -> ConductorApiResult<()> {
         let msg = AdminRequest::DisableApp { installed_app_id };
         let response = self.send(msg).await?;
 
@@ -203,7 +203,7 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn get_dna_definition(&mut self, hash: DnaHash) -> ConductorApiResult<DnaDef> {
+    pub async fn get_dna_definition(&self, hash: DnaHash) -> ConductorApiResult<DnaDef> {
         let msg = AdminRequest::GetDnaDefinition(Box::new(hash));
         let response = self.send(msg).await?;
         match response {
@@ -213,7 +213,7 @@ impl AdminWebsocket {
     }
 
     pub async fn grant_zome_call_capability(
-        &mut self,
+        &self,
         payload: GrantZomeCallCapabilityPayload,
     ) -> ConductorApiResult<()> {
         let msg = AdminRequest::GrantZomeCallCapability(Box::new(payload));
@@ -226,7 +226,7 @@ impl AdminWebsocket {
     }
 
     pub async fn delete_clone_cell(
-        &mut self,
+        &self,
         payload: DeleteCloneCellPayload,
     ) -> ConductorApiResult<()> {
         let msg = AdminRequest::DeleteCloneCell(Box::new(payload));
@@ -237,7 +237,7 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn storage_info(&mut self) -> ConductorApiResult<StorageInfo> {
+    pub async fn storage_info(&self) -> ConductorApiResult<StorageInfo> {
         let msg = AdminRequest::StorageInfo;
         let response = self.send(msg).await?;
         match response {
@@ -246,7 +246,7 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn dump_network_stats(&mut self) -> ConductorApiResult<String> {
+    pub async fn dump_network_stats(&self) -> ConductorApiResult<String> {
         let msg = AdminRequest::DumpNetworkStats;
         let response = self.send(msg).await?;
         match response {
@@ -256,7 +256,7 @@ impl AdminWebsocket {
     }
 
     pub async fn update_coordinators(
-        &mut self,
+        &self,
         update_coordinators_payload: UpdateCoordinatorsPayload,
     ) -> ConductorApiResult<()> {
         let msg = AdminRequest::UpdateCoordinators(Box::new(update_coordinators_payload));
@@ -268,7 +268,7 @@ impl AdminWebsocket {
     }
 
     pub async fn graft_records(
-        &mut self,
+        &self,
         cell_id: CellId,
         validate: bool,
         records: Vec<Record>,
@@ -286,7 +286,7 @@ impl AdminWebsocket {
     }
 
     pub async fn authorize_signing_credentials(
-        &mut self,
+        &self,
         request: AuthorizeSigningCredentialsPayload,
     ) -> Result<crate::signing::client_signing::SigningCredentials> {
         use holochain_zome_types::capability::{ZomeCallCapGrant, CAP_SECRET_BYTES};
@@ -322,7 +322,7 @@ impl AdminWebsocket {
         })
     }
 
-    async fn send(&mut self, msg: AdminRequest) -> ConductorApiResult<AdminResponse> {
+    async fn send(&self, msg: AdminRequest) -> ConductorApiResult<AdminResponse> {
         let response: AdminResponse = self
             .tx
             .request(msg)
