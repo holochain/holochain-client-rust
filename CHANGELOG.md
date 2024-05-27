@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
+- Remove unnecessary use of `&mut self` in the app and admin clients. These used to be needed when the internal `send` mutated
+  state, but it no longer does that so we can drop the requirement for the clients to be mutable.
+
 ### Fixed
 ### Removed
 

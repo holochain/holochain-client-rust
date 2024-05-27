@@ -21,7 +21,7 @@ async fn clone_cell_management() {
 
     // Connect admin client
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
+    let admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
         .await
         .unwrap();
 
@@ -51,7 +51,7 @@ async fn clone_cell_management() {
         .await
         .unwrap();
     let mut signer = ClientAgentSigner::default();
-    let mut app_ws = AppWebsocket::connect(
+    let app_ws = AppWebsocket::connect(
         format!("127.0.0.1:{}", app_api_port),
         issued_token.token,
         signer.clone().into(),
@@ -171,7 +171,7 @@ pub async fn app_info_refresh() {
 
     // Connect admin client
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
+    let admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
         .await
         .unwrap();
 

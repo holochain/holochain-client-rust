@@ -16,7 +16,7 @@ async fn app_interfaces() {
 
     // Connect admin client
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
+    let admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
         .await
         .unwrap();
 
@@ -31,7 +31,7 @@ async fn signed_zome_call() {
 
     // Connect admin client
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
+    let admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
         .await
         .unwrap();
 
@@ -60,7 +60,7 @@ async fn signed_zome_call() {
         .await
         .unwrap();
     let mut signer = ClientAgentSigner::default();
-    let mut app_ws = AppWebsocket::connect(
+    let app_ws = AppWebsocket::connect(
         (Ipv4Addr::LOCALHOST, app_ws_port),
         issued_token.token,
         signer.clone().into(),
@@ -107,7 +107,7 @@ async fn signed_zome_call() {
 async fn storage_info() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
         .await
         .unwrap();
     let app_id: InstalledAppId = "test-app".into();
@@ -140,7 +140,7 @@ async fn storage_info() {
 async fn dump_network_stats() {
     let conductor = SweetConductor::from_standard_config().await;
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
         .await
         .unwrap();
     let app_id: InstalledAppId = "test-app".into();
