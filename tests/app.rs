@@ -24,7 +24,7 @@ async fn network_info() {
 
     // Connect admin client
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
+    let admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
         .await
         .unwrap();
 
@@ -53,7 +53,7 @@ async fn network_info() {
         .await
         .unwrap();
     let signer = ClientAgentSigner::default().into();
-    let mut app_ws = AppWebsocket::connect(
+    let app_ws = AppWebsocket::connect(
         (Ipv4Addr::LOCALHOST, app_ws_port),
         token_issued.token,
         signer,
@@ -97,7 +97,7 @@ async fn handle_signal() {
 
     // Connect admin client
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
+    let admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
         .await
         .unwrap();
 
@@ -126,7 +126,7 @@ async fn handle_signal() {
         .await
         .unwrap();
     let mut signer = ClientAgentSigner::default();
-    let mut app_ws = AppWebsocket::connect(
+    let app_ws = AppWebsocket::connect(
         (Ipv4Addr::LOCALHOST, app_ws_port),
         token_issued.token,
         signer.clone().into(),
