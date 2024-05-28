@@ -236,7 +236,7 @@ async fn close_on_drop_is_clone_safe() {
         assert_eq!(app_info.installed_app_id, app_info_2.installed_app_id);
     }
 
-    // Should still work after dropping the first app_ws
+    // Should still work after dropping the second app_ws
     let app_info_3 = app_ws.app_info().await.unwrap().unwrap();
     assert_eq!(app_info.installed_app_id, app_info_3.installed_app_id);
 }
