@@ -8,12 +8,14 @@ use holochain_types::signal::Signal;
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
 use std::{net::ToSocketAddrs, sync::Arc};
 use tokio::sync::Mutex;
+use tokio::task::AbortHandle;
 
 /// The core functionality for an app websocket.
 #[derive(Clone)]
 pub(crate) struct AppWebsocketInner {
     tx: WebsocketSender,
     event_emitter: Arc<Mutex<EventEmitter>>,
+    abort_handle: Arc<AbortHandle>,
 }
 
 impl AppWebsocketInner {
@@ -33,7 +35,7 @@ impl AppWebsocketInner {
         let event_emitter = EventEmitter::new();
         let mutex = Arc::new(Mutex::new(event_emitter));
 
-        tokio::task::spawn({
+        let poll_handle = tokio::task::spawn({
             let mutex = mutex.clone();
             async move {
                 while let Ok(msg) = rx.recv::<AppResponse>().await {
@@ -49,6 +51,7 @@ impl AppWebsocketInner {
         Ok(Self {
             tx,
             event_emitter: mutex,
+            abort_handle: Arc::new(poll_handle.abort_handle()),
         })
     }
 
@@ -90,5 +93,11 @@ impl AppWebsocketInner {
             AppResponse::Error(error) => Err(ConductorApiError::ExternalApiWireError(error)),
             _ => Ok(response),
         }
+    }
+}
+
+impl Drop for AppWebsocketInner {
+    fn drop(&mut self) {
+        self.abort_handle.abort();
     }
 }

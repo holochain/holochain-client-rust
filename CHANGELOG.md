@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2024-05-28: v0.5.0-rc.3
+### Fixed
+- Dropping admin or app connections will now close the connection.
+
 ## 2024-05-27: v0.5.0-rc.2
 
 ### Changed
