@@ -10,12 +10,14 @@ use std::{net::ToSocketAddrs, sync::Arc};
 use tokio::sync::Mutex;
 use tokio::task::AbortHandle;
 
+struct AbortOnDropHandle(AbortHandle);
+
 /// The core functionality for an app websocket.
 #[derive(Clone)]
 pub(crate) struct AppWebsocketInner {
     tx: WebsocketSender,
     event_emitter: Arc<Mutex<EventEmitter>>,
-    abort_handle: Arc<AbortHandle>,
+    _abort_handle: Arc<AbortOnDropHandle>,
 }
 
 impl AppWebsocketInner {
@@ -51,7 +53,7 @@ impl AppWebsocketInner {
         Ok(Self {
             tx,
             event_emitter: mutex,
-            abort_handle: Arc::new(poll_handle.abort_handle()),
+            _abort_handle: Arc::new(AbortOnDropHandle(poll_handle.abort_handle())),
         })
     }
 
@@ -96,8 +98,8 @@ impl AppWebsocketInner {
     }
 }
 
-impl Drop for AppWebsocketInner {
+impl Drop for AbortOnDropHandle {
     fn drop(&mut self) {
-        self.abort_handle.abort();
+        self.0.abort();
     }
 }
