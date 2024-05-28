@@ -186,3 +186,57 @@ async fn handle_signal() {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TestString(pub String);
+
+#[tokio::test(flavor = "multi_thread")]
+async fn close_on_drop_is_clone_safe() {
+    let conductor = SweetConductor::from_standard_config().await;
+
+    // Connect admin client
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+    let admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
+        .await
+        .unwrap();
+
+    // Set up the test app
+    let app_id: InstalledAppId = "test-app".into();
+    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
+    let app_info = admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: agent_key.clone(),
+            installed_app_id: Some(app_id.clone()),
+            membrane_proofs: HashMap::new(),
+            network_seed: None,
+            source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+        })
+        .await
+        .unwrap();
+    admin_ws.enable_app(app_id.clone()).await.unwrap();
+
+    // Connect app client
+    let app_ws_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::Any, None)
+        .await
+        .unwrap();
+    let token_issued = admin_ws
+        .issue_app_auth_token(app_id.clone().into())
+        .await
+        .unwrap();
+    let signer = ClientAgentSigner::default().into();
+    let app_ws = AppWebsocket::connect(
+        (Ipv4Addr::LOCALHOST, app_ws_port),
+        token_issued.token,
+        signer,
+    )
+    .await
+    .unwrap();
+
+    {
+        let app_ws_2 = app_ws.clone();
+        let app_info_2 = app_ws_2.app_info().await.unwrap().unwrap();
+        assert_eq!(app_info.installed_app_id, app_info_2.installed_app_id);
+    }
+
+    // Should still work after dropping the first app_ws
+    let app_info_3 = app_ws.app_info().await.unwrap().unwrap();
+    assert_eq!(app_info.installed_app_id, app_info_3.installed_app_id);
+}
