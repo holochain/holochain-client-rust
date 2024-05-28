@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   state, but it no longer does that so we can drop the requirement for the clients to be mutable.
 
 ### Fixed
+- Dropping admin or app connections will now close the connection. 
+
 ### Removed
 
 ## 2024-04-24: v0.5.0-dev.32

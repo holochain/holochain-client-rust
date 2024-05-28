@@ -17,9 +17,11 @@ use holochain_zome_types::{
 };
 use serde::{Deserialize, Serialize};
 use std::{net::ToSocketAddrs, sync::Arc};
+use tokio::task::JoinHandle;
 
 pub struct AdminWebsocket {
     tx: WebsocketSender,
+    poll_handle: JoinHandle<()>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -68,9 +70,9 @@ impl AdminWebsocket {
 
         // WebsocketReceiver needs to be polled in order to receive responses
         // from remote to sender requests.
-        tokio::task::spawn(async move { while rx.recv::<AdminResponse>().await.is_ok() {} });
+        let poll_handle  = tokio::task::spawn(async move { while rx.recv::<AdminResponse>().await.is_ok() {} });
 
-        Ok(Self { tx })
+        Ok(Self { tx, poll_handle })
     }
 
     /// Issue an app authentication token for the specified app.
@@ -327,5 +329,11 @@ impl AdminWebsocket {
             AdminResponse::Error(error) => Err(ConductorApiError::ExternalApiWireError(error)),
             _ => Ok(response),
         }
+    }
+}
+
+impl Drop for AdminWebsocket {
+    fn drop(&mut self) {
+        self.poll_handle.abort();
     }
 }
