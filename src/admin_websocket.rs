@@ -70,7 +70,8 @@ impl AdminWebsocket {
 
         // WebsocketReceiver needs to be polled in order to receive responses
         // from remote to sender requests.
-        let poll_handle  = tokio::task::spawn(async move { while rx.recv::<AdminResponse>().await.is_ok() {} });
+        let poll_handle =
+            tokio::task::spawn(async move { while rx.recv::<AdminResponse>().await.is_ok() {} });
 
         Ok(Self { tx, poll_handle })
     }
