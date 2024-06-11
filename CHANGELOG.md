@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
+### Fixed
+### Removed
+
+## 2024-06-10: v0.6.0-dev.1
+### Added
+- New call `AppRequest::ProvideMemproofs`. An app can be installed with deferred membrane proofs, which can later be provided through this call.
+
+### Changed
 - Remove unnecessary use of `&mut self` in the app and admin clients. These used to be needed when the internal `send` mutated
   state, but it no longer does that so we can drop the requirement for the clients to be mutable.
 
