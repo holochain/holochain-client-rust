@@ -20,8 +20,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Dropping admin or app connections will now close the connection. 
 
-### Removed
-
 ## 2024-04-24: v0.5.0-dev.32
 ### Added
 - New admin call `issue_app_auth_token` which allows you to issue an app auth token. This is now required when creating
