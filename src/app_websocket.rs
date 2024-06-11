@@ -7,7 +7,7 @@ use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
 use holochain_conductor_api::{
     AppAuthenticationToken, AppInfo, AppRequest, AppResponse, CellInfo, NetworkInfo,
-    ProvisionedCell,
+    ProvisionedCell, ZomeCall,
 };
 use holochain_nonce::fresh_nonce;
 use holochain_types::app::{
@@ -144,7 +144,11 @@ impl AppWebsocket {
             .await
             .map_err(|e| ConductorApiError::SignZomeCallError(e.to_string()))?;
 
-        let app_request = AppRequest::CallZome(Box::new(signed_zome_call));
+        self.signed_call_zome(signed_zome_call).await
+    }
+
+    pub async fn signed_call_zome(&self, call: ZomeCall) -> ConductorApiResult<ExternIO> {
+        let app_request = AppRequest::CallZome(Box::new(call));
         let response = self.inner.send(app_request).await?;
 
         match response {
