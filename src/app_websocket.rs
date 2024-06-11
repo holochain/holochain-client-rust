@@ -11,7 +11,7 @@ use holochain_conductor_api::{
 };
 use holochain_nonce::fresh_nonce;
 use holochain_types::app::{
-    CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload,
+    CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload, MemproofMap,
     NetworkInfoRequestPayload,
 };
 use holochain_types::prelude::{CloneId, Signal};
@@ -153,6 +153,15 @@ impl AppWebsocket {
 
         match response {
             AppResponse::ZomeCalled(result) => Ok(*result),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn provide_memproofs(&self, memproofs: MemproofMap) -> ConductorApiResult<()> {
+        let app_request = AppRequest::ProvideMemproofs(memproofs);
+        let response = self.inner.send(app_request).await?;
+        match response {
+            AppResponse::Ok => Ok(()),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
