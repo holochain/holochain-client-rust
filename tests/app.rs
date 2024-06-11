@@ -6,9 +6,12 @@ use holochain_client::{
     AdminWebsocket, AppWebsocket, AuthorizeSigningCredentialsPayload, ClientAgentSigner,
     InstallAppPayload, InstalledAppId,
 };
-use holochain_conductor_api::{CellInfo, NetworkInfo};
-use holochain_types::websocket::AllowedOrigins;
-use holochain_zome_types::zome_io::ExternIO;
+use holochain_conductor_api::{AppInfoStatus, CellInfo, NetworkInfo};
+use holochain_types::{
+    app::{AppBundle, AppManifestV1},
+    websocket::AllowedOrigins,
+};
+use holochain_zome_types::dependencies::holochain_integrity_types::ExternIO;
 use kitsune_p2p_types::fetch_pool::FetchPoolInfo;
 use serde::{Deserialize, Serialize};
 use std::net::Ipv4Addr;
@@ -239,4 +242,81 @@ async fn close_on_drop_is_clone_safe() {
     // Should still work after dropping the second app_ws
     let app_info_3 = app_ws.app_info().await.unwrap().unwrap();
     assert_eq!(app_info.installed_app_id, app_info_3.installed_app_id);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn deferred_memproof_installation() {
+    let conductor = SweetConductor::from_standard_config().await;
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+        .await
+        .unwrap();
+    let app_id: InstalledAppId = "test-app".into();
+    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
+
+    // Modify app bundle to enable deferred membrane proofs.
+    let app_bundle_source = AppBundleSource::Path(PathBuf::from("./fixture/test.happ"));
+    let original_bundle = app_bundle_source.resolve().await.unwrap();
+    let manifest = AppManifestV1 {
+        membrane_proofs_deferred: true,
+        description: None,
+        name: "".to_string(),
+        roles: original_bundle.manifest().app_roles(),
+    };
+    let app_bundle_deferred_memproofs = AppBundle::from(
+        original_bundle
+            .into_inner()
+            .update_manifest(manifest.into())
+            .unwrap(),
+    );
+
+    admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: agent_key.clone(),
+            installed_app_id: Some(app_id.clone()),
+            membrane_proofs: HashMap::new(),
+            network_seed: None,
+            source: AppBundleSource::Bundle(app_bundle_deferred_memproofs),
+        })
+        .await
+        .unwrap();
+
+    // Connect app client
+    let app_ws_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::Any, None)
+        .await
+        .unwrap();
+    let token_issued = admin_ws
+        .issue_app_auth_token(app_id.clone().into())
+        .await
+        .unwrap();
+    let signer = ClientAgentSigner::default();
+    let app_ws = AppWebsocket::connect(
+        (Ipv4Addr::LOCALHOST, app_ws_port),
+        token_issued.token,
+        signer.clone().into(),
+    )
+    .await
+    .unwrap();
+
+    // App status should be `AwaitingMemproofs`.
+    let app_info = app_ws
+        .app_info()
+        .await
+        .unwrap()
+        .expect("app info must exist");
+    assert_eq!(app_info.status, AppInfoStatus::AwaitingMemproofs);
+
+    let response = app_ws.provide_memproofs(HashMap::new()).await.unwrap();
+    assert_eq!(response, ());
+
+    admin_ws.enable_app(app_id.clone()).await.unwrap();
+
+    // App status should be `Running` now.
+    let app_info = app_ws
+        .app_info()
+        .await
+        .unwrap()
+        .expect("app info must exist");
+    assert_eq!(app_info.status, AppInfoStatus::Running);
 }
