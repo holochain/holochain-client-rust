@@ -59,7 +59,7 @@ async fn signed_zome_call() {
         .issue_app_auth_token(app_id.clone().into())
         .await
         .unwrap();
-    let mut signer = ClientAgentSigner::default();
+    let signer = ClientAgentSigner::default();
     let app_ws = AppWebsocket::connect(
         (Ipv4Addr::LOCALHOST, app_ws_port),
         issued_token.token,
