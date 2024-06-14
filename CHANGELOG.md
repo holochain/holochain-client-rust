@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
+- The `ClientAgentSigner` function `add_credentials` no longer takes `self` as mutable. This wasn't required by the 
+  function implementation.
+
 ### Fixed
 ### Removed
 

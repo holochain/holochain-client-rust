@@ -35,7 +35,7 @@ impl ClientAgentSigner {
         }
     }
 
-    pub fn add_credentials(&mut self, cell_id: CellId, credentials: SigningCredentials) {
+    pub fn add_credentials(&self, cell_id: CellId, credentials: SigningCredentials) {
         self.credentials.write().insert(cell_id, credentials);
     }
 }
