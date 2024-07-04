@@ -6,11 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
-- The `ClientAgentSigner` function `add_credentials` no longer takes `self` as mutable. This wasn't required by the 
-  function implementation.
-
 ### Fixed
 ### Removed
+
+## 2024-07-04: v0.6.0-dev.2
+### Changed
+- The `ClientAgentSigner` function `add_credentials` no longer takes `self` as mutable. This wasn't required by the
+  function implementation.
+- Updated to use Holochain 0.4.0-dev.11, which includes updates to several dependencies. Namely `holochain_serialized_bytes`
+  has been updated to 0.0.55 which will force you to update your dependencies if you depend on other Holochain crates.
 
 ## 2024-06-10: v0.6.0-dev.1
 ### Added
