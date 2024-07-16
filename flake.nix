@@ -1,8 +1,6 @@
 {
   inputs = {
-    holonix.url = "github:holochain/holochain";
-    versions.url = "github:holochain/holochain?dir=versions/weekly";
-    holonix.inputs.versions.follows = "versions";
+    holonix.url = "github:holochain/holonix/main";
     nixpkgs.follows = "holonix/nixpkgs";
   };
 
@@ -11,13 +9,17 @@
       # provide a dev shell for all systems that the holonix flake supports
       systems = builtins.attrNames holonix.devShells;
 
-      perSystem = { config, system, pkgs, ... }:
+      perSystem = { inputs', config, system, pkgs, ... }:
         {
           devShells.default = pkgs.mkShell {
-            inputsFrom = [ holonix.devShells.${system}.holochainBinaries ];
-            packages = with pkgs; [
-              # add further packages from nixpkgs
-            ];
+            packages = [
+              inputs'.holonix.packages.holochain
+              inputs'.holonix.packages.lair-keystore
+              inputs'.holonix.packages.rust
+            ] ++ (pkgs.lib.optionals pkgs.stdenv.isDarwin [
+              # needed to build Holochain on macos
+              pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
+            ]);
           };
         };
     };

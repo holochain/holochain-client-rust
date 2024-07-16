@@ -15,7 +15,7 @@ version = "0.6.0-dev.2"
 members = ["fixture/zomes/foo"]
 
 [workspace.dependencies]
-holochain_zome_types = "0.4.0-dev.9"
+holochain_zome_types = "0.4.0-dev.10"
 
 [dependencies]
 again = "0.1"
@@ -27,23 +27,23 @@ rand = { version = "0.8" }
 async-trait = "0.1"
 parking_lot = "0.12.1"
 
-holo_hash = { version = "0.4.0-dev.7", features = ["encoding"] }
-holochain_conductor_api = "0.4.0-dev.11"
-holochain_websocket = "0.4.0-dev.11"
+holo_hash = { version = "0.4.0-dev.8", features = ["encoding"] }
+holochain_conductor_api = "0.4.0-dev.12"
+holochain_websocket = "0.4.0-dev.12"
 holochain_serialized_bytes = "0.0.55"
-holochain_types = "0.4.0-dev.11"
+holochain_types = "0.4.0-dev.12"
 holochain_nonce = "0.4.0-dev.4"
 holochain_zome_types = { workspace = true }
 
-lair_keystore_api = { version = "0.4.0", optional = true }
+lair_keystore_api = { version = "0.4.5", optional = true }
 
 tokio = { version = "1.36", features = ["rt"] }
 
 [dev-dependencies]
 arbitrary = "1.2"
-holochain = { version = "0.4.0-dev.11", features = ["test_utils"] }
+holochain = { version = "0.4.0-dev.12", features = ["test_utils"] }
 rand = "0.8"
-kitsune_p2p_types = "0.4.0-dev.8"
+kitsune_p2p_types = "0.4.0-dev.9"
 
 [features]
 default = ["lair_signing"]
