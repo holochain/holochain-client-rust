@@ -311,6 +311,8 @@ async fn deferred_memproof_installation() {
         .expect("app info must exist");
     assert_eq!(app_info.status, AppInfoStatus::AwaitingMemproofs);
 
+    app_ws.enable_app().await.unwrap_err();
+
     let response = app_ws.provide_memproofs(HashMap::new()).await.unwrap();
     assert_eq!(response, ());
 
@@ -327,7 +329,7 @@ async fn deferred_memproof_installation() {
         "app status should be NotStartedAfterProvidingMemproofs"
     );
 
-    admin_ws.enable_app(app_id.clone()).await.unwrap();
+    app_ws.enable_app().await.unwrap();
 
     // App status should be `Running` now.
     let app_info = app_ws

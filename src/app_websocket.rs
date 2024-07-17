@@ -166,6 +166,15 @@ impl AppWebsocket {
         }
     }
 
+    pub async fn enable_app(&self) -> ConductorApiResult<()> {
+        let app_request = AppRequest::EnableApp;
+        let response = self.inner.send(app_request).await?;
+        match response {
+            AppResponse::Ok => Ok(()),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
     pub async fn create_clone_cell(
         &self,
         msg: CreateCloneCellPayload,

@@ -7,8 +7,11 @@ use holochain_client::{
 use holochain_conductor_api::{CellInfo, StorageBlob};
 use holochain_types::websocket::AllowedOrigins;
 use holochain_zome_types::prelude::ExternIO;
+use std::collections::BTreeSet;
 use std::net::Ipv4Addr;
 use std::{collections::HashMap, path::PathBuf};
+
+const ROLE_NAME: &str = "foo";
 
 #[tokio::test(flavor = "multi_thread")]
 async fn app_interfaces() {
@@ -45,6 +48,7 @@ async fn signed_zome_call() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
         })
         .await
         .unwrap();
@@ -59,7 +63,7 @@ async fn signed_zome_call() {
         .issue_app_auth_token(app_id.clone().into())
         .await
         .unwrap();
-    let mut signer = ClientAgentSigner::default();
+    let signer = ClientAgentSigner::default();
     let app_ws = AppWebsocket::connect(
         (Ipv4Addr::LOCALHOST, app_ws_port),
         issued_token.token,
@@ -119,6 +123,7 @@ async fn storage_info() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
         })
         .await
         .unwrap();
@@ -152,6 +157,7 @@ async fn dump_network_stats() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
         })
         .await
         .unwrap();
@@ -160,4 +166,48 @@ async fn dump_network_stats() {
     let network_stats = admin_ws.dump_network_stats().await.unwrap();
 
     assert!(network_stats.contains("\"backend\": \"tx2-quic\""));
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn get_compatible_cells() {
+    let conductor = SweetConductor::from_standard_config().await;
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+        .await
+        .unwrap();
+    let app_id: InstalledAppId = "test-app".into();
+    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
+    let app_info = admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: agent_key.clone(),
+            installed_app_id: Some(app_id.clone()),
+            membrane_proofs: HashMap::new(),
+            network_seed: None,
+            source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
+        })
+        .await
+        .unwrap();
+    let cell_id = if let CellInfo::Provisioned(provisioned_cell) =
+        &app_info.cell_info.get(ROLE_NAME).unwrap()[0]
+    {
+        provisioned_cell.cell_id.clone()
+    } else {
+        panic!("expected provisioned cell")
+    };
+    let dna_hash = cell_id.dna_hash().clone();
+    let mut compatible_cells = admin_ws.get_compatible_cells(dna_hash).await.unwrap();
+    assert_eq!(
+        compatible_cells.len(),
+        1,
+        "compatible cells set should have 1 element"
+    );
+    let cell_1 = compatible_cells.pop_first().unwrap();
+    let mut expected_cells = BTreeSet::new();
+    expected_cells.insert(cell_id);
+    assert_eq!(
+        cell_1,
+        (app_id, expected_cells),
+        "only cell should be expected app cell"
+    );
 }

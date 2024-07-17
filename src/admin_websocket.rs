@@ -3,7 +3,7 @@ use anyhow::Result;
 use holo_hash::DnaHash;
 use holochain_conductor_api::{
     AdminRequest, AdminResponse, AppAuthenticationTokenIssued, AppInfo, AppInterfaceInfo,
-    AppStatusFilter, IssueAppAuthenticationTokenPayload, StorageInfo,
+    AppStatusFilter, CompatibleCells, IssueAppAuthenticationTokenPayload, StorageInfo,
 };
 use holochain_types::websocket::AllowedOrigins;
 use holochain_types::{
@@ -206,6 +206,18 @@ impl AdminWebsocket {
         let response = self.send(msg).await?;
         match response {
             AdminResponse::DnaDefinitionReturned(dna_definition) => Ok(dna_definition),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn get_compatible_cells(
+        &self,
+        dna_hash: DnaHash,
+    ) -> ConductorApiResult<CompatibleCells> {
+        let msg = AdminRequest::GetCompatibleCells(dna_hash);
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::CompatibleCells(compatible_cells) => Ok(compatible_cells),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
