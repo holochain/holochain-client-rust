@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2024-07-18: v0.5.0
+### Added
+- Admin calls `agent_info` to query peer database and `add_agent_info` to add peers to it.
+### Changed
+- Upgraded dependencies to Holochain v0.3.1
+
 ## 2024-06-14: v0.5.0-rc.5
 ### Changed
 - The `ClientAgentSigner` function `add_credentials` no longer takes `self` as mutable. This wasn't required by the
