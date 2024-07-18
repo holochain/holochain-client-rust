@@ -15,6 +15,7 @@ use holochain_zome_types::{
     capability::GrantedFunctions,
     prelude::{DnaDef, GrantZomeCallCapabilityPayload, Record},
 };
+use kitsune_p2p_types::agent_info::AgentInfoSigned;
 use serde::{Deserialize, Serialize};
 use std::{net::ToSocketAddrs, sync::Arc};
 use tokio::task::JoinHandle;
@@ -284,6 +285,30 @@ impl AdminWebsocket {
         let response = self.send(msg).await?;
         match response {
             AdminResponse::RecordsGrafted => Ok(()),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn agent_info(
+        &self,
+        cell_id: Option<CellId>,
+    ) -> ConductorApiResult<Vec<AgentInfoSigned>> {
+        let msg = AdminRequest::AgentInfo { cell_id };
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::AgentInfo(agent_info) => Ok(agent_info),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn add_agent_info(
+        &self,
+        agent_infos: Vec<AgentInfoSigned>,
+    ) -> ConductorApiResult<()> {
+        let msg = AdminRequest::AddAgentInfo { agent_infos };
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::AgentInfoAdded => Ok(()),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
