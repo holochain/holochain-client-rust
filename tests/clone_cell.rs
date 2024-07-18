@@ -36,6 +36,7 @@ async fn clone_cell_management() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
         })
         .await
         .unwrap();
@@ -50,7 +51,7 @@ async fn clone_cell_management() {
         .issue_app_auth_token(app_id.clone().into())
         .await
         .unwrap();
-    let mut signer = ClientAgentSigner::default();
+    let signer = ClientAgentSigner::default();
     let app_ws = AppWebsocket::connect(
         format!("127.0.0.1:{}", app_api_port),
         issued_token.token,
@@ -189,12 +190,13 @@ pub async fn app_info_refresh() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
         })
         .await
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
 
-    let mut signer = ClientAgentSigner::default();
+    let signer = ClientAgentSigner::default();
 
     // Create an app interface and connect an app agent to it
     let app_api_port = admin_ws

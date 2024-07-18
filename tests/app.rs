@@ -8,7 +8,7 @@ use holochain_client::{
 };
 use holochain_conductor_api::{AppInfoStatus, CellInfo, NetworkInfo};
 use holochain_types::{
-    app::{AppBundle, AppManifestV1},
+    app::{AppBundle, AppManifestV1, DisabledAppReason},
     websocket::AllowedOrigins,
 };
 use holochain_zome_types::dependencies::holochain_integrity_types::ExternIO;
@@ -41,6 +41,7 @@ async fn network_info() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
         })
         .await
         .unwrap();
@@ -114,6 +115,7 @@ async fn handle_signal() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
         })
         .await
         .unwrap();
@@ -128,7 +130,7 @@ async fn handle_signal() {
         .issue_app_auth_token(app_id.clone().into())
         .await
         .unwrap();
-    let mut signer = ClientAgentSigner::default();
+    let signer = ClientAgentSigner::default();
     let app_ws = AppWebsocket::connect(
         (Ipv4Addr::LOCALHOST, app_ws_port),
         token_issued.token,
@@ -210,6 +212,7 @@ async fn close_on_drop_is_clone_safe() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
         })
         .await
         .unwrap();
@@ -277,6 +280,7 @@ async fn deferred_memproof_installation() {
             membrane_proofs: HashMap::new(),
             network_seed: None,
             source: AppBundleSource::Bundle(app_bundle_deferred_memproofs),
+            ignore_genesis_failure: false,
         })
         .await
         .unwrap();
@@ -307,10 +311,25 @@ async fn deferred_memproof_installation() {
         .expect("app info must exist");
     assert_eq!(app_info.status, AppInfoStatus::AwaitingMemproofs);
 
+    app_ws.enable_app().await.unwrap_err();
+
     let response = app_ws.provide_memproofs(HashMap::new()).await.unwrap();
     assert_eq!(response, ());
 
-    admin_ws.enable_app(app_id.clone()).await.unwrap();
+    let app_info = app_ws
+        .app_info()
+        .await
+        .unwrap()
+        .expect("app info must exist");
+    assert_eq!(
+        app_info.status,
+        AppInfoStatus::Disabled {
+            reason: DisabledAppReason::NotStartedAfterProvidingMemproofs
+        },
+        "app status should be NotStartedAfterProvidingMemproofs"
+    );
+
+    app_ws.enable_app().await.unwrap();
 
     // App status should be `Running` now.
     let app_info = app_ws
