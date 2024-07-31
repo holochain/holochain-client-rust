@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2024-07-31: v0.5.1
+### Changed
+- Update to Holochain v0.3.2
+
 ## 2024-07-18: v0.5.0
 ### Added
 - Admin calls `agent_info` to query peer database and `add_agent_info` to add peers to it.
