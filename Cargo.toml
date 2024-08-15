@@ -9,7 +9,7 @@ name = "holochain_client"
 readme = "README.md"
 repository = "https://github.com/holochain/holochain-client-rust"
 resolver = "2"
-version = "0.6.0-dev.3"
+version = "0.6.0-dev.4"
 
 [workspace]
 members = ["fixture/zomes/foo"]
@@ -28,10 +28,10 @@ async-trait = "0.1"
 parking_lot = "0.12.1"
 
 holo_hash = { version = "0.4.0-dev.8", features = ["encoding"] }
-holochain_conductor_api = "0.4.0-dev.12"
-holochain_websocket = "0.4.0-dev.12"
+holochain_conductor_api = "0.4.0-dev.18"
+holochain_websocket = "0.4.0-dev.16"
 holochain_serialized_bytes = "0.0.55"
-holochain_types = "0.4.0-dev.12"
+holochain_types = "0.4.0-dev.18"
 holochain_nonce = "0.4.0-dev.4"
 holochain_zome_types = { workspace = true }
 
@@ -41,7 +41,7 @@ tokio = { version = "1.36", features = ["rt"] }
 
 [dev-dependencies]
 arbitrary = "1.2"
-holochain = { version = "0.4.0-dev.12", features = ["test_utils"] }
+holochain = { version = "0.4.0-dev.18", features = ["test_utils"] }
 rand = "0.8"
 kitsune_p2p_types = "0.4.0-dev.9"
 

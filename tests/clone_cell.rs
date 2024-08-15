@@ -33,8 +33,9 @@ async fn clone_cell_management() {
         .install_app(InstallAppPayload {
             agent_key: agent_key.clone(),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: HashMap::new(),
+            membrane_proofs: None,
             network_seed: None,
+            existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
         })
@@ -187,8 +188,9 @@ pub async fn app_info_refresh() {
         .install_app(InstallAppPayload {
             agent_key: agent_key.clone(),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: HashMap::new(),
+            membrane_proofs: None,
             network_seed: None,
+            existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
         })

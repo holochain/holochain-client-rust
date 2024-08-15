@@ -45,8 +45,9 @@ async fn signed_zome_call() {
         .install_app(InstallAppPayload {
             agent_key: agent_key.clone(),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: HashMap::new(),
+            membrane_proofs: None,
             network_seed: None,
+            existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
         })
@@ -120,8 +121,9 @@ async fn storage_info() {
         .install_app(InstallAppPayload {
             agent_key: agent_key.clone(),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: HashMap::new(),
+            membrane_proofs: None,
             network_seed: None,
+            existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
         })
@@ -154,8 +156,9 @@ async fn dump_network_stats() {
         .install_app(InstallAppPayload {
             agent_key: agent_key.clone(),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: HashMap::new(),
+            membrane_proofs: None,
             network_seed: None,
+            existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
         })
@@ -181,8 +184,9 @@ async fn get_compatible_cells() {
         .install_app(InstallAppPayload {
             agent_key: agent_key.clone(),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: HashMap::new(),
+            membrane_proofs: None,
             network_seed: None,
+            existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
         })
