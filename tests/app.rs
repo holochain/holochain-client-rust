@@ -38,8 +38,9 @@ async fn network_info() {
         .install_app(InstallAppPayload {
             agent_key: agent_key.clone(),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: HashMap::new(),
+            membrane_proofs: None,
             network_seed: None,
+            existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
         })
@@ -112,8 +113,9 @@ async fn handle_signal() {
         .install_app(InstallAppPayload {
             agent_key: agent_key.clone(),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: HashMap::new(),
+            membrane_proofs: None,
             network_seed: None,
+            existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
         })
@@ -209,8 +211,9 @@ async fn close_on_drop_is_clone_safe() {
         .install_app(InstallAppPayload {
             agent_key: agent_key.clone(),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: HashMap::new(),
+            membrane_proofs: None,
             network_seed: None,
+            existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
         })
@@ -261,7 +264,7 @@ async fn deferred_memproof_installation() {
     let app_bundle_source = AppBundleSource::Path(PathBuf::from("./fixture/test.happ"));
     let original_bundle = app_bundle_source.resolve().await.unwrap();
     let manifest = AppManifestV1 {
-        membrane_proofs_deferred: true,
+        allow_deferred_memproofs: true,
         description: None,
         name: "".to_string(),
         roles: original_bundle.manifest().app_roles(),
@@ -277,8 +280,9 @@ async fn deferred_memproof_installation() {
         .install_app(InstallAppPayload {
             agent_key: agent_key.clone(),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: HashMap::new(),
+            membrane_proofs: None,
             network_seed: None,
+            existing_cells: HashMap::new(),
             source: AppBundleSource::Bundle(app_bundle_deferred_memproofs),
             ignore_genesis_failure: false,
         })
