@@ -168,8 +168,15 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn uninstall_app(&self, installed_app_id: String) -> ConductorApiResult<()> {
-        let msg = AdminRequest::UninstallApp { installed_app_id };
+    pub async fn uninstall_app(
+        &self,
+        installed_app_id: String,
+        force: bool,
+    ) -> ConductorApiResult<()> {
+        let msg = AdminRequest::UninstallApp {
+            installed_app_id,
+            force,
+        };
         let response = self.send(msg).await?;
 
         match response {
