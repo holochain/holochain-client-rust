@@ -9,6 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2024-08-15: v0.6.0-dev.5
+### Changed
+- Listening for signals on the app websocket will now include system signals. These are only used for countersigning
+  currently, so you can safely ignore them if you are not using countersigning.
+
 ## 2024-08-15: v0.6.0-dev.4
 ### Changed
 - Uninstall app now has a `force` parameter. Please check Holochain documentation before setting this field to `true`!
