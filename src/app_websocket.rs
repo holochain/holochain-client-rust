@@ -86,13 +86,12 @@ impl AppWebsocket {
     ) -> Result<String> {
         let app_info = self.app_info.clone();
         self.inner
-            .on_signal(move |signal| {
-                if let Signal::App {
+            .on_signal(move |signal| match signal.clone() {
+                Signal::App {
                     cell_id,
                     zome_name: _,
                     signal: _,
-                } = signal.clone()
-                {
+                } => {
                     if app_info.cell_info.values().any(|cells| {
                         cells.iter().any(|cell_info| match cell_info {
                             CellInfo::Provisioned(cell) => cell.cell_id.eq(&cell_id),
@@ -103,6 +102,7 @@ impl AppWebsocket {
                         handler(signal);
                     }
                 }
+                Signal::System(_) => handler(signal),
             })
             .await
     }
