@@ -28,10 +28,9 @@ async fn clone_cell_management() {
     // Set up the test app
     let app_id: InstalledAppId = "test-app".into();
     let role_name: RoleName = "foo".into();
-    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
-    admin_ws
+    let app_info = admin_ws
         .install_app(InstallAppPayload {
-            agent_key: Some(agent_key.clone()),
+            agent_key: None,
             installed_app_id: Some(app_id.clone()),
             membrane_proofs: None,
             network_seed: None,
@@ -71,7 +70,7 @@ async fn clone_cell_management() {
             })
             .await
             .unwrap();
-        assert_eq!(*clone_cell.cell_id.agent_pubkey(), agent_key);
+        assert_eq!(*clone_cell.cell_id.agent_pubkey(), app_info.agent_pub_key);
         assert_eq!(clone_cell.clone_id, CloneId::new(&role_name, 0));
         clone_cell
     };
@@ -153,11 +152,11 @@ async fn clone_cell_management() {
     admin_ws
         .delete_clone_cell(DeleteCloneCellPayload {
             app_id: app_id.clone(),
-            clone_cell_id: CloneCellId::DnaHash(clone_cell.original_dna_hash.clone()),
+            clone_cell_id: CloneCellId::DnaHash(clone_cell.cell_id.dna_hash().clone()),
         })
         .await
         .unwrap();
-    // restore deleted clone cells should fail
+    // restore deleted clone cell should fail
     let enable_clone_cell_response = app_ws
         .enable_clone_cell(EnableCloneCellPayload {
             clone_cell_id: CloneCellId::CloneId(clone_cell.clone_id),
@@ -180,13 +179,10 @@ pub async fn app_info_refresh() {
     let app_id: InstalledAppId = "test-app".into();
     let role_name: RoleName = "foo".into();
 
-    // Create our agent key
-    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
-
     // Install and enable an app
     admin_ws
         .install_app(InstallAppPayload {
-            agent_key: Some(agent_key.clone()),
+            agent_key: None,
             installed_app_id: Some(app_id.clone()),
             membrane_proofs: None,
             network_seed: None,
