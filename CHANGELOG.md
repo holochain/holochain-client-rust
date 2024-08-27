@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
+- Admin Websocket call `revoke_agent_key` which revokes an agent key for an app and makes the source chains of the app read-only.
 ### Changed
 ### Fixed
 ### Removed

@@ -1,6 +1,6 @@
 {
   inputs = {
-    holonix.url = "github:holochain/holonix/main";
+    holonix.url = "github:holochain/holonix?ref=main";
     nixpkgs.follows = "holonix/nixpkgs";
   };
 

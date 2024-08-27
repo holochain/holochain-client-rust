@@ -40,10 +40,9 @@ async fn signed_zome_call() {
 
     // Set up the test app
     let app_id: InstalledAppId = "test-app".into();
-    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
     let installed_app = admin_ws
         .install_app(InstallAppPayload {
-            agent_key: agent_key.clone(),
+            agent_key: None,
             installed_app_id: Some(app_id.clone()),
             membrane_proofs: None,
             network_seed: None,
@@ -119,7 +118,7 @@ async fn storage_info() {
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
     admin_ws
         .install_app(InstallAppPayload {
-            agent_key: agent_key.clone(),
+            agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
             membrane_proofs: None,
             network_seed: None,
@@ -154,7 +153,7 @@ async fn dump_network_stats() {
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
     admin_ws
         .install_app(InstallAppPayload {
-            agent_key: agent_key.clone(),
+            agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
             membrane_proofs: None,
             network_seed: None,
@@ -182,7 +181,7 @@ async fn get_compatible_cells() {
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
     let app_info = admin_ws
         .install_app(InstallAppPayload {
-            agent_key: agent_key.clone(),
+            agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
             membrane_proofs: None,
             network_seed: None,
@@ -214,4 +213,47 @@ async fn get_compatible_cells() {
         (app_id, expected_cells),
         "only cell should be expected app cell"
     );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn revoke_agent_key() {
+    let conductor = SweetConductor::from_standard_config().await;
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+        .await
+        .unwrap();
+
+    let app_info = admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: None,
+            installed_app_id: None,
+            membrane_proofs: None,
+            network_seed: None,
+            existing_cells: HashMap::new(),
+            source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
+        })
+        .await
+        .unwrap();
+    let app_id = app_info.installed_app_id.clone();
+    admin_ws.enable_app(app_id.clone()).await.unwrap();
+
+    let agent_key = app_info.agent_pub_key.clone();
+    let response = admin_ws
+        .revoke_agent_key(app_id.clone(), agent_key.clone())
+        .await
+        .unwrap();
+    assert_eq!(response, vec![]);
+    let response = admin_ws
+        .revoke_agent_key(app_id, agent_key.clone())
+        .await
+        .unwrap();
+    let cell_id = if let CellInfo::Provisioned(provisioned_cell) =
+        &app_info.cell_info.get(ROLE_NAME).unwrap()[0]
+    {
+        provisioned_cell.cell_id.clone()
+    } else {
+        panic!("expected provisioned cell")
+    };
+    assert!(matches!(&response[0], (cell, error) if *cell == cell_id && error.contains("invalid")));
 }
