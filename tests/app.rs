@@ -36,7 +36,7 @@ async fn network_info() {
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
     let app_info = admin_ws
         .install_app(InstallAppPayload {
-            agent_key: agent_key.clone(),
+            agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
             membrane_proofs: None,
             network_seed: None,
@@ -108,10 +108,9 @@ async fn handle_signal() {
 
     // Set up the test app
     let app_id: InstalledAppId = "test-app".into();
-    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
     admin_ws
         .install_app(InstallAppPayload {
-            agent_key: agent_key.clone(),
+            agent_key: None,
             installed_app_id: Some(app_id.clone()),
             membrane_proofs: None,
             network_seed: None,
@@ -206,10 +205,9 @@ async fn close_on_drop_is_clone_safe() {
 
     // Set up the test app
     let app_id: InstalledAppId = "test-app".into();
-    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
     let app_info = admin_ws
         .install_app(InstallAppPayload {
-            agent_key: agent_key.clone(),
+            agent_key: None,
             installed_app_id: Some(app_id.clone()),
             membrane_proofs: None,
             network_seed: None,
@@ -258,7 +256,6 @@ async fn deferred_memproof_installation() {
         .await
         .unwrap();
     let app_id: InstalledAppId = "test-app".into();
-    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
 
     // Modify app bundle to enable deferred membrane proofs.
     let app_bundle_source = AppBundleSource::Path(PathBuf::from("./fixture/test.happ"));
@@ -278,7 +275,7 @@ async fn deferred_memproof_installation() {
 
     admin_ws
         .install_app(InstallAppPayload {
-            agent_key: agent_key.clone(),
+            agent_key: None,
             installed_app_id: Some(app_id.clone()),
             membrane_proofs: None,
             network_seed: None,

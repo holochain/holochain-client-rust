@@ -31,7 +31,7 @@ async fn clone_cell_management() {
     let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
     admin_ws
         .install_app(InstallAppPayload {
-            agent_key: agent_key.clone(),
+            agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
             membrane_proofs: None,
             network_seed: None,
@@ -153,7 +153,7 @@ async fn clone_cell_management() {
     admin_ws
         .delete_clone_cell(DeleteCloneCellPayload {
             app_id: app_id.clone(),
-            clone_cell_id: CloneCellId::CellId(clone_cell.clone().cell_id),
+            clone_cell_id: CloneCellId::DnaHash(clone_cell.original_dna_hash.clone()),
         })
         .await
         .unwrap();
@@ -186,7 +186,7 @@ pub async fn app_info_refresh() {
     // Install and enable an app
     admin_ws
         .install_app(InstallAppPayload {
-            agent_key: agent_key.clone(),
+            agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
             membrane_proofs: None,
             network_seed: None,
