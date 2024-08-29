@@ -226,6 +226,17 @@ impl AdminWebsocket {
         }
     }
 
+
+    pub async fn list_cell_ids(
+        &self,
+    ) -> ConductorApiResult<Vec<CellId>> {
+        let response = self.send(AdminRequest::ListCellIds).await?;
+        match response {
+            AdminResponse::CellIdsListed(cell_ids) => Ok(cell_ids),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
     pub async fn get_dna_definition(&self, hash: DnaHash) -> ConductorApiResult<DnaDef> {
         let msg = AdminRequest::GetDnaDefinition(Box::new(hash));
         let response = self.send(msg).await?;
