@@ -42,6 +42,7 @@ tokio = { version = "1.36", features = ["rt"] }
 
 [dev-dependencies]
 arbitrary = "1.2"
+fixt = "0.4.0-dev.3"
 holochain = { version = "0.4.0-dev.20", features = ["test_utils"] }
 rand = "0.8"
 kitsune_p2p_types = "0.4.0-dev.12"

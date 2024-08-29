@@ -7,6 +7,7 @@ use holochain_client::{
 use holochain_conductor_api::{CellInfo, StorageBlob};
 use holochain_types::websocket::AllowedOrigins;
 use holochain_zome_types::prelude::ExternIO;
+use kitsune_p2p_types::fixt::AgentInfoSignedFixturator;
 use std::collections::BTreeSet;
 use std::net::Ipv4Addr;
 use std::{collections::HashMap, path::PathBuf};
@@ -284,7 +285,7 @@ async fn agent_info() {
     let agent_infos = admin_ws.agent_info(None).await.unwrap();
     assert_eq!(agent_infos.len(), 1);
 
-    let other_agent = ::fixt::fixt!(AgentInfoSigned);
+    let other_agent = fixt::fixt!(AgentInfoSigned);
     admin_ws
         .add_agent_info(vec![other_agent.clone()])
         .await
