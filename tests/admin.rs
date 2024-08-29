@@ -257,3 +257,40 @@ async fn revoke_agent_key() {
     };
     assert!(matches!(&response[0], (cell, error) if *cell == cell_id && error.contains("invalid")));
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn agent_info() {
+    let conductor = SweetConductor::from_standard_config().await;
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+        .await
+        .unwrap();
+    let app_id: InstalledAppId = "test-app".into();
+    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
+    admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: Some(agent_key.clone()),
+            installed_app_id: Some(app_id.clone()),
+            existing_cells: HashMap::new(),
+            membrane_proofs: Some(HashMap::new()),
+            network_seed: None,
+            source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
+        })
+        .await
+        .unwrap();
+    admin_ws.enable_app(app_id.clone()).await.unwrap();
+
+    let agent_infos = admin_ws.agent_info(None).await.unwrap();
+    assert_eq!(agent_infos.len(), 1);
+
+    let other_agent = ::fixt::fixt!(AgentInfoSigned);
+    admin_ws
+        .add_agent_info(vec![other_agent.clone()])
+        .await
+        .unwrap();
+
+    let agent_infos = admin_ws.agent_info(None).await.unwrap();
+    assert_eq!(agent_infos.len(), 2);
+    assert!(agent_infos.contains(&other_agent));
+}
