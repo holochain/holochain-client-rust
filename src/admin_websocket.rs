@@ -16,6 +16,7 @@ use holochain_zome_types::{
     capability::GrantedFunctions,
     prelude::{DnaDef, GrantZomeCallCapabilityPayload, Record},
 };
+use kitsune_p2p_types::agent_info::AgentInfoSigned;
 use serde::{Deserialize, Serialize};
 use std::{net::ToSocketAddrs, sync::Arc};
 use tokio::task::JoinHandle;
