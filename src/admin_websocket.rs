@@ -344,7 +344,6 @@ impl AdminWebsocket {
         }
     }
 
-
     pub async fn authorize_signing_credentials(
         &self,
         request: AuthorizeSigningCredentialsPayload,
