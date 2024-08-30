@@ -1,5 +1,8 @@
 [package]
-authors = ["Guillem Cordoba <guillem.cordoba@gmail.com>"]
+authors = [
+    "Guillem Cordoba <guillem.cordoba@gmail.com>",
+    "Holochain Core Dev Team <devcore@holochain.org>",
+]
 description = "A Rust client for the Holochain Conductor API"
 edition = "2021"
 homepage = "https://github.com/holochain/holochain-client-rust"
@@ -9,7 +12,7 @@ name = "holochain_client"
 readme = "README.md"
 repository = "https://github.com/holochain/holochain-client-rust"
 resolver = "2"
-version = "0.6.0-dev.6"
+version = "0.6.0-dev.7"
 
 [workspace]
 members = ["fixture/zomes/foo"]

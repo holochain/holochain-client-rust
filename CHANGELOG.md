@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2024-08-31: v0.6.0-dev.7
+### Added
+- Admin calls `AgentInfo`, `AddAgentInfo` and `ListCellIds`.
+
 ## 2024-08-27: v0.6.0-dev.6
 ### Added
 - Admin Websocket call `revoke_agent_key` which revokes an agent key for an app and makes the source chains of the app read-only.
