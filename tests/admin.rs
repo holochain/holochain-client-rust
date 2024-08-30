@@ -296,3 +296,38 @@ async fn agent_info() {
     assert_eq!(agent_infos.len(), 3);
     assert!(agent_infos.contains(&other_agent));
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn list_cell_ids() {
+    let conductor = SweetConductor::from_standard_config().await;
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+        .await
+        .unwrap();
+    let app_id: InstalledAppId = "test-app".into();
+    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
+    let app_info = admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: Some(agent_key),
+            installed_app_id: Some(app_id.clone()),
+            existing_cells: HashMap::new(),
+            membrane_proofs: Some(HashMap::new()),
+            network_seed: None,
+            source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
+        })
+        .await
+        .unwrap();
+    admin_ws.enable_app(app_id).await.unwrap();
+    let cell_id =
+        if let CellInfo::Provisioned(cell) = &app_info.cell_info.get(ROLE_NAME).unwrap()[0] {
+            cell.cell_id.clone()
+        } else {
+            panic!("expected provisioned cell");
+        };
+
+    let cell_ids = admin_ws.list_cell_ids().await.unwrap();
+    // Check if list includes cell id. Not checking for equality to a vector of just the one cell id,
+    // because the DPKI cell is included too.
+    assert!(cell_ids.contains(&cell_id));
+}

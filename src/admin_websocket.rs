@@ -226,10 +226,7 @@ impl AdminWebsocket {
         }
     }
 
-
-    pub async fn list_cell_ids(
-        &self,
-    ) -> ConductorApiResult<Vec<CellId>> {
+    pub async fn list_cell_ids(&self) -> ConductorApiResult<Vec<CellId>> {
         let response = self.send(AdminRequest::ListCellIds).await?;
         match response {
             AdminResponse::CellIdsListed(cell_ids) => Ok(cell_ids),
