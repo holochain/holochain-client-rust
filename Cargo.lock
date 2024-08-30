@@ -2651,6 +2651,7 @@ dependencies = [
  "async-trait",
  "ed25519-dalek",
  "event-emitter-rs",
+ "fixt",
  "holo_hash",
  "holochain",
  "holochain_conductor_api",
