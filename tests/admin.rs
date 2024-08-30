@@ -283,7 +283,8 @@ async fn agent_info() {
     admin_ws.enable_app(app_id.clone()).await.unwrap();
 
     let agent_infos = admin_ws.agent_info(None).await.unwrap();
-    assert_eq!(agent_infos.len(), 1);
+    // 2 agent infos expected, 1 app agent and 1 DPKI agent.
+    assert_eq!(agent_infos.len(), 2);
 
     let other_agent = fixt::fixt!(AgentInfoSigned);
     admin_ws
@@ -292,6 +293,6 @@ async fn agent_info() {
         .unwrap();
 
     let agent_infos = admin_ws.agent_info(None).await.unwrap();
-    assert_eq!(agent_infos.len(), 2);
+    assert_eq!(agent_infos.len(), 3);
     assert!(agent_infos.contains(&other_agent));
 }

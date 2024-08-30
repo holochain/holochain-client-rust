@@ -1433,11 +1433,11 @@ dependencies = [
 
 [[package]]
 name = "derive_builder"
-version = "0.20.0"
+version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0350b5cb0331628a5916d6c5c0b72e97393b8b6b03b47a9284f4e7f5a405ffd7"
+checksum = "cd33f37ee6a119146a1781d3356a7c26028f83d779b2e04ecd45fdc75c76877b"
 dependencies = [
- "derive_builder_macro 0.20.0",
+ "derive_builder_macro 0.20.1",
 ]
 
 [[package]]
@@ -1454,9 +1454,9 @@ dependencies = [
 
 [[package]]
 name = "derive_builder_core"
-version = "0.20.0"
+version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d48cda787f839151732d396ac69e3473923d54312c070ee21e9effcaa8ca0b1d"
+checksum = "7431fa049613920234f22c47fdc33e6cf3ee83067091ea4277a3f8c4587aae38"
 dependencies = [
  "darling 0.20.10",
  "proc-macro2",
@@ -1476,11 +1476,11 @@ dependencies = [
 
 [[package]]
 name = "derive_builder_macro"
-version = "0.20.0"
+version = "0.20.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "206868b8242f27cecce124c19fd88157fbd0dd334df2587f36417bafbc85097b"
+checksum = "4abae7035bf79b9877b779505d8cf3749285b80c43941eda66604841889451dc"
 dependencies = [
- "derive_builder_core 0.20.0",
+ "derive_builder_core 0.20.1",
  "syn 2.0.76",
 ]
 
@@ -2667,7 +2667,7 @@ dependencies = [
  "holochain_websocket",
  "holochain_zome_types",
  "kitsune_p2p_types",
- "lair_keystore_api 0.4.5",
+ "lair_keystore_api",
  "parking_lot 0.12.3",
  "rand 0.8.5",
  "serde",
@@ -2725,9 +2725,9 @@ dependencies = [
 
 [[package]]
 name = "holochain_deepkey_dna"
-version = "0.0.8-dev.1"
+version = "0.0.8-dev.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "92e1dc5e04f2f9d0f37f90736e91a5034511136a5dcf8891a04debdf8a522cdf"
+checksum = "be0aa773b74c40ef5e4e02f414d8cbfc4e92520a93511055a3fbccc12d2dd045"
 
 [[package]]
 name = "holochain_integrity_types"
@@ -2736,7 +2736,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d15fab21e6eab0af97cd1bb30494fe423b3740c438caf7bbda12e47979c926ea"
 dependencies = [
  "arbitrary",
- "derive_builder 0.20.0",
+ "derive_builder 0.20.1",
  "holo_hash",
  "holochain_secure_primitive",
  "holochain_serialized_bytes",
@@ -3009,7 +3009,7 @@ dependencies = [
  "cfg-if 0.1.10",
  "chrono",
  "contrafact",
- "derive_builder 0.20.0",
+ "derive_builder 0.20.1",
  "derive_more",
  "fixt",
  "flate2",
@@ -3156,7 +3156,7 @@ checksum = "2e375679cf12d9add4bdff018d53dfb29d93610c3e91663830613acb2a2a9429"
 dependencies = [
  "arbitrary",
  "contrafact",
- "derive_builder 0.20.0",
+ "derive_builder 0.20.1",
  "derive_more",
  "fixt",
  "holo_hash",
@@ -4006,7 +4006,7 @@ dependencies = [
  "kitsune_p2p_dht",
  "kitsune_p2p_dht_arc",
  "kitsune_p2p_timestamp",
- "lair_keystore_api 0.5.0",
+ "lair_keystore_api",
  "mockall",
  "once_cell",
  "parking_lot 0.12.3",
@@ -4040,7 +4040,7 @@ version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db43da034583683b3a25d473e6024c7f529c31115418a7b95e609d5b0f090e5b"
 dependencies = [
- "lair_keystore_api 0.5.0",
+ "lair_keystore_api",
  "pretty_assertions",
  "rpassword",
  "rusqlite",
@@ -4048,32 +4048,6 @@ dependencies = [
  "structopt",
  "sysinfo",
  "tracing-subscriber",
-]
-
-[[package]]
-name = "lair_keystore_api"
-version = "0.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9519a48df54d2041f8697bba7c3957263a5f2bb720ae6c4954004bad51693c61"
-dependencies = [
- "base64 0.22.1",
- "dunce",
- "hc_seed_bundle",
- "lru",
- "nanoid",
- "once_cell",
- "parking_lot 0.12.3",
- "rcgen",
- "serde",
- "serde_json",
- "serde_yaml",
- "time",
- "tokio",
- "toml",
- "tracing",
- "url",
- "winapi 0.3.9",
- "zeroize",
 ]
 
 [[package]]
@@ -4803,9 +4777,9 @@ dependencies = [
 
 [[package]]
 name = "object"
-version = "0.36.3"
+version = "0.36.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27b64972346851a39438c60b341ebc01bba47464ae329e55cf343eb93964efd9"
+checksum = "084f1a5821ac4c651660a94a7153d27ac9d8a53736203f58b31945ded098070a"
 dependencies = [
  "memchr",
 ]
