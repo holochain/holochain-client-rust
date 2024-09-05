@@ -57,10 +57,6 @@ impl AdminWebsocket {
     /// As string `"localhost:30000"`
     /// As tuple `([127.0.0.1], 30000)`
     pub async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
-        let addr = socket_addr
-            .to_socket_addrs()?
-            .next()
-            .expect("invalid websocket address");
         // app installation takes > 2 min on CI at the moment, hence the high
         // request timeout
         let mut websocket_config = WebsocketConfig::CLIENT_DEFAULT;
@@ -71,6 +67,10 @@ impl AdminWebsocket {
 
     /// Connect to a Conductor API AdminWebsocket with a custom WebsocketConfig.
     pub async fn connect_with_config(socket_addr: impl ToSocketAddrs, config: Arc<WebsocketConfig>) -> Result<Self> {
+        let addr = socket_addr
+            .to_socket_addrs()?
+            .next()
+            .expect("invalid websocket address");
         let (tx, mut rx) = again::retry(|| {
             let websocket_config = Arc::clone(&config);
             connect(websocket_config, addr)
