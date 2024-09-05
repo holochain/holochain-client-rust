@@ -58,6 +58,11 @@ impl AdminWebsocket {
     /// As string `"localhost:30000"`
     /// As tuple `([127.0.0.1], 30000)`
     pub async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
+        Self::connect_with_config(socket_addr, Arc::new(WebsocketConfig::CLIENT_DEFAULT))
+    }
+
+    /// Connect to a Conductor API AdminWebsocket with a custom WebsocketConfig.
+    pub async fn connect_with_config(socket_addr: impl ToSocketAddrs, config: Arc<WebsocketConfig>) -> Result<Self> {
         let addr = socket_addr
             .to_socket_addrs()?
             .next()
