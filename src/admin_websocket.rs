@@ -66,10 +66,13 @@ impl AdminWebsocket {
         let mut websocket_config = WebsocketConfig::CLIENT_DEFAULT;
         websocket_config.default_request_timeout = std::time::Duration::from_secs(180);
 
-        let websocket_config = Arc::new(websocket_config);
+        connect_with_config(socket_addr, Arc::new(websocket_config))
+    }
 
+    /// Connect to a Conductor API AdminWebsocket with a custom WebsocketConfig.
+    pub async fn connect_with_config(socket_addr: impl ToSocketAddrs, config: Arc<WebsocketConfig>) -> Result<Self> {
         let (tx, mut rx) = again::retry(|| {
-            let websocket_config = Arc::clone(&websocket_config);
+            let websocket_config = Arc::clone(&config);
             connect(websocket_config, addr)
         })
         .await?;
