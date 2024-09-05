@@ -58,7 +58,7 @@ impl AdminWebsocket {
     /// As string `"localhost:30000"`
     /// As tuple `([127.0.0.1], 30000)`
     pub async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
-        Self::connect_with_config(socket_addr, Arc::new(WebsocketConfig::CLIENT_DEFAULT))
+        Self::connect_with_config(socket_addr, Arc::new(WebsocketConfig::CLIENT_DEFAULT)).await
     }
 
     /// Connect to a Conductor API AdminWebsocket with a custom WebsocketConfig.
