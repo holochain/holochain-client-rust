@@ -66,7 +66,7 @@ impl AdminWebsocket {
         let mut websocket_config = WebsocketConfig::CLIENT_DEFAULT;
         websocket_config.default_request_timeout = std::time::Duration::from_secs(180);
 
-        connect_with_config(socket_addr, Arc::new(websocket_config))
+        Self::connect_with_config(socket_addr, Arc::new(websocket_config))
     }
 
     /// Connect to a Conductor API AdminWebsocket with a custom WebsocketConfig.
