@@ -62,18 +62,16 @@ impl AdminWebsocket {
     }
 
     /// Connect to a Conductor API AdminWebsocket with a custom WebsocketConfig.
-    pub async fn connect_with_config(socket_addr: impl ToSocketAddrs, config: Arc<WebsocketConfig>) -> Result<Self> {
+    pub async fn connect_with_config(
+        socket_addr: impl ToSocketAddrs,
+        websocket_config: Arc<WebsocketConfig>,
+    ) -> Result<Self> {
         let addr = socket_addr
             .to_socket_addrs()?
             .next()
             .expect("invalid websocket address");
-        let websocket_config = Arc::new(WebsocketConfig::CLIENT_DEFAULT);
 
-        let (tx, mut rx) = again::retry(|| {
-            let websocket_config = Arc::clone(&websocket_config);
-            connect(websocket_config, addr)
-        })
-        .await?;
+        let (tx, mut rx) = again::retry(|| connect(websocket_config.clone(), addr)).await?;
 
         // WebsocketReceiver needs to be polled in order to receive responses
         // from remote to sender requests.
