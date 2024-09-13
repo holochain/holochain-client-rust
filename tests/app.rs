@@ -43,6 +43,7 @@ async fn network_info() {
             existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
         })
         .await
         .unwrap();
@@ -117,6 +118,7 @@ async fn handle_signal() {
             existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
         })
         .await
         .unwrap();
@@ -214,6 +216,7 @@ async fn close_on_drop_is_clone_safe() {
             existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
         })
         .await
         .unwrap();
@@ -282,6 +285,7 @@ async fn deferred_memproof_installation() {
             existing_cells: HashMap::new(),
             source: AppBundleSource::Bundle(app_bundle_deferred_memproofs),
             ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
         })
         .await
         .unwrap();
@@ -314,8 +318,7 @@ async fn deferred_memproof_installation() {
 
     app_ws.enable_app().await.unwrap_err();
 
-    let response = app_ws.provide_memproofs(HashMap::new()).await.unwrap();
-    assert_eq!(response, ());
+    app_ws.provide_memproofs(HashMap::new()).await.unwrap();
 
     let app_info = app_ws
         .app_info()
