@@ -37,6 +37,7 @@ async fn clone_cell_management() {
             existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
         })
         .await
         .unwrap();
@@ -189,6 +190,7 @@ pub async fn app_info_refresh() {
             existing_cells: HashMap::new(),
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
         })
         .await
         .unwrap();
