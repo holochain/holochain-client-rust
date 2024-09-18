@@ -12,7 +12,7 @@ name = "holochain_client"
 readme = "README.md"
 repository = "https://github.com/holochain/holochain-client-rust"
 resolver = "2"
-version = "0.6.0-dev.8"
+version = "0.6.0-dev.9"
 
 [workspace]
 members = ["fixture/zomes/foo"]

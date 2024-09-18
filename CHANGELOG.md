@@ -10,6 +10,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 
 ## 2024-09-10: v0.6.0-dev.8
+### Changed
+- Updated to work with Holochain 0.4.0-dev.25
+
+## 2024-09-10: v0.6.0-dev.8
 ### Added
 - Method to connect an admin websocket with a custom websocket configuration.
 
