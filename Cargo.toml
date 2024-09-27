@@ -1,24 +1,24 @@
 [package]
+name = "holochain_client"
+version = "0.6.0-dev.10"
+description = "A Rust client for the Holochain Conductor API"
 authors = [
     "Guillem Cordoba <guillem.cordoba@gmail.com>",
     "Holochain Core Dev Team <devcore@holochain.org>",
 ]
-description = "A Rust client for the Holochain Conductor API"
+license = "MIT"
 edition = "2021"
 homepage = "https://github.com/holochain/holochain-client-rust"
 keywords = ["holochain", "client", "conductor-api"]
-license = "MIT"
-name = "holochain_client"
 readme = "README.md"
 repository = "https://github.com/holochain/holochain-client-rust"
 resolver = "2"
-version = "0.6.0-dev.8"
 
 [workspace]
 members = ["fixture/zomes/foo"]
 
 [workspace.dependencies]
-holochain_zome_types = "0.4.0-dev.16"
+holochain_zome_types = "0.4.0-dev.18"
 
 [dependencies]
 again = "0.1"
@@ -30,16 +30,16 @@ rand = { version = "0.8" }
 async-trait = "0.1"
 parking_lot = "0.12.1"
 
-holo_hash = { version = "0.4.0-dev.12", features = ["encoding"] }
-holochain_conductor_api = "0.4.0-dev.25"
-holochain_websocket = "0.4.0-dev.24"
+holo_hash = { version = "0.4.0-dev.13", features = ["encoding"] }
+holochain_conductor_api = "0.4.0-dev.27"
+holochain_websocket = "0.4.0-dev.26"
 holochain_serialized_bytes = "0.0.55"
-holochain_types = "0.4.0-dev.24"
+holochain_types = "0.4.0-dev.26"
 holochain_nonce = "0.4.0-dev.7"
 holochain_zome_types = { workspace = true }
 
-lair_keystore_api = { version = "0.5.1", optional = true }
-kitsune_p2p_types = "0.4.0-dev.13"
+lair_keystore_api = { version = "0.5.2", optional = true }
+kitsune_p2p_types = "0.4.0-dev.15"
 
 tokio = { version = "1.36", features = ["rt"] }
 

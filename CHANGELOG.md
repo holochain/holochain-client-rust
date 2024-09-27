@@ -9,6 +9,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2024-09-10: v0.6.0-dev.10
+### Changed
+- Update to Holochain 0.4.0-dev.27
+
+## 2024-09-10: v0.6.0-dev.9
+### Changed
+- Update to Holochain 0.4.0-dev.25
+
 ## 2024-09-10: v0.6.0-dev.8
 ### Added
 - Method to connect an admin websocket with a custom websocket configuration.
