@@ -14,6 +14,14 @@ readme = "README.md"
 repository = "https://github.com/holochain/holochain-client-rust"
 resolver = "2"
 
+[lib]
+crate-type = ["cdylib"]
+name = "holochain_client"
+
+[[bin]]
+name = "uniffi-bindgen"
+path = "uniffi-bindgen.rs"
+
 [workspace]
 members = ["fixture/zomes/foo"]
 
@@ -29,6 +37,7 @@ event-emitter-rs = "0.1"
 rand = { version = "0.8" }
 async-trait = "0.1"
 parking_lot = "0.12.1"
+uniffi = { version = "0.28.2", features = ["tokio"]}
 
 holo_hash = { version = "0.5.0-dev.0", features = ["encoding"] }
 holochain_conductor_api = "0.5.0-dev.0"
@@ -49,7 +58,11 @@ fixt = "0.5.0-dev.0"
 holochain = { version = "0.5.0-dev.0", features = ["test_utils"] }
 rand = "0.8"
 
+[build-dependencies]
+uniffi = { version = "0.28.2", features = ["build", "tokio"] }
+
 [features]
 default = ["lair_signing"]
 
 lair_signing = ["dep:lair_keystore_api"]
+bindgen = ["uniffi/cli"]

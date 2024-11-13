@@ -56,7 +56,7 @@ jobs:
           key: ${{ matrix.os }}-${{ env.cache-name }}-${{ hashFiles('fixture/zomes/foo/Cargo.lock') }}
 
       - name: Build fixture
-        run: nix develop -c $SHELL -c "./build-fixture.sh"
+        run: nix develop -c $SHELL -c "./scripts/build-fixture.sh"
 
       - name: Save fixture to cache
         uses: actions/cache/save@v4

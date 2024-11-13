@@ -20,7 +20,7 @@ Types and bindings to connect easily to a running Holochain conductor from Rust.
 ## Running the tests
 
 ``` bash
-./build-fixture.sh
+./scripts/build-fixture.sh
 cargo test
 ```
 
