@@ -21,23 +21,27 @@ use serde::{Deserialize, Serialize};
 use std::{net::ToSocketAddrs, sync::Arc};
 use tokio::task::JoinHandle;
 
+#[derive(uniffi::Object)] 
 pub struct AdminWebsocket {
     tx: WebsocketSender,
     poll_handle: JoinHandle<()>,
 }
 
+#[derive(uniffi::Record)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EnableAppResponse {
     pub app: AppInfo,
     pub errors: Vec<(CellId, String)>,
 }
 
+#[derive(uniffi::Record)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct AuthorizeSigningCredentialsPayload {
     pub cell_id: CellId,
     pub functions: Option<GrantedFunctions>,
 }
 
+#[uniffi::export]
 impl AdminWebsocket {
     /// Connect to a Conductor API AdminWebsocket.
     ///
@@ -57,11 +61,13 @@ impl AdminWebsocket {
     ///
     /// As string `"localhost:30000"`
     /// As tuple `([127.0.0.1], 30000)`
+    #[uniffi::constructor]
     pub async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
         Self::connect_with_config(socket_addr, Arc::new(WebsocketConfig::CLIENT_DEFAULT)).await
     }
 
     /// Connect to a Conductor API AdminWebsocket with a custom WebsocketConfig.
+    #[uniffi::constructor]
     pub async fn connect_with_config(
         socket_addr: impl ToSocketAddrs,
         websocket_config: Arc<WebsocketConfig>,

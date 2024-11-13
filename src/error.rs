@@ -1,7 +1,7 @@
 use holochain_conductor_api::ExternalApiWireError;
 use std::error::Error;
 
-#[derive(Debug)]
+#[derive(Debug, uniffi::Error)]
 pub enum ConductorApiError {
     WebsocketError(holochain_websocket::WebsocketError),
     ExternalApiWireError(ExternalApiWireError),

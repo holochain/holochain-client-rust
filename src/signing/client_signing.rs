@@ -8,6 +8,7 @@ use holochain_zome_types::{
 use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc};
 
+#[derive(uniffi::Record)]
 pub struct SigningCredentials {
     pub signing_agent_key: AgentPubKey,
     pub keypair: ed25519_dalek::SigningKey,
@@ -15,6 +16,7 @@ pub struct SigningCredentials {
 }
 
 /// Custom debug implementation which won't attempt to print the `cap_secret` or `keypair`
+#[uniffi::export]
 impl std::fmt::Debug for SigningCredentials {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("SigningCredentials")
@@ -23,12 +25,15 @@ impl std::fmt::Debug for SigningCredentials {
     }
 }
 
+#[derive(uniffi::Object)]
 #[derive(Debug, Clone, Default)]
 pub struct ClientAgentSigner {
     credentials: Arc<RwLock<HashMap<CellId, SigningCredentials>>>,
 }
 
+#[uniffi::export]
 impl ClientAgentSigner {
+    #[uniffi::constructor]
     pub fn new() -> Self {
         Self {
             credentials: Arc::new(RwLock::new(HashMap::new())),
@@ -40,6 +45,7 @@ impl ClientAgentSigner {
     }
 }
 
+#[uniffi::export]
 #[async_trait]
 impl AgentSigner for ClientAgentSigner {
     async fn sign(
@@ -69,6 +75,7 @@ impl AgentSigner for ClientAgentSigner {
 }
 
 /// Convert the ClientAgentSigner into an `Arc<Box<dyn AgentSigner + Send + Sync>>`
+#[uniffi::export]
 impl From<ClientAgentSigner> for Arc<dyn AgentSigner + Send + Sync> {
     fn from(cas: ClientAgentSigner) -> Self {
         Arc::new(cas)

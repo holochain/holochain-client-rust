@@ -10,12 +10,15 @@ use parking_lot::RwLock;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+#[derive(uniffi::Object)]
 pub struct LairAgentSigner {
     lair_client: Arc<LairClient>,
     credentials: Arc<RwLock<HashMap<CellId, AgentPubKey>>>,
 }
 
+#[uniffi::export]
 impl LairAgentSigner {
+    #[uniffi::constructor]
     pub fn new(lair_client: Arc<LairClient>) -> Self {
         Self {
             lair_client,
@@ -30,6 +33,7 @@ impl LairAgentSigner {
     }
 }
 
+#[uniffi::export]
 #[async_trait]
 impl AgentSigner for LairAgentSigner {
     async fn sign(

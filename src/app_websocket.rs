@@ -22,7 +22,7 @@ use holochain_zome_types::{
 use std::net::ToSocketAddrs;
 use std::sync::Arc;
 
-#[derive(Clone)]
+#[derive(Clone, uniffi::Object)]
 pub struct AppWebsocket {
     pub my_pub_key: AgentPubKey,
     inner: AppWebsocketInner,
@@ -30,6 +30,7 @@ pub struct AppWebsocket {
     signer: Arc<dyn AgentSigner + Send + Sync>,
 }
 
+#[uniffi::export]
 impl AppWebsocket {
     /// Connect to a Conductor API AppWebsocket with a specific app id.
     ///
@@ -54,6 +55,7 @@ impl AppWebsocket {
     ///
     /// As string `"localhost:30000"`
     /// As tuple `([127.0.0.1], 30000)`
+    #[uniffi::constructor]
     pub async fn connect(
         socket_addr: impl ToSocketAddrs,
         token: AppAuthenticationToken,
@@ -284,6 +286,7 @@ impl AppWebsocket {
     }
 }
 
+#[derive(uniffi::Enum)]
 pub enum ZomeCallTarget {
     CellId(CellId),
     /// Call a cell by its role name.
@@ -298,18 +301,21 @@ pub enum ZomeCallTarget {
     CloneId(CloneId),
 }
 
+#[uniffi::export]
 impl From<CellId> for ZomeCallTarget {
     fn from(cell_id: CellId) -> Self {
         ZomeCallTarget::CellId(cell_id)
     }
 }
 
+#[uniffi::export]
 impl From<RoleName> for ZomeCallTarget {
     fn from(role_name: RoleName) -> Self {
         ZomeCallTarget::RoleName(role_name)
     }
 }
 
+#[uniffi::export]
 impl From<CloneId> for ZomeCallTarget {
     fn from(clone_id: CloneId) -> Self {
         ZomeCallTarget::CloneId(clone_id)

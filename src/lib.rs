@@ -1,3 +1,5 @@
+uniffi::setup_scaffolding!();
+
 mod admin_websocket;
 mod app_websocket;
 mod app_websocket_inner;
