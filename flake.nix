@@ -17,9 +17,11 @@
               inputs'.holonix.packages.lair-keystore
               inputs'.holonix.packages.rust
               pkgs.go
+              pkgs.perl
             ] ++ (pkgs.lib.optionals pkgs.stdenv.isDarwin [
               # needed to build Holochain on macos
               pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
+              pkgs.bzip2
             ]);
           };
         };
