@@ -6985,7 +6985,6 @@ dependencies = [
 name = "test_wasm_foo"
 version = "0.0.1"
 dependencies = [
- "hdi",
  "hdk",
  "serde",
 ]
