@@ -33,7 +33,6 @@ parking_lot = "0.12.1"
 holo_hash = { version = "0.5.0-dev.0", features = ["encoding"] }
 holochain_conductor_api = "0.5.0-dev.0"
 holochain_websocket = "0.5.0-dev.0"
-holochain_serialized_bytes = "0.0.55"
 holochain_types = "0.5.0-dev.0"
 holochain_nonce = "0.5.0-dev.0"
 holochain_zome_types = { workspace = true }
@@ -44,10 +43,8 @@ kitsune_p2p_types = "0.5.0-dev.0"
 tokio = { version = "1.36", features = ["rt"] }
 
 [dev-dependencies]
-arbitrary = "1.2"
 fixt = "0.5.0-dev.0"
 holochain = { version = "0.5.0-dev.0", features = ["test_utils"] }
-rand = "0.8"
 
 [features]
 default = ["lair_signing"]
