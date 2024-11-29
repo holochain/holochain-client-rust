@@ -38,9 +38,8 @@ async fn network_info() {
         .install_app(InstallAppPayload {
             agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -113,9 +112,8 @@ async fn handle_signal() {
         .install_app(InstallAppPayload {
             agent_key: None,
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -211,9 +209,8 @@ async fn close_on_drop_is_clone_safe() {
         .install_app(InstallAppPayload {
             agent_key: None,
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -280,9 +277,8 @@ async fn deferred_memproof_installation() {
         .install_app(InstallAppPayload {
             agent_key: None,
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Bundle(app_bundle_deferred_memproofs),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
