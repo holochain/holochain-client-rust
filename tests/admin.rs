@@ -10,7 +10,7 @@ use holochain_zome_types::prelude::ExternIO;
 use kitsune_p2p_types::fixt::AgentInfoSignedFixturator;
 use std::collections::BTreeSet;
 use std::net::Ipv4Addr;
-use std::{collections::HashMap, path::PathBuf};
+use std::path::PathBuf;
 
 const ROLE_NAME: &str = "foo";
 
@@ -45,9 +45,8 @@ async fn signed_zome_call() {
         .install_app(InstallAppPayload {
             agent_key: None,
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -122,9 +121,8 @@ async fn storage_info() {
         .install_app(InstallAppPayload {
             agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -158,9 +156,8 @@ async fn dump_network_stats() {
         .install_app(InstallAppPayload {
             agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -171,7 +168,7 @@ async fn dump_network_stats() {
 
     let network_stats = admin_ws.dump_network_stats().await.unwrap();
 
-    assert!(network_stats.contains("\"backend\": \"tx2-quic\""));
+    assert!(network_stats.contains("\"backend\": \"backendMem\""));
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -187,9 +184,8 @@ async fn get_compatible_cells() {
         .install_app(InstallAppPayload {
             agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -232,9 +228,8 @@ async fn revoke_agent_key() {
         .install_app(InstallAppPayload {
             agent_key: None,
             installed_app_id: None,
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -277,8 +272,7 @@ async fn agent_info() {
         .install_app(InstallAppPayload {
             agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
-            existing_cells: HashMap::new(),
-            membrane_proofs: Some(HashMap::new()),
+            roles_settings: None,
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
@@ -289,8 +283,7 @@ async fn agent_info() {
     admin_ws.enable_app(app_id.clone()).await.unwrap();
 
     let agent_infos = admin_ws.agent_info(None).await.unwrap();
-    // 2 agent infos expected, 1 app agent and 1 DPKI agent.
-    assert_eq!(agent_infos.len(), 2);
+    assert_eq!(agent_infos.len(), 1);
 
     let other_agent = fixt::fixt!(AgentInfoSigned);
     admin_ws
@@ -299,7 +292,7 @@ async fn agent_info() {
         .unwrap();
 
     let agent_infos = admin_ws.agent_info(None).await.unwrap();
-    assert_eq!(agent_infos.len(), 3);
+    assert_eq!(agent_infos.len(), 2);
     assert!(agent_infos.contains(&other_agent));
 }
 
@@ -316,8 +309,7 @@ async fn list_cell_ids() {
         .install_app(InstallAppPayload {
             agent_key: Some(agent_key),
             installed_app_id: Some(app_id.clone()),
-            existing_cells: HashMap::new(),
-            membrane_proofs: Some(HashMap::new()),
+            roles_settings: None,
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,

@@ -7,7 +7,7 @@ use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
 use holochain_conductor_api::{
     AppAuthenticationToken, AppInfo, AppRequest, AppResponse, CellInfo, NetworkInfo,
-    ProvisionedCell, ZomeCall,
+    ProvisionedCell, ZomeCallParamsSigned,
 };
 use holochain_nonce::fresh_nonce;
 use holochain_types::app::{
@@ -17,7 +17,7 @@ use holochain_types::app::{
 use holochain_types::prelude::{CloneId, Signal};
 use holochain_zome_types::{
     clone::ClonedCell,
-    prelude::{CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName},
+    prelude::{CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallParams, ZomeName},
 };
 use std::net::ToSocketAddrs;
 use std::sync::Arc;
@@ -127,7 +127,7 @@ impl AppWebsocket {
         let (nonce, expires_at) =
             fresh_nonce(Timestamp::now()).map_err(ConductorApiError::FreshNonceError)?;
 
-        let zome_call_unsigned = ZomeCallUnsigned {
+        let params = ZomeCallParams {
             provenance: self.signer.get_provenance(&cell_id).ok_or(
                 ConductorApiError::SignZomeCallError("Provenance not found".to_string()),
             )?,
@@ -139,16 +139,18 @@ impl AppWebsocket {
             expires_at,
             nonce,
         };
-
-        let signed_zome_call = sign_zome_call(zome_call_unsigned, self.signer.clone())
+        let signed_zome_call = sign_zome_call(params, self.signer.clone())
             .await
             .map_err(|e| ConductorApiError::SignZomeCallError(e.to_string()))?;
 
         self.signed_call_zome(signed_zome_call).await
     }
 
-    pub async fn signed_call_zome(&self, call: ZomeCall) -> ConductorApiResult<ExternIO> {
-        let app_request = AppRequest::CallZome(Box::new(call));
+    pub async fn signed_call_zome(
+        &self,
+        signed_params: ZomeCallParamsSigned,
+    ) -> ConductorApiResult<ExternIO> {
+        let app_request = AppRequest::CallZome(Box::new(signed_params));
         let response = self.inner.send(app_request).await?;
 
         match response {
