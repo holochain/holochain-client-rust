@@ -21,6 +21,10 @@
               # needed to build Holochain on macos
               pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
             ]);
+
+            shellHook = ''
+              export PS1='\[\033[1;34m\][holonix:\w]\$\[\033[0m\] '
+            '';
           };
         };
     };
