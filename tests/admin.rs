@@ -11,7 +11,7 @@ use holochain_zome_types::prelude::ExternIO;
 use kitsune_p2p_types::fixt::AgentInfoSignedFixturator;
 use std::collections::BTreeSet;
 use std::net::Ipv4Addr;
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 
 const ROLE_NAME: &str = "foo";
 
