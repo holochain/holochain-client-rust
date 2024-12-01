@@ -1,3 +1,4 @@
+use holochain::prelude::{DnaModifiersOpt, RoleSettings, Timestamp, YamlProperties};
 use holochain::test_utils::itertools::Itertools;
 use holochain::{prelude::AppBundleSource, sweettest::SweetConductor};
 use holochain_client::{
