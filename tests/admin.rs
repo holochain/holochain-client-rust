@@ -1,3 +1,4 @@
+use holochain::prelude::{DnaModifiersOpt, RoleSettings, Timestamp, YamlProperties};
 use holochain::test_utils::itertools::Itertools;
 use holochain::{prelude::AppBundleSource, sweettest::SweetConductor};
 use holochain_client::{
@@ -45,9 +46,8 @@ async fn signed_zome_call() {
         .install_app(InstallAppPayload {
             agent_key: None,
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -122,9 +122,8 @@ async fn storage_info() {
         .install_app(InstallAppPayload {
             agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -158,9 +157,8 @@ async fn dump_network_stats() {
         .install_app(InstallAppPayload {
             agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -187,9 +185,8 @@ async fn get_compatible_cells() {
         .install_app(InstallAppPayload {
             agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -232,9 +229,8 @@ async fn revoke_agent_key() {
         .install_app(InstallAppPayload {
             agent_key: None,
             installed_app_id: None,
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -277,8 +273,7 @@ async fn agent_info() {
         .install_app(InstallAppPayload {
             agent_key: Some(agent_key.clone()),
             installed_app_id: Some(app_id.clone()),
-            existing_cells: HashMap::new(),
-            membrane_proofs: Some(HashMap::new()),
+            roles_settings: None,
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
@@ -289,8 +284,8 @@ async fn agent_info() {
     admin_ws.enable_app(app_id.clone()).await.unwrap();
 
     let agent_infos = admin_ws.agent_info(None).await.unwrap();
-    // 2 agent infos expected, 1 app agent and 1 DPKI agent.
-    assert_eq!(agent_infos.len(), 2);
+
+    assert_eq!(agent_infos.len(), 1);
 
     let other_agent = fixt::fixt!(AgentInfoSigned);
     admin_ws
@@ -299,7 +294,7 @@ async fn agent_info() {
         .unwrap();
 
     let agent_infos = admin_ws.agent_info(None).await.unwrap();
-    assert_eq!(agent_infos.len(), 3);
+    assert_eq!(agent_infos.len(), 2);
     assert!(agent_infos.contains(&other_agent));
 }
 
@@ -316,8 +311,7 @@ async fn list_cell_ids() {
         .install_app(InstallAppPayload {
             agent_key: Some(agent_key),
             installed_app_id: Some(app_id.clone()),
-            existing_cells: HashMap::new(),
-            membrane_proofs: Some(HashMap::new()),
+            roles_settings: None,
             network_seed: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
@@ -337,4 +331,77 @@ async fn list_cell_ids() {
     // Check if list includes cell id. Not checking for equality to a vector of just the one cell id,
     // because the DPKI cell is included too.
     assert!(cell_ids.contains(&cell_id));
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn install_app_with_roles_settings() {
+    let conductor = SweetConductor::from_standard_config().await;
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+        .await
+        .unwrap();
+    let app_id: InstalledAppId = "test-app".into();
+    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
+
+    let custom_network_seed = String::from("modified seed");
+    let custom_properties = YamlProperties::new(serde_yaml::Value::String(String::from(
+        "some properties provided at install time",
+    )));
+    let custom_origin_time = Timestamp::now();
+    let custom_quantum_time = std::time::Duration::from_secs(5 * 60);
+
+    let custom_modifiers = DnaModifiersOpt::default()
+        .with_network_seed(custom_network_seed.clone())
+        .with_origin_time(custom_origin_time)
+        .with_quantum_time(custom_quantum_time)
+        .with_properties(custom_properties.clone());
+
+    let role_settings = (
+        String::from("foo"),
+        RoleSettings::Provisioned {
+            membrane_proof: Default::default(),
+            modifiers: Some(custom_modifiers),
+        },
+    );
+
+    admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: Some(agent_key.clone()),
+            installed_app_id: Some(app_id.clone()),
+            roles_settings: Some(HashMap::from([role_settings])),
+            network_seed: None,
+            source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
+        })
+        .await
+        .unwrap();
+    admin_ws.enable_app(app_id.clone()).await.unwrap();
+
+    let app_info = admin_ws
+        .list_apps(None)
+        .await
+        .unwrap()
+        .first()
+        .unwrap()
+        .clone();
+
+    let manifest = app_info.manifest;
+
+    let app_role = manifest
+        .app_roles()
+        .into_iter()
+        .find(|r| r.name == "foo")
+        .unwrap();
+
+    assert_eq!(
+        app_role.dna.modifiers.network_seed,
+        Some(custom_network_seed)
+    );
+    assert_eq!(app_role.dna.modifiers.origin_time, Some(custom_origin_time));
+    assert_eq!(
+        app_role.dna.modifiers.quantum_time,
+        Some(custom_quantum_time)
+    );
+    assert_eq!(app_role.dna.modifiers.properties, Some(custom_properties));
 }

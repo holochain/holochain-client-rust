@@ -1,5 +1,5 @@
 use std::net::Ipv4Addr;
-use std::{collections::HashMap, path::PathBuf};
+use std::path::PathBuf;
 
 use holochain::{
     prelude::{DeleteCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload},
@@ -32,9 +32,8 @@ async fn clone_cell_management() {
         .install_app(InstallAppPayload {
             agent_key: None,
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
@@ -185,9 +184,8 @@ pub async fn app_info_refresh() {
         .install_app(InstallAppPayload {
             agent_key: None,
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: None,
             network_seed: None,
-            existing_cells: HashMap::new(),
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,

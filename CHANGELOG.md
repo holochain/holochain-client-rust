@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
+- Update to Holochain 0.4.0-rc.1 with the new `roles_settings` field in the `InstallAppPayload`.
 ### Fixed
 ### Removed
 
