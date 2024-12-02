@@ -2614,6 +2614,7 @@ dependencies = [
  "parking_lot 0.12.3",
  "rand 0.8.5",
  "serde",
+ "serde_yaml",
  "tokio",
 ]
 

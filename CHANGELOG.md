@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
+- Update to Holochain 0.5.0-dev.7
+- Updates to new zome call signing logic
+- Uses the new `roles_settings` field in the `InstallAppPayload`.
 ### Fixed
 ### Removed
 
