@@ -6,9 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
-- Update to Holochain 0.4.0-rc.1 with the new `roles_settings` field in the `InstallAppPayload`.
 ### Fixed
 ### Removed
+
+## 2024-12-04: v0.6.0-rc.1
+### Changed
+- Update to Holochain 0.4.0-rc.2 with the new `roles_settings` field in the `InstallAppPayload`.
 
 ## 2024-10-09: v0.6.0-rc.0
 ### Changed
@@ -66,7 +69,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   state, but it no longer does that so we can drop the requirement for the clients to be mutable.
 
 ### Fixed
-- Dropping admin or app connections will now close the connection. 
+- Dropping admin or app connections will now close the connection.
 
 ## 2024-04-24: v0.5.0-dev.32
 ### Added
