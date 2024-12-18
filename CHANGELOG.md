@@ -9,6 +9,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2024-12-18: v0.6.0
+### Changed
+- Update to Holochain 0.4.0
+
 ## 2024-12-04: v0.6.0-rc.1
 ### Changed
 - Update to Holochain 0.4.0-rc.2 with the new `roles_settings` field in the `InstallAppPayload`.
