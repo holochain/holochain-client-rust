@@ -40,8 +40,7 @@ impl AppWebsocketInner {
                 while let Ok(msg) = rx.recv::<AppResponse>().await {
                     if let holochain_websocket::ReceiveMessage::Signal(signal_bytes) = msg {
                         let mut event_emitter = mutex.lock().await;
-                        let signal = Signal::try_from_vec(signal_bytes).expect("Malformed signal");
-                        event_emitter.emit("signal", signal);
+                        event_emitter.emit("signal", signal_bytes);
                     }
                 }
             }
@@ -59,7 +58,11 @@ impl AppWebsocketInner {
         handler: F,
     ) -> String {
         let mut event_emitter = self.event_emitter.lock().await;
-        event_emitter.on("signal", handler)
+        event_emitter.on("signal", move |signal_bytes| {
+            let signal: Signal =
+                Signal::try_from_vec(signal_bytes).expect("Failed to deserialize signal");
+            handler(signal);
+        })
     }
 
     pub(crate) async fn app_info(&self) -> ConductorApiResult<Option<AppInfo>> {
