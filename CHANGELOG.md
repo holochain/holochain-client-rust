@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## 2025-02-27: v0.6.1
 ### Added
-- Most of the missing admin calls.
+Calls for several missing AdminWebsocket requests: `revoke_app_authentication_token`, `list_dnas`, `dump_state`, `dump_conductor_state`, `dump_full_state`, and `dump_network_metrics`.
 ### Changed
 - Update to Holochain 0.4.1.
 - Make the `ConductorApiError` type implement error, for easier integration with other libraries.
