@@ -1,6 +1,6 @@
 [package]
 name = "holochain_client"
-version = "0.6.0"
+version = "0.6.1"
 description = "A Rust client for the Holochain Conductor API"
 authors = [
     "Guillem Cordoba <guillem.cordoba@gmail.com>",
