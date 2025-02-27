@@ -9,6 +9,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2025-02-27: v0.6.1
+### Added
+Calls for several missing AdminWebsocket requests: `revoke_app_authentication_token`, `list_dnas`, `dump_state`, `dump_conductor_state`, `dump_full_state`, and `dump_network_metrics`.
+### Changed
+- Update to Holochain 0.4.1.
+- Make the `ConductorApiError` type implement error, for easier integration with other libraries.
+- Several functions that used to return `anyhow::Result` now return a `ConductorApiResult`.
+- The `on_signal` method of the `AppWebsocket` no longer returns an error, it cannot fail.
+### Fixed
+- The `AdminWebsocket` was not clone, which prevented using it across threads or async tasks.
+
 ## 2024-12-18: v0.6.0
 ### Changed
 - Update to Holochain 0.4.0

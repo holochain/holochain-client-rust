@@ -1,5 +1,5 @@
 use crate::error::{ConductorApiError, ConductorApiResult};
-use anyhow::Result;
+use crate::util::AbortOnDropHandle;
 use event_emitter_rs::EventEmitter;
 use holochain_conductor_api::{
     AppAuthenticationRequest, AppAuthenticationToken, AppInfo, AppRequest, AppResponse,
@@ -8,9 +8,6 @@ use holochain_types::signal::Signal;
 use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
 use std::{net::ToSocketAddrs, sync::Arc};
 use tokio::sync::Mutex;
-use tokio::task::AbortHandle;
-
-struct AbortOnDropHandle(AbortHandle);
 
 /// The core functionality for an app websocket.
 #[derive(Clone)]
@@ -22,7 +19,7 @@ pub(crate) struct AppWebsocketInner {
 
 impl AppWebsocketInner {
     /// Connect to a Conductor API AppWebsocket.
-    pub(crate) async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
+    pub(crate) async fn connect(socket_addr: impl ToSocketAddrs) -> ConductorApiResult<Self> {
         let addr = socket_addr
             .to_socket_addrs()?
             .next()
@@ -43,8 +40,7 @@ impl AppWebsocketInner {
                 while let Ok(msg) = rx.recv::<AppResponse>().await {
                     if let holochain_websocket::ReceiveMessage::Signal(signal_bytes) = msg {
                         let mut event_emitter = mutex.lock().await;
-                        let signal = Signal::try_from_vec(signal_bytes).expect("Malformed signal");
-                        event_emitter.emit("signal", signal);
+                        event_emitter.emit("signal", signal_bytes);
                     }
                 }
             }
@@ -53,17 +49,20 @@ impl AppWebsocketInner {
         Ok(Self {
             tx,
             event_emitter: mutex,
-            _abort_handle: Arc::new(AbortOnDropHandle(poll_handle.abort_handle())),
+            _abort_handle: Arc::new(AbortOnDropHandle::new(poll_handle.abort_handle())),
         })
     }
 
     pub(crate) async fn on_signal<F: Fn(Signal) + 'static + Sync + Send>(
         &self,
         handler: F,
-    ) -> Result<String> {
+    ) -> String {
         let mut event_emitter = self.event_emitter.lock().await;
-        let id = event_emitter.on("signal", handler);
-        Ok(id)
+        event_emitter.on("signal", move |signal_bytes| {
+            let signal: Signal =
+                Signal::try_from_vec(signal_bytes).expect("Failed to deserialize signal");
+            handler(signal);
+        })
     }
 
     pub(crate) async fn app_info(&self) -> ConductorApiResult<Option<AppInfo>> {
@@ -95,11 +94,5 @@ impl AppWebsocketInner {
             AppResponse::Error(error) => Err(ConductorApiError::ExternalApiWireError(error)),
             _ => Ok(response),
         }
-    }
-}
-
-impl Drop for AbortOnDropHandle {
-    fn drop(&mut self) {
-        self.0.abort();
     }
 }

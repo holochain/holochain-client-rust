@@ -67,7 +67,7 @@ async fn network_info() {
     .unwrap();
 
     let dna_hash = match &app_info.cell_info.get("foo").unwrap()[0] {
-        holochain_conductor_api::CellInfo::Provisioned(cell) => cell.cell_id.dna_hash().to_owned(),
+        CellInfo::Provisioned(cell) => cell.cell_id.dna_hash().to_owned(),
         _ => panic!("wrong cell type"),
     };
     let network_info = app_ws
@@ -174,8 +174,7 @@ async fn handle_signal() {
             }
             _ => panic!("Invalid signal"),
         })
-        .await
-        .unwrap();
+        .await;
 
     app_ws
         .call_zome(
