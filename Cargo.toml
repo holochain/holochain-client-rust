@@ -29,6 +29,7 @@ event-emitter-rs = "0.1"
 rand = { version = "0.8" }
 async-trait = "0.1"
 parking_lot = "0.12.1"
+thiserror = "2.0"
 
 holo_hash = { version = "0.4.0", features = ["encoding"] }
 holochain_conductor_api = "0.4.0"

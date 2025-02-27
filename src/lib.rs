@@ -3,6 +3,7 @@ mod app_websocket;
 mod app_websocket_inner;
 mod error;
 mod signing;
+mod util;
 
 pub use admin_websocket::{AdminWebsocket, AuthorizeSigningCredentialsPayload, EnableAppResponse};
 pub use app_websocket::{AppWebsocket, ZomeCallTarget};

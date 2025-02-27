@@ -1,10 +1,10 @@
 use crate::error::{ConductorApiError, ConductorApiResult};
-use anyhow::Result;
+use crate::util::AbortOnDropHandle;
 use holo_hash::DnaHash;
 use holochain_conductor_api::{
-    AdminRequest, AdminResponse, AppAuthenticationTokenIssued, AppInfo, AppInterfaceInfo,
-    AppStatusFilter, CompatibleCells, IssueAppAuthenticationTokenPayload, RevokeAgentKeyPayload,
-    StorageInfo,
+    AdminRequest, AdminResponse, AppAuthenticationToken, AppAuthenticationTokenIssued, AppInfo,
+    AppInterfaceInfo, AppStatusFilter, CompatibleCells, FullStateDump,
+    IssueAppAuthenticationTokenPayload, RevokeAgentKeyPayload, StorageInfo,
 };
 use holochain_types::websocket::AllowedOrigins;
 use holochain_types::{
@@ -19,11 +19,11 @@ use holochain_zome_types::{
 use kitsune_p2p_types::agent_info::AgentInfoSigned;
 use serde::{Deserialize, Serialize};
 use std::{net::ToSocketAddrs, sync::Arc};
-use tokio::task::JoinHandle;
 
+#[derive(Clone)]
 pub struct AdminWebsocket {
     tx: WebsocketSender,
-    poll_handle: JoinHandle<()>,
+    _poll_handle: Arc<AbortOnDropHandle>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -57,7 +57,7 @@ impl AdminWebsocket {
     ///
     /// As string `"localhost:30000"`
     /// As tuple `([127.0.0.1], 30000)`
-    pub async fn connect(socket_addr: impl ToSocketAddrs) -> Result<Self> {
+    pub async fn connect(socket_addr: impl ToSocketAddrs) -> ConductorApiResult<Self> {
         Self::connect_with_config(socket_addr, Arc::new(WebsocketConfig::CLIENT_DEFAULT)).await
     }
 
@@ -65,7 +65,7 @@ impl AdminWebsocket {
     pub async fn connect_with_config(
         socket_addr: impl ToSocketAddrs,
         websocket_config: Arc<WebsocketConfig>,
-    ) -> Result<Self> {
+    ) -> ConductorApiResult<Self> {
         let addr = socket_addr
             .to_socket_addrs()?
             .next()
@@ -78,7 +78,10 @@ impl AdminWebsocket {
         let poll_handle =
             tokio::task::spawn(async move { while rx.recv::<AdminResponse>().await.is_ok() {} });
 
-        Ok(Self { tx, poll_handle })
+        Ok(Self {
+            tx,
+            _poll_handle: Arc::new(AbortOnDropHandle::new(poll_handle.abort_handle())),
+        })
     }
 
     /// Issue an app authentication token for the specified app.
@@ -93,6 +96,19 @@ impl AdminWebsocket {
             .await?;
         match response {
             AdminResponse::AppAuthenticationTokenIssued(issued) => Ok(issued),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn revoke_app_authentication_token(
+        &self,
+        token: AppAuthenticationToken,
+    ) -> ConductorApiResult<()> {
+        let response = self
+            .send(AdminRequest::RevokeAppAuthenticationToken(token))
+            .await?;
+        match response {
+            AdminResponse::AppAuthenticationTokenRevoked => Ok(()),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
@@ -206,6 +222,14 @@ impl AdminWebsocket {
         }
     }
 
+    pub async fn list_dnas(&self) -> ConductorApiResult<Vec<DnaHash>> {
+        let response = self.send(AdminRequest::ListDnas).await?;
+        match response {
+            AdminResponse::DnasListed(dnas) => Ok(dnas),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
     pub async fn enable_app(
         &self,
         installed_app_id: String,
@@ -301,6 +325,54 @@ impl AdminWebsocket {
         }
     }
 
+    pub async fn dump_state(&self, cell_id: CellId) -> ConductorApiResult<String> {
+        let msg = AdminRequest::DumpState {
+            cell_id: Box::new(cell_id),
+        };
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::StateDumped(state) => Ok(state),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn dump_conductor_state(&self) -> ConductorApiResult<String> {
+        let msg = AdminRequest::DumpConductorState;
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::ConductorStateDumped(state) => Ok(state),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn dump_full_state(
+        &self,
+        cell_id: CellId,
+        dht_ops_cursor: Option<u64>,
+    ) -> ConductorApiResult<FullStateDump> {
+        let msg = AdminRequest::DumpFullState {
+            cell_id: Box::new(cell_id),
+            dht_ops_cursor,
+        };
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::FullStateDumped(state) => Ok(state),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn dump_network_metrics(
+        &self,
+        dna_hash: Option<DnaHash>,
+    ) -> ConductorApiResult<String> {
+        let msg = AdminRequest::DumpNetworkMetrics { dna_hash };
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::NetworkMetricsDumped(metrics) => Ok(metrics),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
     pub async fn update_coordinators(
         &self,
         update_coordinators_payload: UpdateCoordinatorsPayload,
@@ -358,7 +430,7 @@ impl AdminWebsocket {
     pub async fn authorize_signing_credentials(
         &self,
         request: AuthorizeSigningCredentialsPayload,
-    ) -> Result<crate::signing::client_signing::SigningCredentials> {
+    ) -> ConductorApiResult<crate::signing::client_signing::SigningCredentials> {
         use holochain_zome_types::capability::{ZomeCallCapGrant, CAP_SECRET_BYTES};
         use rand::{rngs::OsRng, RngCore};
         use std::collections::BTreeSet;
@@ -382,8 +454,7 @@ impl AdminWebsocket {
                 functions: request.functions.unwrap_or(GrantedFunctions::All),
             },
         })
-        .await
-        .map_err(|e| anyhow::anyhow!("Conductor API error: {:?}", e))?;
+        .await?;
 
         Ok(crate::signing::client_signing::SigningCredentials {
             signing_agent_key,
@@ -402,11 +473,5 @@ impl AdminWebsocket {
             AdminResponse::Error(error) => Err(ConductorApiError::ExternalApiWireError(error)),
             _ => Ok(response),
         }
-    }
-}
-
-impl Drop for AdminWebsocket {
-    fn drop(&mut self) {
-        self.poll_handle.abort();
     }
 }
