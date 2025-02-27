@@ -45,7 +45,7 @@ impl AppWebsocket {
     /// let mut admin_ws = holochain_client::AdminWebsocket::connect((Ipv4Addr::LOCALHOST, 30_000)).await?;
     ///
     /// let app_id = "test-app".to_string();
-    /// let issued = admin_ws.issue_app_auth_token(app_id.clone().into()).await.unwrap();
+    /// let issued = admin_ws.issue_app_auth_token(app_id.clone().into()).await?;
     /// let signer = holochain_client::ClientAgentSigner::default();
     /// let app_ws = holochain_client::AppWebsocket::connect((Ipv4Addr::LOCALHOST, 30_001), issued.token, signer.into()).await?;
     /// # Ok(())
@@ -80,10 +80,7 @@ impl AppWebsocket {
         })
     }
 
-    pub async fn on_signal<F: Fn(Signal) + 'static + Sync + Send>(
-        &self,
-        handler: F,
-    ) -> Result<String> {
+    pub async fn on_signal<F: Fn(Signal) + 'static + Sync + Send>(&self, handler: F) -> String {
         let app_info = self.app_info.clone();
         self.inner
             .on_signal(move |signal| match signal.clone() {
