@@ -18,7 +18,7 @@ resolver = "2"
 members = ["fixture/zomes/foo"]
 
 [workspace.dependencies]
-holochain_zome_types = "0.4.0"
+holochain_zome_types = "0.4.2"
 
 [dependencies]
 anyhow = "1.0"
@@ -30,23 +30,23 @@ async-trait = "0.1"
 parking_lot = "0.12.1"
 thiserror = "2.0"
 
-holo_hash = { version = "0.4.0", features = ["encoding"] }
-holochain_conductor_api = "0.4.0"
-holochain_websocket = "0.4.0"
+holo_hash = { version = "0.4.2", features = ["encoding"] }
+holochain_conductor_api = "0.4.2"
+holochain_websocket = "0.4.2"
 holochain_serialized_bytes = "0.0.55"
-holochain_types = "0.4.0"
-holochain_nonce = "0.4.0"
+holochain_types = "0.4.2"
+holochain_nonce = "0.4.2"
 holochain_zome_types = { workspace = true }
 
 lair_keystore_api = { version = "0.5.3", optional = true }
-kitsune_p2p_types = "0.4.0"
+kitsune_p2p_types = "0.4.2"
 
 tokio = { version = "1.36", features = ["rt"] }
 
 [dev-dependencies]
 arbitrary = "1.2"
-fixt = "0.4.0"
-holochain = { version = "0.4.0", features = ["test_utils"] }
+fixt = "0.4.2"
+holochain = { version = "0.4.2", features = ["test_utils"] }
 rand = "0.8"
 serde_yaml = "0.9"
 
