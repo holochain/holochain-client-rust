@@ -16,6 +16,8 @@ pub(crate) mod client_signing;
 #[cfg(feature = "lair_signing")]
 pub(crate) mod lair_signing;
 
+pub type DynAgentSigner = Arc<dyn AgentSigner + Send + Sync>;
+
 #[async_trait]
 pub trait AgentSigner {
     /// Sign the given data with the public key found in the agent id of the provenance.
@@ -35,7 +37,7 @@ pub trait AgentSigner {
 /// Signs an unsigned zome call using the provided signing implementation
 pub(crate) async fn sign_zome_call(
     params: ZomeCallParams,
-    signer: Arc<dyn AgentSigner + Send + Sync>,
+    signer: DynAgentSigner,
 ) -> Result<ZomeCallParamsSigned> {
     let pub_key = params.provenance.clone();
     let (bytes, bytes_hash) = params.serialize_and_hash()?;

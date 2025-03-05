@@ -5,7 +5,7 @@ use holochain_conductor_api::{
     AppAuthenticationRequest, AppAuthenticationToken, AppInfo, AppRequest, AppResponse,
 };
 use holochain_types::signal::Signal;
-use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
+use holochain_websocket::{connect, ConnectRequest, WebsocketConfig, WebsocketSender};
 use std::{net::ToSocketAddrs, sync::Arc};
 use tokio::sync::Mutex;
 
@@ -18,18 +18,43 @@ pub(crate) struct AppWebsocketInner {
 }
 
 impl AppWebsocketInner {
-    /// Connect to a Conductor API AppWebsocket.
+    /// Connect to a Conductor API app websocket.
     pub(crate) async fn connect(socket_addr: impl ToSocketAddrs) -> ConductorApiResult<Self> {
-        let addr = socket_addr
-            .to_socket_addrs()?
-            .next()
-            .expect("invalid websocket address");
         let websocket_config = Arc::new(WebsocketConfig::CLIENT_DEFAULT);
-        let (tx, mut rx) = again::retry(|| {
-            let websocket_config = Arc::clone(&websocket_config);
-            connect(websocket_config, addr)
-        })
-        .await?;
+
+        Self::connect_with_config(socket_addr, websocket_config).await
+    }
+
+    /// Connect to a Conductor API app websocket with a custom [WebsocketConfig].
+    pub async fn connect_with_config(
+        socket_addr: impl ToSocketAddrs,
+        websocket_config: Arc<WebsocketConfig>,
+    ) -> ConductorApiResult<Self> {
+        let mut last_err = None;
+        for addr in socket_addr.to_socket_addrs()? {
+            let request: ConnectRequest = addr.into();
+
+            match Self::connect_with_config_and_request(websocket_config.clone(), request).await {
+                Ok(admin_ws) => return Ok(admin_ws),
+                Err(e) => {
+                    last_err = Some(e);
+                }
+            }
+        }
+
+        Err(last_err.unwrap_or_else(|| {
+            ConductorApiError::WebsocketError(holochain_websocket::WebsocketError::Other(
+                "No addresses resolved".to_string(),
+            ))
+        }))
+    }
+
+    /// Connect to a Conductor API app websocket with a custom [WebsocketConfig] and [ConnectRequest].
+    pub async fn connect_with_config_and_request(
+        websocket_config: Arc<WebsocketConfig>,
+        request: ConnectRequest,
+    ) -> ConductorApiResult<Self> {
+        let (tx, mut rx) = connect(websocket_config, request).await?;
 
         let event_emitter = EventEmitter::new();
         let mutex = Arc::new(Mutex::new(event_emitter));
