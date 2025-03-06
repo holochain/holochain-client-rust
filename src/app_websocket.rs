@@ -232,6 +232,16 @@ impl AppWebsocket {
         self.inner.app_info().await
     }
 
+    /// Get the cached app info held by this websocket.
+    ///
+    /// In order to speed up internal operations, the app info is cached by the websocket after
+    /// connection and refreshed as required. You cannot control the cache lifetime, but you can
+    /// use the value and fallback to [AppWebsocket::app_info] if you need to ensure you have the
+    /// latest info.
+    pub async fn cached_app_info(&self) -> &AppInfo {
+        &self.app_info
+    }
+
     pub async fn call_zome(
         &self,
         target: ZomeCallTarget,
