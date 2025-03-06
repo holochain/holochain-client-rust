@@ -13,6 +13,8 @@ pub enum ConductorApiError {
     SignZomeCallError(String),
     #[error("Cell not found")]
     CellNotFound,
+    #[error("App not found")]
+    AppNotFound,
     #[error("IO error: {0}")]
     IoError(#[from] std::io::Error),
 }

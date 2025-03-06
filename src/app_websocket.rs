@@ -72,7 +72,7 @@ impl AppWebsocket {
         socket_addr: impl ToSocketAddrs,
         token: AppAuthenticationToken,
         signer: Arc<dyn AgentSigner + Send + Sync>,
-    ) -> Result<Self> {
+    ) -> ConductorApiResult<Self> {
         let app_ws = AppWebsocketInner::connect(socket_addr).await?;
         Self::post_connect(app_ws, token, signer).await
     }
@@ -111,7 +111,7 @@ impl AppWebsocket {
         websocket_config: Arc<WebsocketConfig>,
         token: AppAuthenticationToken,
         signer: Arc<dyn AgentSigner + Send + Sync>,
-    ) -> Result<Self> {
+    ) -> ConductorApiResult<Self> {
         let app_ws = AppWebsocketInner::connect_with_config(socket_addr, websocket_config).await?;
         Self::post_connect(app_ws, token, signer).await
     }
@@ -173,7 +173,7 @@ impl AppWebsocket {
         websocket_config: Arc<WebsocketConfig>,
         token: AppAuthenticationToken,
         signer: Arc<dyn AgentSigner + Send + Sync>,
-    ) -> Result<Self> {
+    ) -> ConductorApiResult<Self> {
         let app_ws =
             AppWebsocketInner::connect_with_config_and_request(websocket_config, request).await?;
         Self::post_connect(app_ws, token, signer).await
@@ -183,17 +183,13 @@ impl AppWebsocket {
         inner: AppWebsocketInner,
         token: AppAuthenticationToken,
         signer: Arc<dyn AgentSigner + Send + Sync>,
-    ) -> Result<Self> {
-        inner
-            .authenticate(token)
-            .await
-            .map_err(|err| anyhow!("Failed to send authentication: {err:?}"))?;
+    ) -> ConductorApiResult<Self> {
+        inner.authenticate(token).await?;
 
         let app_info = inner
             .app_info()
-            .await
-            .map_err(|err| anyhow!("Error fetching app_info {err:?}"))?
-            .ok_or(anyhow!("App doesn't exist"))?;
+            .await?
+            .ok_or(ConductorApiError::AppNotFound)?;
 
         Ok(AppWebsocket {
             my_pub_key: app_info.agent_pub_key.clone(),
