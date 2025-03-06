@@ -109,7 +109,7 @@ impl AdminWebsocket {
         }))
     }
 
-    /// Connect to a Conductor API admin websocket with a custom [ConnectRequest] and [AdminWebsocket].
+    /// Connect to a Conductor API admin websocket with a custom [ConnectRequest] and [WebsocketConfig].
     ///
     /// This is a low-level constructor that allows you to pass a custom [ConnectRequest] to the
     /// websocket connection. You should use this if you need to set custom connection headers.
