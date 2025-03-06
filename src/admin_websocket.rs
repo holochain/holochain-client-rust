@@ -77,7 +77,7 @@ impl AdminWebsocket {
     /// use std::time::Duration;
     /// use holochain_client::{AdminWebsocket, AllowedOrigins, WebsocketConfig};
     ///
-    /// // Create a client config from the default and sets a timeout that is lower than the default
+    /// // Create a client config from the default and set a timeout that is lower than the default
     /// let mut client_config = WebsocketConfig::CLIENT_DEFAULT;
     /// client_config.default_request_timeout = Duration::from_secs(10);
     ///
