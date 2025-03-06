@@ -10,7 +10,7 @@ use holochain_types::websocket::AllowedOrigins;
 use holochain_zome_types::prelude::ExternIO;
 use kitsune_p2p_types::fixt::AgentInfoSignedFixturator;
 use std::collections::BTreeSet;
-use std::net::Ipv4Addr;
+use std::net::{Ipv4Addr, SocketAddr};
 use std::{collections::HashMap, path::PathBuf};
 
 const ROLE_NAME: &str = "foo";
@@ -404,4 +404,25 @@ async fn install_app_with_roles_settings() {
         Some(custom_quantum_time)
     );
     assert_eq!(app_role.dna.modifiers.properties, Some(custom_properties));
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn connect_multiple_addresses() {
+    let conductor = SweetConductor::from_standard_config().await;
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+
+    let admin_ws = AdminWebsocket::connect(
+        &[
+            // Shouldn't be able to connect on this port
+            SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 5000),
+            // Should then move on and try this one
+            SocketAddr::new(Ipv4Addr::LOCALHOST.into(), admin_port),
+        ][..],
+    )
+    .await
+    .unwrap();
+
+    // Just to check we are connected and can get a response.
+    let apps = admin_ws.list_apps(None).await.unwrap();
+    assert!(apps.is_empty());
 }
