@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
+- Debug implementations for `AppWebsocket` and `AdminWebsocket`.
 - New `connect_with_request_and_config` to expose the raw websocket connection parameters. This allows for more control
   over the connection setup, such as setting custom headers.
 - The `connect_with_config` that already existed for the admin websocket now has an equivalent for the app websocket.

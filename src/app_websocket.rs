@@ -17,6 +17,7 @@ use holochain_zome_types::{
     clone::ClonedCell,
     prelude::{CellId, ExternIO, FunctionName, RoleName, Timestamp, ZomeCallUnsigned, ZomeName},
 };
+use std::fmt::Formatter;
 use std::net::ToSocketAddrs;
 use std::sync::Arc;
 
@@ -27,6 +28,16 @@ pub struct AppWebsocket {
     inner: AppWebsocketInner,
     app_info: AppInfo,
     signer: Arc<dyn AgentSigner + Send + Sync>,
+}
+
+impl std::fmt::Debug for AppWebsocket {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AppWebsocket")
+            .field("my_pub_key", &self.my_pub_key)
+            .field("inner", &self.inner)
+            .field("app_info", &self.app_info)
+            .finish()
+    }
 }
 
 impl AppWebsocket {

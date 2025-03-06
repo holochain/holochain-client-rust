@@ -6,6 +6,7 @@ use holochain_conductor_api::{
 };
 use holochain_types::signal::Signal;
 use holochain_websocket::{connect, ConnectRequest, WebsocketConfig, WebsocketSender};
+use std::fmt::Formatter;
 use std::{net::ToSocketAddrs, sync::Arc};
 use tokio::sync::Mutex;
 
@@ -15,6 +16,12 @@ pub(crate) struct AppWebsocketInner {
     tx: WebsocketSender,
     event_emitter: Arc<Mutex<EventEmitter>>,
     _abort_handle: Arc<AbortOnDropHandle>,
+}
+
+impl std::fmt::Debug for AppWebsocketInner {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AppWebsocketInner").finish()
+    }
 }
 
 impl AppWebsocketInner {
