@@ -35,7 +35,7 @@ impl AppWebsocketInner {
             let request: ConnectRequest = addr.into();
 
             match Self::connect_with_config_and_request(websocket_config.clone(), request).await {
-                Ok(admin_ws) => return Ok(admin_ws),
+                Ok(app_ws) => return Ok(app_ws),
                 Err(e) => {
                     last_err = Some(e);
                 }
