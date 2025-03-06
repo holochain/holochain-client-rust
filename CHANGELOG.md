@@ -5,9 +5,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
+- New `connect_with_request_and_config` to expose the raw websocket connection parameters. This allows for more control
+  over the connection setup, such as setting custom headers.
+- The `connect_with_config` that already existed for the admin websocket now has an equivalent for the app websocket.
+  This is useful if you want to change the timeout or other parameters of the websocket connection.
+- A typedef `DynAgentSigner` for `Arc<dyn AgentSigner + Send + Sync>` which makes the type more convenient to use.
+- Exported more common types so that uses are less likely to need to import other libraries, these are `AllowedOrigins`
+  and `ConnectRequest`. 
 ### Changed
+- It was possible to pass multiple socket addresses to the `connect` method of the `AppWebsocket` and `AdminWebsocket`.
+  This allows you to try multiple addresses and connect to the first one that works. This wasn't working because the 
+  client was just taking the first valid address and retrying connecting to that. Now the client will try each valid 
+  address, once, in turn.
 ### Fixed
 ### Removed
+- Remove `again::retry` from client connect calls. It was preventing the client from trying all available addresses. 
+  If you need retry logic, please implement it in your application
 
 ## 2025-02-27: v0.7.0-dev.2
 ### Added

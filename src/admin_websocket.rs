@@ -11,7 +11,7 @@ use holochain_types::{
     dna::AgentPubKey,
     prelude::{CellId, DeleteCloneCellPayload, InstallAppPayload, UpdateCoordinatorsPayload},
 };
-use holochain_websocket::{connect, WebsocketConfig, WebsocketSender};
+use holochain_websocket::{connect, ConnectRequest, WebsocketConfig, WebsocketSender};
 use holochain_zome_types::{
     capability::GrantedFunctions,
     prelude::{DnaDef, GrantZomeCallCapabilityPayload, Record},
@@ -20,6 +20,7 @@ use kitsune_p2p_types::agent_info::AgentInfoSigned;
 use serde::{Deserialize, Serialize};
 use std::{net::ToSocketAddrs, sync::Arc};
 
+/// A websocket connection to the Holochain Conductor admin interface.
 #[derive(Clone)]
 pub struct AdminWebsocket {
     tx: WebsocketSender,
@@ -39,39 +40,122 @@ pub struct AuthorizeSigningCredentialsPayload {
 }
 
 impl AdminWebsocket {
-    /// Connect to a Conductor API AdminWebsocket.
+    /// Connect to a Conductor API admin websocket.
     ///
-    /// `socket_addr` is a websocket address that implements `ToSocketAddr`.
-    /// See trait [`ToSocketAddr`](https://doc.rust-lang.org/std/net/trait.ToSocketAddrs.html#tymethod.to_socket_addrs).
+    /// `socket_addr` is a websocket address that implements [ToSocketAddr](https://doc.rust-lang.org/std/net/trait.ToSocketAddrs.html#tymethod.to_socket_addrs).
     ///
     /// # Examples
     ///
     /// ```rust,no_run
     /// # #[tokio::main]
-    /// # async fn main() -> anyhow::Result<()> {
+    /// # async fn main() {
     /// use std::net::Ipv4Addr;
-    /// let admin_ws = holochain_client::AdminWebsocket::connect((Ipv4Addr::LOCALHOST, 30_000)).await?;
-    /// # Ok(())
+    /// use holochain_client::AdminWebsocket;
+    ///
+    /// let admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, 30_000)).await.unwrap();
     /// # }
     /// ```
     ///
-    /// As string `"localhost:30000"`
-    /// As tuple `([127.0.0.1], 30000)`
+    /// As string: `"localhost:30000"`
+    ///
+    /// As tuple: `([127.0.0.1], 30000)`
     pub async fn connect(socket_addr: impl ToSocketAddrs) -> ConductorApiResult<Self> {
         Self::connect_with_config(socket_addr, Arc::new(WebsocketConfig::CLIENT_DEFAULT)).await
     }
 
-    /// Connect to a Conductor API AdminWebsocket with a custom WebsocketConfig.
+    /// Connect to a Conductor API admin websocket with a custom [WebsocketConfig].
+    ///
+    /// You need to use this constructor if you want to set a lower timeout than the default.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// # #[tokio::main]
+    /// # async fn main() {
+    /// use std::net::Ipv4Addr;
+    /// use std::sync::Arc;
+    /// use std::time::Duration;
+    /// use holochain_client::{AdminWebsocket, AllowedOrigins, WebsocketConfig};
+    ///
+    /// // Create a client config from the default and set a timeout that is lower than the default
+    /// let mut client_config = WebsocketConfig::CLIENT_DEFAULT;
+    /// client_config.default_request_timeout = Duration::from_secs(10);
+    ///
+    /// let client_config = Arc::new(client_config);
+    ///
+    /// let admin_ws = AdminWebsocket::connect_with_config((Ipv4Addr::LOCALHOST, 30_000), client_config).await.unwrap();
+    /// # }
+    /// ```
     pub async fn connect_with_config(
         socket_addr: impl ToSocketAddrs,
         websocket_config: Arc<WebsocketConfig>,
     ) -> ConductorApiResult<Self> {
-        let addr = socket_addr
-            .to_socket_addrs()?
-            .next()
-            .expect("invalid websocket address");
+        let mut last_err = None;
+        for addr in socket_addr.to_socket_addrs()? {
+            let request: ConnectRequest = addr.into();
 
-        let (tx, mut rx) = again::retry(|| connect(websocket_config.clone(), addr)).await?;
+            match Self::connect_with_request_and_config(request, websocket_config.clone()).await {
+                Ok(admin_ws) => return Ok(admin_ws),
+                Err(e) => {
+                    last_err = Some(e);
+                }
+            }
+        }
+
+        Err(last_err.unwrap_or_else(|| {
+            ConductorApiError::WebsocketError(holochain_websocket::WebsocketError::Other(
+                "No addresses resolved".to_string(),
+            ))
+        }))
+    }
+
+    /// Connect to a Conductor API admin websocket with a custom [ConnectRequest] and [WebsocketConfig].
+    ///
+    /// This is a low-level constructor that allows you to pass a custom [ConnectRequest] to the
+    /// websocket connection. You should use this if you need to set custom connection headers.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,no_run
+    /// # #[tokio::main]
+    /// # async fn main() {
+    /// use std::net::{Ipv4Addr, Ipv6Addr, SocketAddr};
+    /// use std::sync::Arc;
+    /// use std::time::Duration;
+    /// use holochain_client::{AdminWebsocket, AllowedOrigins, WebsocketConfig, ConnectRequest};
+    ///
+    /// // Use the default client config
+    /// let mut client_config = Arc::new(WebsocketConfig::CLIENT_DEFAULT);
+    ///
+    /// // Attempt to connect to Holochain on one of these interfaces on port 30,000
+    /// let connect_to = vec![
+    ///     SocketAddr::new(Ipv6Addr::LOCALHOST.into(), 30_000),
+    ///     SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 30_000),
+    /// ];
+    /// for addr in connect_to {
+    ///     // Send a request with a custom origin header to identify the client
+    ///     let mut request: ConnectRequest = addr.into();
+    ///     let request = request
+    ///         .try_set_header("Origin", "my_cli_app")
+    ///         .unwrap();
+    ///
+    ///     match AdminWebsocket::connect_with_request_and_config(request, client_config.clone()).await {
+    ///         Ok(admin_ws) => {
+    ///             println!("Connected to {:?}", addr);
+    ///             break;
+    ///         }
+    ///         Err(e) => {
+    ///             eprintln!("Failed to connect to {:?}: {}", addr, e);
+    ///         }
+    ///     }
+    /// }
+    /// # }
+    /// ```
+    pub async fn connect_with_request_and_config(
+        request: ConnectRequest,
+        websocket_config: Arc<WebsocketConfig>,
+    ) -> ConductorApiResult<Self> {
+        let (tx, mut rx) = connect(websocket_config.clone(), request).await?;
 
         // WebsocketReceiver needs to be polled in order to receive responses
         // from remote to sender requests.
@@ -86,7 +170,7 @@ impl AdminWebsocket {
 
     /// Issue an app authentication token for the specified app.
     ///
-    /// A token is required to create an [AppAgentWebsocket] connection.
+    /// A token is required to create an [AppWebsocket](crate::AppWebsocket) connection.
     pub async fn issue_app_auth_token(
         &self,
         payload: IssueAppAuthenticationTokenPayload,
