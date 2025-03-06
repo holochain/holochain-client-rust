@@ -18,6 +18,7 @@ use holochain_zome_types::{
 };
 use kitsune_p2p_types::agent_info::AgentInfoSigned;
 use serde::{Deserialize, Serialize};
+use std::fmt::Formatter;
 use std::{net::ToSocketAddrs, sync::Arc};
 
 /// A websocket connection to the Holochain Conductor admin interface.
@@ -25,6 +26,12 @@ use std::{net::ToSocketAddrs, sync::Arc};
 pub struct AdminWebsocket {
     tx: WebsocketSender,
     _poll_handle: Arc<AbortOnDropHandle>,
+}
+
+impl std::fmt::Debug for AdminWebsocket {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("AdminWebsocket").finish()
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
