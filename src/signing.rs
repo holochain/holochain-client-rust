@@ -40,7 +40,6 @@ pub(crate) async fn sign_zome_call(
     let data_to_sign = zome_call_unsigned.data_to_sign().map_err(|e| {
         anyhow::anyhow!("Failed to get data to sign from unsigned zome call: {}", e)
     })?;
-
     let signature = signer
         .sign(&zome_call_unsigned.cell_id, pub_key, data_to_sign)
         .await?;

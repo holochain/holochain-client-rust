@@ -16,8 +16,9 @@ pub use holochain_conductor_api::{
 pub use holochain_types::{
     app::{InstallAppPayload, InstalledAppId},
     dna::AgentPubKey,
+    websocket::AllowedOrigins,
 };
-pub use holochain_websocket::WebsocketConfig;
+pub use holochain_websocket::{ConnectRequest, WebsocketConfig};
 pub use signing::client_signing::{ClientAgentSigner, SigningCredentials};
 #[cfg(feature = "lair_signing")]
 pub use signing::lair_signing::LairAgentSigner;
