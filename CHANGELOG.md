@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
+### Changed
+### Fixed
+### Removed
+
+## 2025-02-27: v0.7.0-dev.3
+### Added
 - Re-export `CellInfo`, `ProvisionedCell`, `CellId`, `ClonedCell`, `ExternIO`, `GrantedFunctions`, `SerializedBytes`
   and `Timestamp` so that client users are less likely to need to import several Holochain libraries.
 - Expose cached `AppInfo` from the `AppWebsocket` with a new `cached_app_info` method.
@@ -23,7 +29,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   This allows you to try multiple addresses and connect to the first one that works. This wasn't working because the 
   client was just taking the first valid address and retrying connecting to that. Now the client will try each valid 
   address, once, in turn.
-### Fixed
 ### Removed
 - Remove `again::retry` from client connect calls. It was preventing the client from trying all available addresses. 
   If you need retry logic, please implement it in your application
