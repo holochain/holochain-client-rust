@@ -1,4 +1,4 @@
-use super::{AgentSigner, DynAgentSigner};
+use super::AgentSigner;
 use async_trait::async_trait;
 use ed25519_dalek::Signer;
 use holo_hash::AgentPubKey;
@@ -69,7 +69,7 @@ impl AgentSigner for ClientAgentSigner {
 }
 
 /// Convert the ClientAgentSigner into an `Arc<Box<dyn AgentSigner + Send + Sync>>`
-impl From<ClientAgentSigner> for DynAgentSigner {
+impl From<ClientAgentSigner> for Arc<dyn AgentSigner + Send + Sync> {
     fn from(cas: ClientAgentSigner) -> Self {
         Arc::new(cas)
     }

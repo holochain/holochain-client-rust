@@ -1,6 +1,5 @@
 use crate::app_websocket_inner::AppWebsocketInner;
-use crate::signing::DynAgentSigner;
-use crate::{signing::sign_zome_call, ConductorApiError, ConductorApiResult};
+use crate::{signing::sign_zome_call, AgentSigner, ConductorApiError, ConductorApiResult};
 use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
 use holochain_conductor_api::{
@@ -27,7 +26,7 @@ pub struct AppWebsocket {
     pub my_pub_key: AgentPubKey,
     inner: AppWebsocketInner,
     app_info: AppInfo,
-    signer: DynAgentSigner,
+    signer: Arc<dyn AgentSigner + Send + Sync>,
 }
 
 impl AppWebsocket {
@@ -61,7 +60,7 @@ impl AppWebsocket {
     pub async fn connect(
         socket_addr: impl ToSocketAddrs,
         token: AppAuthenticationToken,
-        signer: DynAgentSigner,
+        signer: Arc<dyn AgentSigner + Send + Sync>,
     ) -> Result<Self> {
         let app_ws = AppWebsocketInner::connect(socket_addr).await?;
         Self::post_connect(app_ws, token, signer).await
@@ -100,7 +99,7 @@ impl AppWebsocket {
         socket_addr: impl ToSocketAddrs,
         websocket_config: Arc<WebsocketConfig>,
         token: AppAuthenticationToken,
-        signer: DynAgentSigner,
+        signer: Arc<dyn AgentSigner + Send + Sync>,
     ) -> Result<Self> {
         let app_ws = AppWebsocketInner::connect_with_config(socket_addr, websocket_config).await?;
         Self::post_connect(app_ws, token, signer).await
@@ -121,7 +120,7 @@ impl AppWebsocket {
     /// use std::time::Duration;
     /// use holochain_client::{
     ///     AdminWebsocket, AppWebsocket, AllowedOrigins, WebsocketConfig,
-    ///     ConnectRequest, ClientAgentSigner, AgentSigner, DynAgentSigner
+    ///     ConnectRequest, ClientAgentSigner, AgentSigner
     /// };
     ///
     /// let mut admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, 30_000)).await.unwrap();
@@ -132,7 +131,7 @@ impl AppWebsocket {
     /// // Use the default client config
     /// let mut client_config = Arc::new(WebsocketConfig::CLIENT_DEFAULT);
     ///
-    /// let signer: DynAgentSigner = ClientAgentSigner::default().into();
+    /// let signer: Arc<dyn AgentSigner + Send + Sync> = ClientAgentSigner::default().into();
     ///
     /// // Attempt to connect to Holochain on one of these interfaces on port 30,001
     /// let connect_to = vec![
@@ -162,7 +161,7 @@ impl AppWebsocket {
         request: ConnectRequest,
         websocket_config: Arc<WebsocketConfig>,
         token: AppAuthenticationToken,
-        signer: DynAgentSigner,
+        signer: Arc<dyn AgentSigner + Send + Sync>,
     ) -> Result<Self> {
         let app_ws =
             AppWebsocketInner::connect_with_config_and_request(websocket_config, request).await?;
@@ -172,7 +171,7 @@ impl AppWebsocket {
     async fn post_connect(
         inner: AppWebsocketInner,
         token: AppAuthenticationToken,
-        signer: DynAgentSigner,
+        signer: Arc<dyn AgentSigner + Send + Sync>,
     ) -> Result<Self> {
         inner
             .authenticate(token)

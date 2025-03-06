@@ -22,4 +22,4 @@ pub use holochain_websocket::{ConnectRequest, WebsocketConfig};
 pub use signing::client_signing::{ClientAgentSigner, SigningCredentials};
 #[cfg(feature = "lair_signing")]
 pub use signing::lair_signing::LairAgentSigner;
-pub use signing::{AgentSigner, DynAgentSigner};
+pub use signing::AgentSigner;

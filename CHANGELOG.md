@@ -9,7 +9,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   over the connection setup, such as setting custom headers.
 - The `connect_with_config` that already existed for the admin websocket now has an equivalent for the app websocket.
   This is useful if you want to change the timeout or other parameters of the websocket connection.
-- A typedef `DynAgentSigner` for `Arc<dyn AgentSigner + Send + Sync>` which makes the type more convenient to use.
 - Exported more common types so that uses are less likely to need to import other libraries, these are `AllowedOrigins`
   and `ConnectRequest`. 
 ### Changed
