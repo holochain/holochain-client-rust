@@ -274,6 +274,7 @@ async fn deferred_memproof_installation() {
             .update_manifest(manifest.into())
             .unwrap(),
     );
+    let app_bundle_bytes = app_bundle_deferred_memproofs.encode().unwrap();
 
     admin_ws
         .install_app(InstallAppPayload {
@@ -281,7 +282,7 @@ async fn deferred_memproof_installation() {
             installed_app_id: Some(app_id.clone()),
             network_seed: None,
             roles_settings: None,
-            source: AppBundleSource::Bundle(app_bundle_deferred_memproofs),
+            source: AppBundleSource::Bytes(app_bundle_bytes),
             ignore_genesis_failure: false,
             allow_throwaway_random_agent_key: false,
         })
