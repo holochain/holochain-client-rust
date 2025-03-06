@@ -234,7 +234,7 @@ impl AppWebsocket {
     /// connection and refreshed as required. You cannot control the cache lifetime, but you can
     /// use the value and fallback to [AppWebsocket::app_info] if you need to ensure you have the
     /// latest info.
-    pub async fn cached_app_info(&self) -> &AppInfo {
+    pub fn cached_app_info(&self) -> &AppInfo {
         &self.app_info
     }
 
