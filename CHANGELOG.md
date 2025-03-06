@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
+- Re-export `CellInfo`, `ProvisionedCell`, `CellId`, `ClonedCell`, `ExternIO`, `GrantedFunctions`, `SerializedBytes`
+  and `Timestamp` so that client users are less likely to need to import several Holochain libraries.
+- Expose cached `AppInfo` from the `AppWebsocket` with a new `cached_app_info` method.
 - Debug implementations for `AppWebsocket` and `AdminWebsocket`.
 - New `connect_with_request_and_config` to expose the raw websocket connection parameters. This allows for more control
   over the connection setup, such as setting custom headers.
@@ -13,6 +16,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Exported more common types so that uses are less likely to need to import other libraries, these are `AllowedOrigins`
   and `ConnectRequest`. 
 ### Changed
+- `connect*` methods on the `AppWebsocket` now return a `ConductorApiResult` instead of an `anyhow::Result`. This is 
+  consistent with the `AdminWebsocket`.
 - It was possible to pass multiple socket addresses to the `connect` method of the `AppWebsocket` and `AdminWebsocket`.
   This allows you to try multiple addresses and connect to the first one that works. This wasn't working because the 
   client was just taking the first valid address and retrying connecting to that. Now the client will try each valid 
