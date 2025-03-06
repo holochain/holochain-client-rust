@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
+- Re-export `CellInfo`, `ProvisionedCell`, `CellId`, `ClonedCell`, `ExternIO`, `GrantedFunctions`, `SerializedBytes`
+  and `Timestamp` so that client users are less likely to need to import several Holochain libraries.
 - Expose cached `AppInfo` from the `AppWebsocket` with a new `cached_app_info` method.
 - Debug implementations for `AppWebsocket` and `AdminWebsocket`.
 - New `connect_with_request_and_config` to expose the raw websocket connection parameters. This allows for more control
