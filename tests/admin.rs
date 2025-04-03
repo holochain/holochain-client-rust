@@ -1,4 +1,4 @@
-use holochain::prelude::{DnaModifiersOpt, RoleSettings, Timestamp, YamlProperties};
+use holochain::prelude::{DnaModifiersOpt, RoleSettings, YamlProperties};
 use holochain::test_utils::itertools::Itertools;
 use holochain::{prelude::AppBundleSource, sweettest::SweetConductor};
 use holochain_client::{
@@ -8,7 +8,6 @@ use holochain_client::{
 use holochain_conductor_api::{CellInfo, StorageBlob};
 use holochain_types::websocket::AllowedOrigins;
 use holochain_zome_types::prelude::ExternIO;
-use kitsune_p2p_types::fixt::AgentInfoSignedFixturator;
 use std::collections::BTreeSet;
 use std::net::{Ipv4Addr, SocketAddr};
 use std::{collections::HashMap, path::PathBuf};
@@ -169,7 +168,7 @@ async fn dump_network_stats() {
 
     let network_stats = admin_ws.dump_network_stats().await.unwrap();
 
-    assert!(network_stats.contains("\"backend\": \"backendMem\""));
+    assert_eq!("kitsune2-core-mem", network_stats.backend);
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -260,6 +259,24 @@ async fn revoke_agent_key() {
     assert!(matches!(&response[0], (cell, error) if *cell == cell_id && error.contains("invalid")));
 }
 
+fn make_agent(space: kitsune2_api::SpaceId) -> String {
+    let local = kitsune2_core::Ed25519LocalAgent::default();
+    let created_at = kitsune2_api::Timestamp::now();
+    let expires_at = created_at + std::time::Duration::from_secs(60 * 20);
+    let info = kitsune2_api::AgentInfo {
+        agent: kitsune2_api::LocalAgent::agent(&local).clone(),
+        space,
+        created_at,
+        expires_at,
+        is_tombstone: false,
+        url: None,
+        storage_arc: kitsune2_api::DhtArc::FULL,
+    };
+    let info =
+        futures::executor::block_on(kitsune2_api::AgentInfoSigned::sign(&local, info)).unwrap();
+    info.encode().unwrap()
+}
+
 #[tokio::test(flavor = "multi_thread")]
 async fn agent_info() {
     let conductor = SweetConductor::from_standard_config().await;
@@ -286,7 +303,16 @@ async fn agent_info() {
     let agent_infos = admin_ws.agent_info(None).await.unwrap();
     assert_eq!(agent_infos.len(), 1);
 
-    let other_agent = fixt::fixt!(AgentInfoSigned);
+    let space = kitsune2_api::AgentInfoSigned::decode(
+        &kitsune2_core::Ed25519Verifier,
+        agent_infos[0].as_bytes(),
+    )
+    .unwrap()
+    .space
+    .clone();
+
+    let other_agent = make_agent(space);
+
     admin_ws
         .add_agent_info(vec![other_agent.clone()])
         .await
@@ -346,13 +372,9 @@ async fn install_app_with_roles_settings() {
     let custom_properties = YamlProperties::new(serde_yaml::Value::String(String::from(
         "some properties provided at install time",
     )));
-    let custom_origin_time = Timestamp::now();
-    let custom_quantum_time = std::time::Duration::from_secs(5 * 60);
 
     let custom_modifiers = DnaModifiersOpt::default()
         .with_network_seed(custom_network_seed.clone())
-        .with_origin_time(custom_origin_time)
-        .with_quantum_time(custom_quantum_time)
         .with_properties(custom_properties.clone());
 
     let role_settings = (
@@ -396,11 +418,6 @@ async fn install_app_with_roles_settings() {
     assert_eq!(
         app_role.dna.modifiers.network_seed,
         Some(custom_network_seed)
-    );
-    assert_eq!(app_role.dna.modifiers.origin_time, Some(custom_origin_time));
-    assert_eq!(
-        app_role.dna.modifiers.quantum_time,
-        Some(custom_quantum_time)
     );
     assert_eq!(app_role.dna.modifiers.properties, Some(custom_properties));
 }
