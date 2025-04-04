@@ -38,79 +38,29 @@ jobs:
         with:
           cmake-version: '3.31.x'
 
-      - name: Install nix
-        uses: cachix/install-nix-action@v27
-        with:
-          install_url: https://releases.nixos.org/nix/nix-2.23.3/install
+      - uses: Swatinem/rust-cache@v2
 
-      - name: Set up cachix
-        uses: cachix/cachix-action@v14
-        with:
-          name: holochain-ci
-
-      - name: Install nix packages
-        run: nix develop -c $SHELL -c "holochain --version"
-
-      - name: Restore fixture
-        uses: actions/cache/restore@v4
-        env:
-          cache-name: fixture
-        with:
-          path: |
-            fixture/zomes/foo/.cargo
-            fixture/zomes/foo/target
-          key: ${{ matrix.os }}-${{ env.cache-name }}-${{ hashFiles('fixture/zomes/foo/Cargo.lock') }}
+      - name: Install deps
+        run: cargo install holochain@0.5.0-dev.22
+        run: cargo install holochain_cli@0.5.0-dev.22
+        run: cargo install holochain_cli_bundle@0.5.0-dev.22
 
       - name: Build fixture
-        run: nix develop -c $SHELL -c "./build-fixture.sh"
-
-      - name: Save fixture to cache
-        uses: actions/cache/save@v4
-        env:
-          cache-name: fixture
-        with:
-          path: |
-            fixture/zomes/foo/.cargo
-            fixture/zomes/foo/target
-          key: ${{ matrix.os }}-${{ env.cache-name }}-${{ hashFiles('fixture/zomes/foo/Cargo.lock') }}
-
-      - name: Restore client build
-        uses: actions/cache/restore@v4
-        env:
-          cache-name: client
-        with:
-          path: |
-            .cargo
-            target
-          key: ${{ matrix.os }}-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
+        run: ./build-fixture.sh
 
       - name: Lint
-        run: nix develop -c $SHELL -c "cargo clippy --all-features -- -D warnings"
+        run: cargo clippy --all-features -- -D warnings
 
       - name: Check formatting
-        run: nix develop -c $SHELL -c "cargo fmt --all --check"
+        run: cargo fmt --all --check
 
       - name: Run tests
-        run: nix develop -c $SHELL -c "cargo test"
+        run: cargo test
 
       - name: Verify feature independence
         run: |
-          nix develop -c $SHELL -c "cargo build --no-default-features --release"
-          nix develop -c $SHELL -c "cargo build --no-default-features --features \"lair_signing\" --release"
+          cargo build --no-default-features --release
+          cargo build --no-default-features --features lair_signing --release
 
       - name: Build client
-        run: nix develop -c $SHELL -c "cargo build -p holochain_client --release"
-
-      - name: Save client build to cache
-        uses: actions/cache/save@v4
-        env:
-          cache-name: client
-        with:
-          path: |
-            .cargo
-            target
-          key: ${{ matrix.os }}-${{ env.cache-name }}-${{ hashFiles('Cargo.lock') }}
-
-      - name: Setup tmate session if build and test run failed
-        if: ${{ failure() }}
-        uses: mxschmitt/action-tmate@v3
+        run: cargo build -p holochain_client --release
