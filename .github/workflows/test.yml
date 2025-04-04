@@ -41,9 +41,10 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Install deps
-        run: cargo install holochain@0.5.0-dev.22
-        run: cargo install holochain_cli@0.5.0-dev.22
-        run: cargo install holochain_cli_bundle@0.5.0-dev.22
+        run: |
+          cargo install holochain@0.5.0-dev.22
+          cargo install holochain_cli@0.5.0-dev.22
+          cargo install holochain_cli_bundle@0.5.0-dev.22
 
       - name: Build fixture
         run: ./build-fixture.sh
