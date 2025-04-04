@@ -40,9 +40,6 @@ jobs:
 
       - uses: Swatinem/rust-cache@v2
 
-      - name: Build fixture
-        run: ./build-fixture.sh
-
       - name: Lint
         run: cargo clippy --all-features -- -D warnings
 
