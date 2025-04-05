@@ -3,8 +3,8 @@ use crate::util::AbortOnDropHandle;
 use holo_hash::DnaHash;
 use holochain_conductor_api::{
     AdminRequest, AdminResponse, AppAuthenticationToken, AppAuthenticationTokenIssued, AppInfo,
-    AppInterfaceInfo, AppStatusFilter, CompatibleCells, FullStateDump,
-    IssueAppAuthenticationTokenPayload, RevokeAgentKeyPayload, StorageInfo,
+    AppInterfaceInfo, AppStatusFilter, FullStateDump, IssueAppAuthenticationTokenPayload,
+    RevokeAgentKeyPayload, StorageInfo,
 };
 use holochain_types::websocket::AllowedOrigins;
 use holochain_types::{
@@ -16,7 +16,6 @@ use holochain_zome_types::{
     capability::GrantedFunctions,
     prelude::{DnaDef, GrantZomeCallCapabilityPayload, Record},
 };
-use kitsune_p2p_types::agent_info::AgentInfoSigned;
 use serde::{Deserialize, Serialize};
 use std::fmt::Formatter;
 use std::{net::ToSocketAddrs, sync::Arc};
@@ -361,18 +360,6 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn get_compatible_cells(
-        &self,
-        dna_hash: DnaHash,
-    ) -> ConductorApiResult<CompatibleCells> {
-        let msg = AdminRequest::GetCompatibleCells(dna_hash);
-        let response = self.send(msg).await?;
-        match response {
-            AdminResponse::CompatibleCells(compatible_cells) => Ok(compatible_cells),
-            _ => unreachable!("Unexpected response {:?}", response),
-        }
-    }
-
     pub async fn grant_zome_call_capability(
         &self,
         payload: GrantZomeCallCapabilityPayload,
@@ -407,7 +394,7 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn dump_network_stats(&self) -> ConductorApiResult<String> {
+    pub async fn dump_network_stats(&self) -> ConductorApiResult<kitsune2_api::TransportStats> {
         let msg = AdminRequest::DumpNetworkStats;
         let response = self.send(msg).await?;
         match response {
@@ -455,8 +442,14 @@ impl AdminWebsocket {
     pub async fn dump_network_metrics(
         &self,
         dna_hash: Option<DnaHash>,
-    ) -> ConductorApiResult<String> {
-        let msg = AdminRequest::DumpNetworkMetrics { dna_hash };
+        include_dht_summary: bool,
+    ) -> ConductorApiResult<
+        std::collections::HashMap<DnaHash, holochain_types::network::Kitsune2NetworkMetrics>,
+    > {
+        let msg = AdminRequest::DumpNetworkMetrics {
+            dna_hash,
+            include_dht_summary,
+        };
         let response = self.send(msg).await?;
         match response {
             AdminResponse::NetworkMetricsDumped(metrics) => Ok(metrics),
@@ -494,10 +487,7 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn agent_info(
-        &self,
-        cell_id: Option<CellId>,
-    ) -> ConductorApiResult<Vec<AgentInfoSigned>> {
+    pub async fn agent_info(&self, cell_id: Option<CellId>) -> ConductorApiResult<Vec<String>> {
         let msg = AdminRequest::AgentInfo { cell_id };
         let response = self.send(msg).await?;
         match response {
@@ -506,10 +496,7 @@ impl AdminWebsocket {
         }
     }
 
-    pub async fn add_agent_info(
-        &self,
-        agent_infos: Vec<AgentInfoSigned>,
-    ) -> ConductorApiResult<()> {
+    pub async fn add_agent_info(&self, agent_infos: Vec<String>) -> ConductorApiResult<()> {
         let msg = AdminRequest::AddAgentInfo { agent_infos };
         let response = self.send(msg).await?;
         match response {

@@ -20,34 +20,55 @@ members = ["fixture/zomes/foo"]
 [workspace.dependencies]
 holochain_zome_types = "0.5.0-dev.7"
 
+[profile.dev]
+debug = 1
+
+[profile.dev.package."*"]
+opt-level = 2
+debug = 0
+debug-assertions = false
+overflow-checks = false
+incremental = false
+codegen-units = 16
+
 [dependencies]
 anyhow = "1.0"
-ed25519-dalek = { version = "2.1", features = ["rand_core"] }
-serde = "1.0.193"
-event-emitter-rs = "0.1"
-rand = { version = "0.8" }
 async-trait = "0.1"
+ed25519-dalek = { version = "2.1", features = ["rand_core"] }
+event-emitter-rs = "0.1"
+holo_hash = { version = "0.5.0-rc.0", features = ["encoding"] }
+holochain_conductor_api = "0.5.0-rc.0"
+holochain_nonce = "0.5.0-rc.0"
+holochain_types = "0.5.0-rc.0"
+holochain_websocket = "0.5.0-rc.0"
+holochain_zome_types = "0.5.0-rc.0"
+kitsune2_api = "0.1.0"
+lair_keystore_api = { version = "0.6.0", optional = true }
 parking_lot = "0.12.1"
+rand = { version = "0.8" }
+serde = "1.0.193"
 thiserror = "2.0"
-
-holo_hash = { version = "0.5.0-dev.0", features = ["encoding"] }
-holochain_conductor_api = "0.5.0-dev.7"
-holochain_websocket = "0.5.0-dev.7"
-holochain_types = "0.5.0-dev.7"
-holochain_nonce = "0.5.0-dev.0"
-holochain_zome_types = { workspace = true }
-
-lair_keystore_api = { version = "0.5.2", optional = true }
-kitsune_p2p_types = "0.5.0-dev.0"
-
 tokio = { version = "1.36", features = ["rt"] }
 
 [dev-dependencies]
-fixt = "0.5.0-dev.0"
-holochain = { version = "0.5.0-dev.7", features = ["test_utils"] }
+bytes = "1.10.1"
+fixt = "0.5.0-rc.0"
+futures = "0.3.31"
+holochain = { version = "0.5.0-rc.0", features = ["test_utils"] }
+kitsune2_core = "0.1.0"
 serde_yaml = "0.9"
 
 [features]
 default = ["lair_signing"]
 
 lair_signing = ["dep:lair_keystore_api"]
+
+[patch.crates-io]
+#hdk = { path = "../holochain/crates/hdk" }
+#holo_hash = { path = "../holochain/crates/holo_hash" }
+#holochain_conductor_api = { path = "../holochain/crates/holochain_conductor_api" }
+#holochain_websocket = { path = "../holochain/crates/holochain_websocket" }
+#holochain_types = { path = "../holochain/crates/holochain_types" }
+#holochain_nonce = { path = "../holochain/crates/holochain_nonce" }
+#holochain_zome_types = { path = "../holochain/crates/holochain_zome_types" }
+#holochain = { path = "../holochain/crates/holochain" }

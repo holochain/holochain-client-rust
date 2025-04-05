@@ -1,10 +1,7 @@
 ---
 manifest_version: "1"
 name: test-dna
-lineage:
-  - uhC0kDYtR49WteLI9NStqJ6wezkFQU3Z71o7NM5-P5gzsjhlVzKoM
 integrity:
-  origin_time: "2022-09-30T00:00:00.000000Z"
   zomes:
     - name: foo
       bundled: "zomes/foo/target/wasm32-unknown-unknown/release/test_wasm_foo.wasm"

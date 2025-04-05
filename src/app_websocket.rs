@@ -4,13 +4,12 @@ use crate::{signing::sign_zome_call, ConductorApiError, ConductorApiResult};
 use anyhow::{anyhow, Result};
 use holo_hash::AgentPubKey;
 use holochain_conductor_api::{
-    AppAuthenticationToken, AppInfo, AppRequest, AppResponse, CellInfo, NetworkInfo,
-    ProvisionedCell, ZomeCallParamsSigned,
+    AppAuthenticationToken, AppInfo, AppRequest, AppResponse, CellInfo, ProvisionedCell,
+    ZomeCallParamsSigned,
 };
 use holochain_nonce::fresh_nonce;
 use holochain_types::app::{
     CreateCloneCellPayload, DisableCloneCellPayload, EnableCloneCellPayload, MemproofMap,
-    NetworkInfoRequestPayload,
 };
 use holochain_types::prelude::{CloneId, Signal};
 use holochain_websocket::{ConnectRequest, WebsocketConfig};
@@ -336,18 +335,6 @@ impl AppWebsocket {
         let response = self.inner.send(msg).await?;
         match response {
             AppResponse::CloneCellEnabled(enabled_cell) => Ok(enabled_cell),
-            _ => unreachable!("Unexpected response {:?}", response),
-        }
-    }
-
-    pub async fn network_info(
-        &self,
-        payload: NetworkInfoRequestPayload,
-    ) -> ConductorApiResult<Vec<NetworkInfo>> {
-        let msg = AppRequest::NetworkInfo(Box::new(payload));
-        let response = self.inner.send(msg).await?;
-        match response {
-            AppResponse::NetworkInfo(infos) => Ok(infos),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }
