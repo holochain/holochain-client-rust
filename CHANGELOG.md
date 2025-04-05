@@ -9,6 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 ### Removed
 
+## 2025-04-05: v0.7.0-rc.0
+### Removed
+- `AdminWebsocket::NetworkInfo` as the call was removed from the Conductor API. Use `DumpNetworkStats` and `DumpNetworkMetrics` instead, available on Admin and App websockets.
+- `AdminWebsocket::GetCompatibleCells`, because the DNA lineage feature has been moved behind the `unstable-migration` feature in the Conductor API.
+
 ## 2025-02-27: v0.7.0-dev.3
 ### Added
 - Re-export `CellInfo`, `ProvisionedCell`, `CellId`, `ClonedCell`, `ExternIO`, `GrantedFunctions`, `SerializedBytes`
