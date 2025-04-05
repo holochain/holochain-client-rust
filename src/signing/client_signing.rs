@@ -1,4 +1,4 @@
-use super::AgentSigner;
+use super::{AgentSigner, DynAgentSigner};
 use async_trait::async_trait;
 use ed25519_dalek::Signer;
 use holo_hash::AgentPubKey;
@@ -9,7 +9,7 @@ use parking_lot::RwLock;
 use std::{collections::HashMap, sync::Arc};
 
 pub struct SigningCredentials {
-    pub signing_agent_key: holo_hash::AgentPubKey,
+    pub signing_agent_key: AgentPubKey,
     pub keypair: ed25519_dalek::SigningKey,
     pub cap_secret: CapSecret,
 }
@@ -35,7 +35,7 @@ impl ClientAgentSigner {
         }
     }
 
-    pub fn add_credentials(&mut self, cell_id: CellId, credentials: SigningCredentials) {
+    pub fn add_credentials(&self, cell_id: CellId, credentials: SigningCredentials) {
         self.credentials.write().insert(cell_id, credentials);
     }
 }
@@ -69,8 +69,8 @@ impl AgentSigner for ClientAgentSigner {
 }
 
 /// Convert the ClientAgentSigner into an `Arc<Box<dyn AgentSigner + Send + Sync>>`
-impl From<ClientAgentSigner> for Arc<Box<dyn AgentSigner + Send + Sync>> {
+impl From<ClientAgentSigner> for DynAgentSigner {
     fn from(cas: ClientAgentSigner) -> Self {
-        Arc::new(Box::new(cas))
+        Arc::new(cas)
     }
 }
