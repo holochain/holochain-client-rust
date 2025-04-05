@@ -1,9 +1,7 @@
 {
   inputs = {
+    holonix.url = "github:holochain/holonix?ref=main";
     nixpkgs.follows = "holonix/nixpkgs";
-    versions.url = "github:holochain/holochain?dir=versions/0_2_rc";
-    holonix.url = "github:holochain/holochain";
-    holonix.inputs.versions.follows = "versions";
   };
 
   outputs = inputs@{ holonix, ... }:
@@ -11,13 +9,23 @@
       # provide a dev shell for all systems that the holonix flake supports
       systems = builtins.attrNames holonix.devShells;
 
-      perSystem = { config, system, pkgs, ... }:
+      perSystem = { inputs', config, system, pkgs, ... }:
         {
           devShells.default = pkgs.mkShell {
-            inputsFrom = [ holonix.devShells.${system}.holochainBinaries ];
-            packages = with pkgs; [
-              # add further packages from nixpkgs
-            ];
+            packages = [
+              inputs'.holonix.packages.holochain
+              inputs'.holonix.packages.lair-keystore
+              inputs'.holonix.packages.rust
+            ] ++ (pkgs.lib.optionals pkgs.stdenv.isLinux [
+              pkgs.libclang
+              pkgs.pkg-config
+              pkgs.rustPlatform.bindgenHook
+            ]) ++ (pkgs.lib.optionals pkgs.stdenv.isDarwin [
+              pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
+              pkgs.bzip2
+            ]);
+
+            LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
           };
         };
     };

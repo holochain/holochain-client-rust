@@ -3,13 +3,20 @@ use std::sync::Arc;
 use anyhow::Result;
 use async_trait::async_trait;
 use holo_hash::AgentPubKey;
-use holochain_conductor_api::ZomeCall;
+use holochain_conductor_api::ZomeCallParamsSigned;
 use holochain_zome_types::{
-    capability::CapSecret, cell::CellId, dependencies::holochain_integrity_types::Signature,
-    zome_io::ZomeCallUnsigned,
+    capability::CapSecret,
+    cell::CellId,
+    dependencies::holochain_integrity_types::Signature,
+    zome_io::{ExternIO, ZomeCallParams},
 };
 
 pub(crate) mod client_signing;
+
+#[cfg(feature = "lair_signing")]
+pub(crate) mod lair_signing;
+
+pub type DynAgentSigner = Arc<dyn AgentSigner + Send + Sync>;
 
 #[async_trait]
 pub trait AgentSigner {
@@ -29,28 +36,17 @@ pub trait AgentSigner {
 
 /// Signs an unsigned zome call using the provided signing implementation
 pub(crate) async fn sign_zome_call(
-    zome_call_unsigned: ZomeCallUnsigned,
-    signer: Arc<Box<dyn AgentSigner + Send + Sync>>,
-) -> Result<ZomeCall> {
-    let pub_key = zome_call_unsigned.provenance.clone();
-
-    let data_to_sign = zome_call_unsigned.data_to_sign().map_err(|e| {
-        anyhow::anyhow!("Failed to get data to sign from unsigned zome call: {}", e)
-    })?;
-
+    params: ZomeCallParams,
+    signer: DynAgentSigner,
+) -> Result<ZomeCallParamsSigned> {
+    let pub_key = params.provenance.clone();
+    let (bytes, bytes_hash) = params.serialize_and_hash()?;
     let signature = signer
-        .sign(&zome_call_unsigned.cell_id, pub_key, data_to_sign)
+        .sign(&params.cell_id, pub_key, bytes_hash.into())
         .await?;
 
-    Ok(ZomeCall {
-        cell_id: zome_call_unsigned.cell_id,
-        zome_name: zome_call_unsigned.zome_name,
-        fn_name: zome_call_unsigned.fn_name,
-        payload: zome_call_unsigned.payload,
-        cap_secret: zome_call_unsigned.cap_secret,
-        provenance: zome_call_unsigned.provenance,
-        nonce: zome_call_unsigned.nonce,
-        expires_at: zome_call_unsigned.expires_at,
+    Ok(ZomeCallParamsSigned {
+        bytes: ExternIO(bytes),
         signature,
     })
 }

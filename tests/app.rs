@@ -1,17 +1,20 @@
 use holochain::{
-    prelude::{
-        kitsune_p2p::dependencies::kitsune_p2p_fetch::FetchPoolInfo, AppBundleSource,
-        NetworkInfoRequestPayload, Signal,
-    },
+    prelude::{AppBundleSource, Signal},
     sweettest::SweetConductor,
 };
 use holochain_client::{
-    AdminWebsocket, AppAgentWebsocket, AppWebsocket, AuthorizeSigningCredentialsPayload,
-    ClientAgentSigner, InstallAppPayload, InstalledAppId,
+    AdminWebsocket, AppWebsocket, AuthorizeSigningCredentialsPayload, ClientAgentSigner,
+    InstallAppPayload, InstalledAppId,
 };
-use holochain_conductor_api::{CellInfo, NetworkInfo};
-use holochain_zome_types::zome_io::ExternIO;
+use holochain_conductor_api::{AppInfoStatus, CellInfo, IssueAppAuthenticationTokenPayload};
+use holochain_types::{
+    app::{AppBundle, AppManifestV1, DisabledAppReason},
+    websocket::AllowedOrigins,
+};
+use holochain_websocket::ConnectRequest;
+use holochain_zome_types::dependencies::holochain_integrity_types::ExternIO;
 use serde::{Deserialize, Serialize};
+use std::net::{Ipv4Addr, SocketAddr};
 use std::{
     collections::HashMap,
     path::PathBuf,
@@ -19,92 +22,50 @@ use std::{
 };
 
 #[tokio::test(flavor = "multi_thread")]
-async fn network_info() {
-    let conductor = SweetConductor::from_standard_config().await;
-    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("ws://localhost:{}", admin_port))
-        .await
-        .unwrap();
-
-    let app_id: InstalledAppId = "test-app".into();
-    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
-
-    let app_info = admin_ws
-        .install_app(InstallAppPayload {
-            agent_key: agent_key.clone(),
-            installed_app_id: Some(app_id.clone()),
-            membrane_proofs: HashMap::new(),
-            network_seed: None,
-            source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
-        })
-        .await
-        .unwrap();
-    admin_ws.enable_app(app_id.clone()).await.unwrap();
-    let app_ws_port = 33000;
-    admin_ws.attach_app_interface(app_ws_port).await.unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("ws://localhost:{}", app_ws_port))
-        .await
-        .unwrap();
-
-    let dna_hash = match &app_info.cell_info.get("foo").unwrap()[0] {
-        holochain_conductor_api::CellInfo::Provisioned(cell) => cell.cell_id.dna_hash().to_owned(),
-        _ => panic!("wrong cell type"),
-    };
-    let network_info = app_ws
-        .network_info(NetworkInfoRequestPayload {
-            agent_pub_key: agent_key,
-            dnas: vec![dna_hash],
-            last_time_queried: None,
-        })
-        .await
-        .unwrap();
-
-    assert_eq!(
-        network_info[0],
-        NetworkInfo {
-            fetch_pool_info: FetchPoolInfo {
-                op_bytes_to_fetch: 0,
-                num_ops_to_fetch: 0
-            },
-            current_number_of_peers: 1,
-            arc_size: 1.0,
-            total_network_peers: 1,
-            // varies on local and ci machine
-            bytes_since_last_time_queried: network_info[0].bytes_since_last_time_queried,
-            completed_rounds_since_last_time_queried: 0
-        }
-    );
-}
-
-#[tokio::test(flavor = "multi_thread")]
 async fn handle_signal() {
     let conductor = SweetConductor::from_standard_config().await;
+
+    // Connect admin client
     let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
-    let mut admin_ws = AdminWebsocket::connect(format!("ws://127.0.0.1:{}", admin_port))
+    let admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
         .await
         .unwrap();
 
+    // Set up the test app
     let app_id: InstalledAppId = "test-app".into();
-    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
-
-    let _app_info = admin_ws
+    admin_ws
         .install_app(InstallAppPayload {
-            agent_key: agent_key.clone(),
+            agent_key: None,
             installed_app_id: Some(app_id.clone()),
-            membrane_proofs: HashMap::new(),
             network_seed: None,
+            roles_settings: None,
             source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
         })
         .await
         .unwrap();
     admin_ws.enable_app(app_id.clone()).await.unwrap();
-    let app_ws_port = 33001;
-    admin_ws.attach_app_interface(app_ws_port).await.unwrap();
-    let mut app_ws = AppWebsocket::connect(format!("ws://127.0.0.1:{}", app_ws_port))
+
+    // Connect app agent client
+    let app_ws_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::Any, None)
         .await
         .unwrap();
+    let token_issued = admin_ws
+        .issue_app_auth_token(app_id.clone().into())
+        .await
+        .unwrap();
+    let signer = ClientAgentSigner::default();
+    let app_ws = AppWebsocket::connect(
+        (Ipv4Addr::LOCALHOST, app_ws_port),
+        token_issued.token,
+        signer.clone().into(),
+    )
+    .await
+    .unwrap();
 
-    let installed_app = app_ws.app_info(app_id.clone()).await.unwrap().unwrap();
+    let installed_app = app_ws.app_info().await.unwrap().unwrap();
 
     let cells = installed_app.cell_info.into_values().next().unwrap();
     let cell_id = match cells[0].clone() {
@@ -117,7 +78,6 @@ async fn handle_signal() {
     const TEST_ZOME_NAME: &str = "foo";
     const TEST_FN_NAME: &str = "emitter";
 
-    let mut signer = ClientAgentSigner::default();
     let credentials = admin_ws
         .authorize_signing_credentials(AuthorizeSigningCredentialsPayload {
             cell_id: cell_id.clone(),
@@ -126,10 +86,6 @@ async fn handle_signal() {
         .await
         .unwrap();
     signer.add_credentials(cell_id.clone(), credentials);
-
-    let mut app_ws = AppAgentWebsocket::from_existing(app_ws, app_id.clone(), signer.into())
-        .await
-        .unwrap();
 
     let barrier = Arc::new(Barrier::new(2));
     let barrier_clone = barrier.clone();
@@ -143,8 +99,7 @@ async fn handle_signal() {
             }
             _ => panic!("Invalid signal"),
         })
-        .await
-        .unwrap();
+        .await;
 
     app_ws
         .call_zome(
@@ -161,3 +116,262 @@ async fn handle_signal() {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TestString(pub String);
+
+#[tokio::test(flavor = "multi_thread")]
+async fn close_on_drop_is_clone_safe() {
+    let conductor = SweetConductor::from_standard_config().await;
+
+    // Connect admin client
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+    let admin_ws = AdminWebsocket::connect((Ipv4Addr::LOCALHOST, admin_port))
+        .await
+        .unwrap();
+
+    // Set up the test app
+    let app_id: InstalledAppId = "test-app".into();
+    let app_info = admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: None,
+            installed_app_id: Some(app_id.clone()),
+            network_seed: None,
+            roles_settings: None,
+            source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
+        })
+        .await
+        .unwrap();
+    admin_ws.enable_app(app_id.clone()).await.unwrap();
+
+    // Connect app client
+    let app_ws_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::Any, None)
+        .await
+        .unwrap();
+    let token_issued = admin_ws
+        .issue_app_auth_token(app_id.clone().into())
+        .await
+        .unwrap();
+    let signer = ClientAgentSigner::default().into();
+    let app_ws = AppWebsocket::connect(
+        (Ipv4Addr::LOCALHOST, app_ws_port),
+        token_issued.token,
+        signer,
+    )
+    .await
+    .unwrap();
+
+    {
+        let app_ws_2 = app_ws.clone();
+        let app_info_2 = app_ws_2.app_info().await.unwrap().unwrap();
+        assert_eq!(app_info.installed_app_id, app_info_2.installed_app_id);
+    }
+
+    // Should still work after dropping the second app_ws
+    let app_info_3 = app_ws.app_info().await.unwrap().unwrap();
+    assert_eq!(app_info.installed_app_id, app_info_3.installed_app_id);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn deferred_memproof_installation() {
+    let conductor = SweetConductor::from_standard_config().await;
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+        .await
+        .unwrap();
+    let app_id: InstalledAppId = "test-app".into();
+
+    // Modify app bundle to enable deferred membrane proofs.
+    let app_bundle_source = AppBundleSource::Path(PathBuf::from("./fixture/test.happ"));
+    let original_bundle = app_bundle_source.resolve().await.unwrap();
+    let manifest = AppManifestV1 {
+        allow_deferred_memproofs: true,
+        description: None,
+        name: "".to_string(),
+        roles: original_bundle.manifest().app_roles(),
+    };
+    let app_bundle_deferred_memproofs = AppBundle::from(
+        original_bundle
+            .into_inner()
+            .update_manifest(manifest.into())
+            .unwrap(),
+    );
+    let app_bundle_bytes = app_bundle_deferred_memproofs.encode().unwrap();
+
+    admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: None,
+            installed_app_id: Some(app_id.clone()),
+            network_seed: None,
+            roles_settings: None,
+            source: AppBundleSource::Bytes(app_bundle_bytes),
+            ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
+        })
+        .await
+        .unwrap();
+
+    // Connect app client
+    let app_ws_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::Any, None)
+        .await
+        .unwrap();
+    let token_issued = admin_ws
+        .issue_app_auth_token(app_id.clone().into())
+        .await
+        .unwrap();
+    let signer = ClientAgentSigner::default();
+    let app_ws = AppWebsocket::connect(
+        (Ipv4Addr::LOCALHOST, app_ws_port),
+        token_issued.token,
+        signer.clone().into(),
+    )
+    .await
+    .unwrap();
+
+    // App status should be `AwaitingMemproofs`.
+    let app_info = app_ws
+        .app_info()
+        .await
+        .unwrap()
+        .expect("app info must exist");
+    assert_eq!(app_info.status, AppInfoStatus::AwaitingMemproofs);
+
+    app_ws.enable_app().await.unwrap_err();
+
+    app_ws.provide_memproofs(HashMap::new()).await.unwrap();
+
+    let app_info = app_ws
+        .app_info()
+        .await
+        .unwrap()
+        .expect("app info must exist");
+    assert_eq!(
+        app_info.status,
+        AppInfoStatus::Disabled {
+            reason: DisabledAppReason::NotStartedAfterProvidingMemproofs
+        },
+        "app status should be NotStartedAfterProvidingMemproofs"
+    );
+
+    app_ws.enable_app().await.unwrap();
+
+    // App status should be `Running` now.
+    let app_info = app_ws
+        .app_info()
+        .await
+        .unwrap()
+        .expect("app info must exist");
+    assert_eq!(app_info.status, AppInfoStatus::Running);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn connect_multiple_addresses() {
+    let conductor = SweetConductor::from_standard_config().await;
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+        .await
+        .unwrap();
+    let app_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::Any, None)
+        .await
+        .unwrap();
+
+    // Set up the test app
+    let app_id: InstalledAppId = "test-app".into();
+    admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: None,
+            installed_app_id: Some(app_id.clone()),
+            network_seed: None,
+            roles_settings: None,
+            source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
+        })
+        .await
+        .unwrap();
+    admin_ws.enable_app(app_id.clone()).await.unwrap();
+
+    let issued = admin_ws
+        .issue_app_auth_token(IssueAppAuthenticationTokenPayload::for_installed_app_id(
+            app_id.clone(),
+        ))
+        .await
+        .unwrap();
+
+    let signer = ClientAgentSigner::default().into();
+
+    let app_ws = AppWebsocket::connect(
+        &[
+            // Shouldn't be able to connect on this port
+            SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 5000),
+            // Should then move on and try this one
+            SocketAddr::new(Ipv4Addr::LOCALHOST.into(), app_port),
+        ][..],
+        issued.token,
+        signer,
+    )
+    .await
+    .unwrap();
+
+    // Just to check we are connected and can get a response.
+    let app = app_ws.app_info().await.unwrap().expect("app should exist");
+    assert_eq!(app_id, app.installed_app_id);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn connect_with_custom_origin() {
+    let conductor = SweetConductor::from_standard_config().await;
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+        .await
+        .unwrap();
+    let app_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::from("my_cli_app".to_string()), None)
+        .await
+        .unwrap();
+
+    // Set up the test app
+    let app_id: InstalledAppId = "test-app".into();
+    admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: None,
+            installed_app_id: Some(app_id.clone()),
+            network_seed: None,
+            roles_settings: None,
+            source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
+        })
+        .await
+        .unwrap();
+    admin_ws.enable_app(app_id.clone()).await.unwrap();
+
+    let issued = admin_ws
+        .issue_app_auth_token(IssueAppAuthenticationTokenPayload::for_installed_app_id(
+            app_id.clone(),
+        ))
+        .await
+        .unwrap();
+
+    let signer = ClientAgentSigner::default().into();
+
+    let request: ConnectRequest = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), app_port).into();
+    let request = request.try_set_header("Origin", "my_cli_app").unwrap();
+
+    let app_ws = AppWebsocket::connect_with_request_and_config(
+        request,
+        Arc::new(holochain_websocket::WebsocketConfig::CLIENT_DEFAULT),
+        issued.token,
+        signer,
+    )
+    .await
+    .unwrap();
+
+    // Just to check we are connected and can get a response.
+    let app = app_ws.app_info().await.unwrap().expect("app should exist");
+    assert_eq!(app_id, app.installed_app_id);
+}
