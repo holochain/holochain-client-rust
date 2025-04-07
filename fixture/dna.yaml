@@ -1,8 +1,6 @@
 ---
 manifest_version: "1"
 name: test-dna
-lineage:
-  - uhC0kDYtR49WteLI9NStqJ6wezkFQU3Z71o7NM5-P5gzsjhlVzKoM
 integrity:
   zomes:
     - name: foo

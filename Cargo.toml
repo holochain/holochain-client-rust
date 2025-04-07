@@ -36,12 +36,12 @@ anyhow = "1.0"
 async-trait = "0.1"
 ed25519-dalek = { version = "2.1", features = ["rand_core"] }
 event-emitter-rs = "0.1"
-holo_hash = { version = "0.5.0-dev.8", features = ["encoding"] }
-holochain_conductor_api = "0.5.0-dev.22"
-holochain_nonce = "0.5.0-dev.1"
-holochain_types = "0.5.0-dev.22"
-holochain_websocket = "0.5.0-dev.22"
-holochain_zome_types = "0.5.0-dev.18"
+holo_hash = { version = "0.5.0-rc.0", features = ["encoding"] }
+holochain_conductor_api = "0.5.0-rc.0"
+holochain_nonce = "0.5.0-rc.0"
+holochain_types = "0.5.0-rc.0"
+holochain_websocket = "0.5.0-rc.0"
+holochain_zome_types = "0.5.0-rc.0"
 kitsune2_api = "0.1.0"
 lair_keystore_api = { version = "0.6.0", optional = true }
 parking_lot = "0.12.1"
@@ -52,9 +52,9 @@ tokio = { version = "1.36", features = ["rt"] }
 
 [dev-dependencies]
 bytes = "1.10.1"
-fixt = "0.5.0-dev.0"
+fixt = "0.5.0-rc.0"
 futures = "0.3.31"
-holochain = { version = "0.5.0-dev.22", features = ["test_utils"] }
+holochain = { version = "0.5.0-rc.0", features = ["test_utils"] }
 kitsune2_core = "0.1.0"
 serde_yaml = "0.9"
 

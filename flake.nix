@@ -16,13 +16,16 @@
               inputs'.holonix.packages.holochain
               inputs'.holonix.packages.lair-keystore
               inputs'.holonix.packages.rust
-              pkgs.go
-              pkgs.perl
-            ] ++ (pkgs.lib.optionals pkgs.stdenv.isDarwin [
-              # needed to build Holochain on macos
+            ] ++ (pkgs.lib.optionals pkgs.stdenv.isLinux [
+              pkgs.libclang
+              pkgs.pkg-config
+              pkgs.rustPlatform.bindgenHook
+            ]) ++ (pkgs.lib.optionals pkgs.stdenv.isDarwin [
               pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
               pkgs.bzip2
             ]);
+
+            LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
           };
         };
     };
