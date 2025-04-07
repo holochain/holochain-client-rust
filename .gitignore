@@ -2,4 +2,3 @@
 .cargo
 target
 *.dna
-*.happ
