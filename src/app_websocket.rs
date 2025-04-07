@@ -398,6 +398,36 @@ impl AppWebsocket {
             Ok(provisioned_cell.cell_id)
         }
     }
+
+    pub async fn dump_network_stats(&self) -> ConductorApiResult<kitsune2_api::TransportStats> {
+        let msg = AppRequest::DumpNetworkStats;
+        let response = self.inner.send(msg).await?;
+        match response {
+            AppResponse::NetworkStatsDumped(stats) => Ok(stats),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    pub async fn dump_network_metrics(
+        &self,
+        dna_hash: Option<holo_hash::DnaHash>,
+        include_dht_summary: bool,
+    ) -> ConductorApiResult<
+        std::collections::HashMap<
+            holo_hash::DnaHash,
+            holochain_types::network::Kitsune2NetworkMetrics,
+        >,
+    > {
+        let msg = AppRequest::DumpNetworkMetrics {
+            dna_hash,
+            include_dht_summary,
+        };
+        let response = self.inner.send(msg).await?;
+        match response {
+            AppResponse::NetworkMetricsDumped(metrics) => Ok(metrics),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
 }
 
 pub enum ZomeCallTarget {

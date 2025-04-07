@@ -375,3 +375,111 @@ async fn connect_with_custom_origin() {
     let app = app_ws.app_info().await.unwrap().expect("app should exist");
     assert_eq!(app_id, app.installed_app_id);
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn dump_network_stats() {
+    let conductor = SweetConductor::from_standard_config().await;
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+        .await
+        .unwrap();
+    let app_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::from("my_cli_app".to_string()), None)
+        .await
+        .unwrap();
+
+    let app_id: InstalledAppId = "test-app".into();
+    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
+    admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: Some(agent_key.clone()),
+            installed_app_id: Some(app_id.clone()),
+            network_seed: None,
+            roles_settings: None,
+            source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
+        })
+        .await
+        .unwrap();
+    admin_ws.enable_app(app_id.clone()).await.unwrap();
+
+    let issued = admin_ws
+        .issue_app_auth_token(IssueAppAuthenticationTokenPayload::for_installed_app_id(
+            app_id.clone(),
+        ))
+        .await
+        .unwrap();
+
+    let signer = ClientAgentSigner::default().into();
+
+    let request: ConnectRequest = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), app_port).into();
+    let request = request.try_set_header("Origin", "my_cli_app").unwrap();
+
+    let app_ws = AppWebsocket::connect_with_request_and_config(
+        request,
+        Arc::new(holochain_websocket::WebsocketConfig::CLIENT_DEFAULT),
+        issued.token,
+        signer,
+    )
+    .await
+    .unwrap();
+
+    let network_stats = app_ws.dump_network_stats().await.unwrap();
+
+    assert_eq!("kitsune2-core-mem", network_stats.backend);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn dump_network_metrics() {
+    let conductor = SweetConductor::from_standard_config().await;
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+        .await
+        .unwrap();
+    let app_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::from("my_cli_app".to_string()), None)
+        .await
+        .unwrap();
+
+    let app_id: InstalledAppId = "test-app".into();
+    let agent_key = admin_ws.generate_agent_pub_key().await.unwrap();
+    admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: Some(agent_key.clone()),
+            installed_app_id: Some(app_id.clone()),
+            network_seed: None,
+            roles_settings: None,
+            source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
+        })
+        .await
+        .unwrap();
+    admin_ws.enable_app(app_id.clone()).await.unwrap();
+
+    let issued = admin_ws
+        .issue_app_auth_token(IssueAppAuthenticationTokenPayload::for_installed_app_id(
+            app_id.clone(),
+        ))
+        .await
+        .unwrap();
+
+    let signer = ClientAgentSigner::default().into();
+
+    let request: ConnectRequest = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), app_port).into();
+    let request = request.try_set_header("Origin", "my_cli_app").unwrap();
+
+    let app_ws = AppWebsocket::connect_with_request_and_config(
+        request,
+        Arc::new(holochain_websocket::WebsocketConfig::CLIENT_DEFAULT),
+        issued.token,
+        signer,
+    )
+    .await
+    .unwrap();
+
+    let metrics = app_ws.dump_network_metrics(None, true).await.unwrap();
+
+    assert_eq!(1, metrics.len());
+}
