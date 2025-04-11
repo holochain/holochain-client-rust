@@ -8,7 +8,7 @@
 Types and bindings to connect easily to a running Holochain conductor from Rust.
 
 > [!WARNING]  
-> This repository has moved! The `develop` branch is no longer active. Please see -> https://github.com/holochain/holochain/tree/develop/crates/client
+> This repository has moved! The `main` branch is no longer active. Please see -> https://github.com/holochain/holochain/tree/develop/crates/client
 > Previous versions of the client will still be released from this repository until the corresponding Holochain versions are deprecated. At ths point this repository will be archived.
 
 
