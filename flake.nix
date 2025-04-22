@@ -1,6 +1,6 @@
 {
   inputs = {
-    holonix.url = "github:holochain/holonix?ref=main";
+    holonix.url = "github:holochain/holonix?ref=main-0.5";
     nixpkgs.follows = "holonix/nixpkgs";
   };
 
@@ -14,7 +14,7 @@
           devShells.default = pkgs.mkShell {
             packages = [
               inputs'.holonix.packages.holochain
-              inputs'.holonix.packages.lair-keystore
+              inputs'.holonix.packages.hc
               inputs'.holonix.packages.rust
             ] ++ (pkgs.lib.optionals pkgs.stdenv.isLinux [
               pkgs.libclang
