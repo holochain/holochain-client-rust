@@ -8,6 +8,7 @@ mod util;
 pub use admin_websocket::{AdminWebsocket, AuthorizeSigningCredentialsPayload, EnableAppResponse};
 pub use app_websocket::{AppWebsocket, ZomeCallTarget};
 pub use error::{ConductorApiError, ConductorApiResult};
+pub use holochain_conductor_api::peer_meta::AgentMetaInfo;
 pub use holochain_conductor_api::{
     AdminRequest, AdminResponse, AppAuthenticationRequest, AppAuthenticationToken,
     AppAuthenticationTokenIssued, AppInfo, AppRequest, AppResponse, AppStatusFilter, CellInfo,
@@ -22,6 +23,7 @@ pub use holochain_websocket::{ConnectRequest, WebsocketConfig};
 pub use holochain_zome_types::prelude::{
     CellId, ClonedCell, ExternIO, GrantedFunctions, SerializedBytes, Timestamp,
 };
+pub use kitsune2_api::Url;
 pub use signing::client_signing::{ClientAgentSigner, SigningCredentials};
 #[cfg(feature = "lair_signing")]
 pub use signing::lair_signing::LairAgentSigner;
