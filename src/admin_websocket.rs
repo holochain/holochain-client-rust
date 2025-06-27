@@ -2,9 +2,9 @@ use crate::error::{ConductorApiError, ConductorApiResult};
 use crate::util::AbortOnDropHandle;
 use holo_hash::DnaHash;
 use holochain_conductor_api::{
-    AdminRequest, AdminResponse, AppAuthenticationToken, AppAuthenticationTokenIssued, AppInfo,
-    AppInterfaceInfo, AppStatusFilter, FullStateDump, IssueAppAuthenticationTokenPayload,
-    RevokeAgentKeyPayload, StorageInfo,
+    AdminRequest, AdminResponse, AgentMetaInfo, AppAuthenticationToken,
+    AppAuthenticationTokenIssued, AppInfo, AppInterfaceInfo, AppStatusFilter, FullStateDump,
+    IssueAppAuthenticationTokenPayload, RevokeAgentKeyPayload, StorageInfo,
 };
 use holochain_types::websocket::AllowedOrigins;
 use holochain_types::{
@@ -16,7 +16,9 @@ use holochain_zome_types::{
     capability::GrantedFunctions,
     prelude::{DnaDef, GrantZomeCallCapabilityPayload, Record},
 };
+use kitsune2_api::Url;
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use std::fmt::Formatter;
 use std::{net::ToSocketAddrs, sync::Arc};
 
@@ -501,6 +503,24 @@ impl AdminWebsocket {
         let response = self.send(msg).await?;
         match response {
             AdminResponse::AgentInfoAdded => Ok(()),
+            _ => unreachable!("Unexpected response {:?}", response),
+        }
+    }
+
+    /// Request the contents of the peer meta store(s) related to
+    /// the given dna hashes for the agent at the given Url.
+    ///
+    /// If `dna_hashes` is set to `None` it returns the contents
+    /// for all dnas that the agent is part of.
+    pub async fn agent_meta_info(
+        &self,
+        url: Url,
+        dna_hashes: Option<Vec<DnaHash>>,
+    ) -> ConductorApiResult<BTreeMap<DnaHash, BTreeMap<String, AgentMetaInfo>>> {
+        let msg = AdminRequest::AgentMetaInfo { url, dna_hashes };
+        let response = self.send(msg).await?;
+        match response {
+            AdminResponse::AgentMetaInfo(info) => Ok(info),
             _ => unreachable!("Unexpected response {:?}", response),
         }
     }

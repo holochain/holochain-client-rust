@@ -6,7 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - `AppWebsocket::AgentInfo` call for apps to be able to list the discovered agents in their various DNAs.
-- 
+- Add `agent_meta_info()` call to the `AdminWebsocket` and `AppWebsocket` to retrieve data from the peer meta store for 
+  a given agent by their Url.
+
 ### Changed
 - Updated to Holochain 0.5.3.
 
