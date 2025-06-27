@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## \[Unreleased\]
 
 ### Added
+- `AppWebsocket::AgentInfo` call for apps to be able to list the discovered agents in their various DNAs.
+- 
 ### Changed
 - Updated to Holochain 0.5.3.
 
