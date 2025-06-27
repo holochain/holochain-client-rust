@@ -11,3 +11,4 @@ name = "test_wasm_foo"
 [dependencies]
 hdk = "0.5.0-dev.20"
 serde = "1.0.193"
+holochain_serialized_bytes = "*"
