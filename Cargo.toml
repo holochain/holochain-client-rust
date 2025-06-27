@@ -42,11 +42,11 @@ holochain_nonce = "0.5.0"
 holochain_types = "0.5.0"
 holochain_websocket = "0.5.0"
 holochain_zome_types = "0.5.0"
-kitsune2_api = "0.1.0"
-lair_keystore_api = { version = "0.6.1", optional = true }
+kitsune2_api = "0.1.9"
+lair_keystore_api = { version = "0.6.2", optional = true }
 parking_lot = "0.12.1"
 rand = { version = "0.8" }
-serde = "1.0.193"
+serde = "1.0"
 thiserror = "2.0"
 tokio = { version = "1.36", features = ["rt"] }
 
@@ -54,8 +54,8 @@ tokio = { version = "1.36", features = ["rt"] }
 bytes = "1.10.1"
 fixt = "0.5.0"
 futures = "0.3.31"
-holochain = { version = "0.5.0", features = ["test_utils"] }
-kitsune2_core = "0.1.0"
+holochain = { version = "0.5.3", features = ["test_utils"] }
+kitsune2_core = "0.1.9"
 serde_yaml = "0.9"
 
 [features]

@@ -17,15 +17,17 @@
               inputs'.holonix.packages.hc
               inputs'.holonix.packages.rust
             ] ++ (pkgs.lib.optionals pkgs.stdenv.isLinux [
-              pkgs.libclang
-              pkgs.pkg-config
-              pkgs.rustPlatform.bindgenHook
+                pkgs.perl
+                pkgs.cmake
+                pkgs.clang
+                pkgs.llvmPackages_18.libunwind
             ]) ++ (pkgs.lib.optionals pkgs.stdenv.isDarwin [
               pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
               pkgs.bzip2
             ]);
 
-            LIBCLANG_PATH = "${pkgs.libclang.lib}/lib";
+            LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:${pkgs.stdenv.cc.cc.lib}/lib";
+            LIBCLANG_PATH = "${pkgs.llvmPackages_18.libclang.lib}/lib";
           };
         };
     };
