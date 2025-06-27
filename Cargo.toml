@@ -57,6 +57,7 @@ futures = "0.3.31"
 holochain = { version = "0.5.3", features = ["test_utils"] }
 kitsune2_core = "0.1.9"
 serde_yaml = "0.9"
+kitsune2_test_utils = "0.1.9"
 
 [features]
 default = ["lair_signing"]

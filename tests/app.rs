@@ -1,3 +1,5 @@
+use crate::common::make_agent;
+use holo_hash::DnaHash;
 use holochain::{
     prelude::{AppBundleSource, Signal},
     sweettest::SweetConductor,
@@ -13,6 +15,8 @@ use holochain_types::{
 };
 use holochain_websocket::ConnectRequest;
 use holochain_zome_types::dependencies::holochain_integrity_types::ExternIO;
+use kitsune2_api::AgentInfoSigned;
+use kitsune2_core::Ed25519Verifier;
 use serde::{Deserialize, Serialize};
 use std::net::{Ipv4Addr, SocketAddr};
 use std::{
@@ -20,6 +24,8 @@ use std::{
     path::PathBuf,
     sync::{Arc, Barrier},
 };
+
+mod common;
 
 #[tokio::test(flavor = "multi_thread")]
 async fn handle_signal() {
@@ -482,4 +488,65 @@ async fn dump_network_metrics() {
     let metrics = app_ws.dump_network_metrics(None, true).await.unwrap();
 
     assert_eq!(1, metrics.len());
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn agent_info() {
+    let conductor = SweetConductor::from_standard_config().await;
+    let admin_port = conductor.get_arbitrary_admin_websocket_port().unwrap();
+    let admin_ws = AdminWebsocket::connect(format!("127.0.0.1:{}", admin_port))
+        .await
+        .unwrap();
+
+    let app_id: InstalledAppId = "test-app".into();
+    admin_ws
+        .install_app(InstallAppPayload {
+            agent_key: None,
+            installed_app_id: Some(app_id.clone()),
+            roles_settings: None,
+            network_seed: None,
+            source: AppBundleSource::Path(PathBuf::from("./fixture/test.happ")),
+            ignore_genesis_failure: false,
+            allow_throwaway_random_agent_key: false,
+        })
+        .await
+        .unwrap();
+    admin_ws.enable_app(app_id.clone()).await.unwrap();
+
+    // Connect app client
+    let app_ws_port = admin_ws
+        .attach_app_interface(0, AllowedOrigins::Any, None)
+        .await
+        .unwrap();
+    let token_issued = admin_ws
+        .issue_app_auth_token(app_id.clone().into())
+        .await
+        .unwrap();
+    let signer = ClientAgentSigner::default().into();
+    let app_ws = AppWebsocket::connect(
+        (Ipv4Addr::LOCALHOST, app_ws_port),
+        token_issued.token,
+        signer,
+    )
+    .await
+    .unwrap();
+
+    let agent_infos = app_ws.agent_info(None).await.unwrap();
+    assert_eq!(agent_infos.len(), 1);
+
+    let space = AgentInfoSigned::decode(&Ed25519Verifier, agent_infos[0].as_bytes())
+        .unwrap()
+        .space
+        .clone();
+
+    let other_agent = make_agent(&space);
+
+    admin_ws
+        .add_agent_info(vec![other_agent.clone()])
+        .await
+        .unwrap();
+    let dna = DnaHash::from_k2_space(&space);
+    let agent_infos = app_ws.agent_info(Some(vec![dna])).await.unwrap();
+    assert_eq!(agent_infos.len(), 2);
+    assert!(agent_infos.contains(&other_agent));
 }

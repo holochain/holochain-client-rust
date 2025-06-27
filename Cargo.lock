@@ -2391,6 +2391,7 @@ dependencies = [
  "holochain_zome_types",
  "kitsune2_api",
  "kitsune2_core",
+ "kitsune2_test_utils",
  "lair_keystore_api",
  "parking_lot",
  "rand 0.8.5",
@@ -3743,6 +3744,22 @@ dependencies = [
  "thiserror 2.0.12",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "kitsune2_test_utils"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "69d259e0fbd9f7b92d0d050c93a2bbd1650faa25e9cdfa33bab2aae7d0e5fb55"
+dependencies = [
+ "axum",
+ "bytes",
+ "futures",
+ "kitsune2_api",
+ "rand 0.8.5",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
 ]
 
 [[package]]
